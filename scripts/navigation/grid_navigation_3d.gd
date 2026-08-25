@@ -3,6 +3,13 @@ extends Node
 
 signal navigation_changed(revision: int)
 
+const CARDINAL_OFFSETS: Array[Vector2i] = [
+	Vector2i.LEFT,
+	Vector2i.RIGHT,
+	Vector2i.UP,
+	Vector2i.DOWN,
+]
+
 @export var world_origin := Vector2(-30.0, -20.0)
 @export var grid_size := Vector2i(30, 20)
 @export var cell_size_meters: float = 2.0
@@ -80,6 +87,34 @@ func is_cell_blocked(cell: Vector2i) -> bool:
 func is_world_position_blocked(position: Vector3) -> bool:
 	return is_cell_blocked(world_to_cell(position))
 
+func get_blocked_cells_in_radius(position: Vector3, radius_meters: float) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	var center_cell := world_to_cell(position)
+	var cell_radius := ceili(radius_meters / cell_size_meters)
+	for y in range(center_cell.y - cell_radius, center_cell.y + cell_radius + 1):
+		for x in range(center_cell.x - cell_radius, center_cell.x + cell_radius + 1):
+			var cell := Vector2i(x, y)
+			if not _grid.region.has_point(cell) or not _grid.is_point_solid(cell):
+				continue
+			var cell_position := cell_to_world(cell, position.y)
+			if _planar_distance(cell_position, position) <= radius_meters:
+				result.append(cell)
+	return result
+
+func get_cardinal_neighbors(cell: Vector2i) -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for offset in CARDINAL_OFFSETS:
+		var neighbor: Vector2i = cell + offset
+		if _grid.region.has_point(neighbor):
+			result.append(neighbor)
+	return result
+
+func get_world_path_length(path: PackedVector3Array) -> float:
+	var length := 0.0
+	for index in range(1, path.size()):
+		length += _planar_distance(path[index - 1], path[index])
+	return length
+
 static func find_in_tree(node: Node) -> GameGridNavigation3D:
 	if node == null or node.get_tree() == null:
 		return null
@@ -148,3 +183,8 @@ func _nearest_open_cell(origin: Vector2i) -> Vector2i:
 func _bump_revision() -> void:
 	revision += 1
 	navigation_changed.emit(revision)
+
+func _planar_distance(first: Vector3, second: Vector3) -> float:
+	var delta := first - second
+	delta.y = 0.0
+	return delta.length()
