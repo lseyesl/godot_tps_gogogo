@@ -1,0 +1,68 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://scripts/weapons/hitscan_weapon.gd" id="3_weapon"]
+[ext_resource type="Resource" path="res://resources/weapons/standard_pistol.tres" id="4_definition"]
+[ext_resource type="Script" path="res://scripts/weapons/aim_line_3d.gd" id="5_aim_line"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="Material_player"]
+albedo_color = Color(0.18, 0.78, 0.68, 1)
+metallic = 0.05
+roughness = 0.65
+
+[sub_resource type="BoxMesh" id="BoxMesh_weapon"]
+size = Vector3(0.16, 0.16, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="Material_weapon"]
+albedo_color = Color(0.12, 0.14, 0.18, 1)
+metallic = 0.65
+roughness = 0.3
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("CapsuleShape_player")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_player")
+material_override = SubResource("Material_player")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 5.0
+
+[node name="WeaponPivot" type="Node3D" parent="."]
+position = Vector3(0.45, 1.05, -0.2)
+
+[node name="WeaponMesh" type="MeshInstance3D" parent="WeaponPivot"]
+position = Vector3(0, 0, -0.34)
+mesh = SubResource("BoxMesh_weapon")
+material_override = SubResource("Material_weapon")
+
+[node name="Muzzle" type="Marker3D" parent="WeaponPivot"]
+position = Vector3(0, 0, -0.75)
+
+[node name="StandardPistol" type="Marker3D" parent="WeaponPivot/Muzzle"]
+script = ExtResource("3_weapon")
+definition = ExtResource("4_definition")
+hit_mask = 10
+owner_body_path = NodePath("../../..")
+
+[node name="AimLine3D" type="Node3D" parent="."]
+script = ExtResource("5_aim_line")
+weapon_path = NodePath("../WeaponPivot/Muzzle/StandardPistol")
+player_path = NodePath("..")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/weapon_definition.gd" id="1_definition"]
+
+[resource]
+script = ExtResource("1_definition")
+display_name = "Standard Pistol"
+damage = 1.0
+range_meters = 16.0
+shot_interval_seconds = 0.45
+magazine_capacity = 6
+reload_seconds = 1.2
+automatic = false

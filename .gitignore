@@ -1,0 +1,19 @@
+# Godot generated files
+.godot/
+android/build/
+builds/
+exports/
+
+# Export credentials and local editor state
+export_credentials.cfg
+.editor/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Planning session selector/attestation internals
+.planning/
+.plan-attestation
