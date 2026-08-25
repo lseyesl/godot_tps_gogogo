@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://scripts/ui/objective_indicator.gd" id="23_indicator"]
 [ext_resource type="Script" path="res://scripts/world/content_spawner_3d.gd" id="24_spawner"]
 [ext_resource type="PackedScene" path="res://scenes/world/health_pack_3d.tscn" id="25_health_pack"]
+[ext_resource type="Script" path="res://scripts/world/world_visibility_3d.gd" id="26_visibility"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -77,6 +78,10 @@ script = ExtResource("12_cover_service")
 [node name="EnvironmentReactionHub" type="Node3D" parent="."]
 script = ExtResource("13_reaction_hub")
 
+[node name="WorldVisibility3D" type="Node" parent="."]
+script = ExtResource("26_visibility")
+player_path = NodePath("../Player")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
 
@@ -86,11 +91,11 @@ light_color = Color(0.93, 0.96, 1, 1)
 light_energy = 1.25
 shadow_enabled = true
 
-[node name="Floor" type="MeshInstance3D" parent="."]
+[node name="Floor" type="MeshInstance3D" parent="." groups=["static_visibility"]]
 mesh = SubResource("PlaneMesh_floor")
 material_override = SubResource("Material_floor")
 
-[node name="BrickWall" type="StaticBody3D" parent="." groups=["navigation_obstacles"]]
+[node name="BrickWall" type="StaticBody3D" parent="." groups=["navigation_obstacles", "static_visibility"]]
 position = Vector3(0, 0, -8)
 collision_layer = 2
 collision_mask = 1
@@ -343,6 +348,18 @@ text = "目标：前往任务点"
 [node name="EnemyCountLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
 unique_name_in_owner = true
 text = "剩余警卫：1"
+
+[node name="BlindEventLabel" type="Label" parent="HUD"]
+unique_name_in_owner = true
+visible = false
+offset_left = 590.0
+offset_top = 104.0
+offset_right = 690.0
+offset_bottom = 164.0
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 0.9)
+theme_override_font_sizes/font_size = 28
+text = "爆炸 ▲"
+horizontal_alignment = 1
 
 [node name="ActivationProgress" type="ProgressBar" parent="HUD"]
 unique_name_in_owner = true

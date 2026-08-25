@@ -17,6 +17,10 @@ extends Node3D
 @onready var _default_weapon_button: Button = %DefaultWeaponButton
 @onready var _special_weapon_button: Button = %SpecialWeaponButton
 @onready var _swap_weapon_button: Button = %SwapWeaponButton
+@onready var _blind_event_label: Label = %BlindEventLabel
+@onready var _world_visibility: GameWorldVisibility3D = $WorldVisibility3D
+
+var _blind_event_remaining := 0.0
 
 func _ready() -> void:
 	_player.health.health_changed.connect(_on_health_changed)
@@ -37,7 +41,12 @@ func _ready() -> void:
 	_on_mission_phase_changed(_mission.current_phase, _mission.current_phase)
 	_on_remaining_guards_changed(_mission.remaining_guards)
 	_guard.state_changed.connect(_on_guard_state_changed)
+	_world_visibility.blind_environment_event.connect(_on_blind_environment_event)
 	_on_guard_state_changed(_guard.current_state, _guard.current_state)
+
+func _process(delta: float) -> void:
+	_blind_event_remaining = maxf(0.0, _blind_event_remaining - delta)
+	_blind_event_label.visible = _blind_event_remaining > 0.0
 
 func _on_health_changed(current: float, maximum: float) -> void:
 	_health_label.text = "HP  %d / %d" % [int(current), int(maximum)]
@@ -137,3 +146,11 @@ func _on_new_game_pressed() -> void:
 
 func _on_guard_state_changed(_previous: int, current: int) -> void:
 	_guard_state_label.text = "GUARD  %s" % PistolGuard.GuardState.keys()[current]
+
+func _on_blind_environment_event(kind: StringName, direction: Vector2, duration: float) -> void:
+	_blind_event_remaining = duration
+	var angle := atan2(direction.x, -direction.y)
+	var arrows := ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
+	var index := wrapi(roundi(angle / (PI * 0.25)), 0, arrows.size())
+	_blind_event_label.text = "%s  %s" % ["爆炸" if kind == &"explosion" else "火焰", arrows[index]]
+	_blind_event_label.visible = true

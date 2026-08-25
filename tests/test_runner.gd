@@ -18,6 +18,7 @@ func _run() -> void:
 	await _test_cover_behavior()
 	await _test_environment_reactions()
 	await _test_main_scene()
+	await _test_aim_assist_and_blind_visibility()
 	await _test_mission_loop()
 	_expect(_mission_integration_completed, "mission integration test completes without runtime errors")
 	await _test_weapon_pickups_and_rocket()
@@ -464,6 +465,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	var instance := scene.instantiate()
 	root.add_child(instance)
 	await process_frame
+
 	await physics_frame
 	var debug_input := instance.get_node("DebugPlayerInput")
 	debug_input.set_process(false)
@@ -558,6 +560,77 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(guard_depleted[0], "rocket collision resolves factionless center explosion damage")
 	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "empty rocket launcher returns control to default pistol while projectile travels")
 	_weapon_integration_completed = true
+	instance.queue_free()
+	await process_frame
+
+func _test_aim_assist_and_blind_visibility() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await physics_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	_disable_all_guards(instance)
+	var player := instance.get_node("Player") as PlayerCharacter
+	player.set_physics_process(false)
+	player.global_position = Vector3(0.0, 0.0, 5.0)
+	player.rotation = Vector3.ZERO
+	var guards := _nodes_in_group_under(instance, &"guards")
+	var primary := guards[0] as PistolGuard
+	var secondary := guards[1] as PistolGuard
+	for node in guards:
+		(node as PistolGuard).global_position = Vector3(30.0, 0.0, 30.0)
+	primary.global_position = Vector3(0.6, 0.0, 0.0)
+	secondary.global_position = Vector3(1.2, 0.0, 0.0)
+	var raw := Vector3(0.0, 0.0, -1.0)
+	var assisted := player.aim_assist.resolve_direction(raw)
+	_expect(player.aim_assist.last_target == primary, "aim assist selects the guard closest to the raw aim line")
+	_expect(raw.angle_to(assisted) > 0.0, "aim assist makes a small correction toward an eligible guard")
+	_expect(raw.angle_to(assisted) <= deg_to_rad(player.aim_assist.maximum_correction_degrees) + 0.0001, "aim assist correction remains capped")
+	var ammo_before := player.weapon.ammo_in_magazine
+	player.aim_assist.resolve_direction(raw)
+	_expect(player.weapon.ammo_in_magazine == ammo_before, "aim assist never fires automatically")
+
+	primary.global_position = Vector3(0.0, 0.0, 10.0)
+	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind the player")
+	primary.global_position = Vector3(0.0, 0.0, -13.0)
+	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard beyond the shared sixteen meter range")
+	primary.global_position = Vector3(0.0, 0.0, -10.0)
+	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind an intact wall")
+
+	var visibility := instance.get_node("WorldVisibility3D") as GameWorldVisibility3D
+	var wall := instance.get_node("WoodWallD") as DamageableWall
+	player.rotation = Vector3(0.0, PI, 0.0)
+	visibility.update_visibility_now()
+	var wall_mesh := wall.get_node("MeshInstance3D") as MeshInstance3D
+	var blind_material := wall_mesh.material_override as StandardMaterial3D
+	_expect(wall.visible and blind_material.albedo_color.get_luminance() < 0.2, "blind static wall remains present with a dark desaturated material")
+
+	primary.global_position = Vector3(3.0, 0.0, -1.0)
+	primary.exposure_remaining = 0.0
+	primary.call("_update_player_visibility")
+	_expect(not primary.visual_root.visible, "blind dynamic guard remains hidden")
+	var feedback_count := [0]
+	visibility.blind_environment_event.connect(func(_kind: StringName, _direction: Vector2, _duration: float) -> void:
+		feedback_count[0] += 1
+	)
+	_expect(visibility.report_environment_event(&"explosion", Vector3(5.0, 1.0, 5.0)), "blind explosion creates indirect feedback")
+	_expect(feedback_count[0] == 1 and visibility.feedback_remaining > 0.0, "blind environment feedback is directional and time limited")
+	_expect(not primary.visual_root.visible, "blind environment feedback does not reveal a guard")
+	var oil := load("res://scenes/world/oil_barrel_wall.tscn").instantiate() as OilBarrelWall
+	oil.position = Vector3(5.0, 0.0, 5.0)
+	instance.add_child(oil)
+	await physics_frame
+	oil.apply_damage(oil.health.max_health, player)
+	_expect(oil.is_burning and not oil.fire_indicator.visible, "blind fire hides its exact flame effect")
+	_expect(feedback_count[0] == 2 and visibility.last_feedback_kind == &"fire", "blind fire emits only an indirect directional event")
+	player.rotation = Vector3.ZERO
+	oil.global_position = Vector3(0.0, 0.0, 0.0)
+	visibility.update_visibility_now()
+	_expect(oil.fire_indicator.visible, "fire restores its exact effect after entering effective vision")
+	_expect(not visibility.report_environment_event(&"explosion", Vector3(0.0, 1.0, -1.0)), "visible explosion does not create a blind-area marker")
 	instance.queue_free()
 	await process_frame
 

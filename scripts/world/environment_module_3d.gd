@@ -5,6 +5,7 @@ var environment_active := true
 
 func _ready() -> void:
 	add_to_group("environment_modules")
+	add_to_group("static_visibility")
 	add_to_group("explosion_targets")
 	add_to_group("navigation_obstacles")
 	var navigation := GameGridNavigation3D.find_in_tree(self)

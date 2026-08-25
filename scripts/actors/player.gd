@@ -29,6 +29,7 @@ var controls_enabled := true
 @onready var weapon: GameWeapon3D = default_weapon
 @onready var aim_line: AimLine3D = $AimLine3D
 @onready var vision: GameVisionSensor3D = $VisionSensor3D
+@onready var aim_assist: GameAimAssist3D = $AimAssist3D
 
 func _ready() -> void:
 	add_to_group("player")
@@ -142,7 +143,7 @@ func _update_aim_direction() -> void:
 	var desired := Vector3(_requested_aim.x, 0.0, _requested_aim.y).normalized()
 	if desired.length_squared() <= 0.0001:
 		return
-	aim_direction = desired
+	aim_direction = aim_assist.resolve_direction(desired) if aim_assist != null else desired
 	look_at(global_position + aim_direction, Vector3.UP)
 
 func _on_health_depleted(_source: Node) -> void:
