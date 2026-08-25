@@ -48,15 +48,59 @@ func _test_main_scene() -> void:
 	root.add_child(instance)
 	await process_frame
 	await physics_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
+	var guard := instance.get_node_or_null("PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
+	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
 	_expect(instance.get_tree().get_nodes_in_group("damageable_walls").size() == 4, "main scene contains four damageable wall modules")
 	_expect(instance.get_node_or_null("HUD/TouchControls") is GameTouchInputRouter, "main scene contains touch input router")
 	_expect(instance.get_node_or_null("HUD/TouchControls/MoveJoystick") is GameVirtualJoystick, "touch layout contains movement joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
-	if player != null:
+	if player != null and guard != null:
+		guard.set_physics_process(false)
+		player.global_position = Vector3(0.0, 0.0, 5.0)
+		player.set_aim_input(Vector2(0.0, -1.0), true)
+		guard.global_position = Vector3.ZERO
+		guard.rotation.y = PI
+		await physics_frame
+		_expect(player.vision.can_see(guard), "player vision sees guard inside 120 degree cone")
+		_expect(guard.vision.can_see(player), "guard vision uses symmetric range and angle")
+
+		guard.global_position = Vector3(10.0, 0.0, 5.0)
+		await physics_frame
+		_expect(not player.vision.can_see(guard), "player vision rejects target outside cone angle")
+
+		guard.global_position = Vector3(0.0, 0.0, -10.0)
+		await physics_frame
+		_expect(not player.vision.can_see(guard), "wall occludes target inside cone and range")
+
+		guard.global_position = Vector3.ZERO
+		guard.rotation.y = PI
+		guard.set_physics_process(true)
+		for _frame in 50:
+			await physics_frame
+		_expect(player.health.current_health < player.health.max_health, "guard warning ends in a damaging first shot")
+		_expect(guard.exposure_remaining > 0.0, "guard attack starts two second exposure")
+
+		guard.set_physics_process(false)
+		player.set_aim_input(Vector2(0.0, 1.0), true)
+		guard.call("_update_player_visibility")
+		_expect(guard.visual_root.visible, "attack exposure reveals guard outside player cone")
+
+		guard.global_position = Vector3(0.0, 0.0, -10.0)
+		guard.call("_update_player_visibility")
+		_expect(not guard.visual_root.visible, "attack exposure does not reveal through wall")
+		_expect(guard.last_position_marker.visible, "wall crossing leaves static last exposed marker")
+
+		guard.exposure_remaining = 0.0
+		guard.call("_update_player_visibility")
+		_expect(not guard.last_position_marker.visible, "last exposed marker expires with exposure")
+
 		var wall := instance.get_node("WoodWallD") as DamageableWall
 		player.global_position = Vector3(3.0, 0.0, 5.0)
 		player.set_aim_input(Vector2(0.0, -1.0), true)

@@ -13,6 +13,7 @@ var _requested_aim := Vector2(0.0, -1.0)
 @onready var health: HealthComponent = $HealthComponent
 @onready var weapon: HitscanWeapon = $WeaponPivot/Muzzle/StandardPistol
 @onready var aim_line: AimLine3D = $AimLine3D
+@onready var vision: GameVisionSensor3D = $VisionSensor3D
 
 func _ready() -> void:
 	add_to_group("player")

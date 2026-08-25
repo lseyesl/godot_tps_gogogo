@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/ui/virtual_joystick.gd" id="6_joystick"]
 [ext_resource type="Script" path="res://scripts/ui/fire_aim_button.gd" id="7_fire_button"]
 [ext_resource type="Script" path="res://scripts/ui/touch_input_router.gd" id="8_touch_router"]
+[ext_resource type="PackedScene" path="res://scenes/actors/pistol_guard.tscn" id="9_guard"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -90,6 +91,9 @@ position = Vector3(3, 0, -3)
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector3(0, 0, 5)
 
+[node name="PistolGuard" parent="." instance=ExtResource("9_guard")]
+rotation = Vector3(0, 3.14159, 0)
+
 [node name="Camera3D" type="Camera3D" parent="."]
 script = ExtResource("4_camera")
 target_path = NodePath("../Player")
@@ -130,6 +134,10 @@ text = "HP  5 / 5"
 [node name="AmmoLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
 unique_name_in_owner = true
 text = "STANDARD PISTOL  6 / 6  ·  ∞"
+
+[node name="GuardStateLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+unique_name_in_owner = true
+text = "GUARD  PATROL"
 
 [node name="Help" type="Label" parent="HUD"]
 offset_left = 24.0

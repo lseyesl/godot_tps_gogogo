@@ -4,6 +4,8 @@
 - 按已冻结的 `docs/design/GDD-MVP-v0.1.md` 开始实现游戏。
 - Godot 4 + Mobile 渲染器，Android 横屏优先。
 - 当前首要目标是可运行、可验证的核心垂直切片，而非一次性堆完全部 MVP 内容。
+- 用户要求提交已完成切片并继续；首次提交为 `b06c6ca`。
+- 当前继续范围是 120° 视野遮挡、手枪警卫感知和攻击暴露。
 
 ## 研究发现
 - 仓库已在 `main` 分支初始化 Git。
@@ -22,6 +24,10 @@
 | 场景基础模型使用 PrimitiveMesh | 无外部资产也能构成稳定自动测试场景 |
 | 射击用直接物理射线，瞄准线复用同一轨迹查询 | 确保视觉辅助与真实弹道一致 |
 | 木墙使用独立 HealthComponent | 为后续滚筒、敌人与玩家复用耐久边界 |
+| VisionSensor3D 同时服务玩家与警卫 | 实现 ADR-043 的对称视野，避免两套角度/距离算法漂移 |
+| 视野扇形用运行时采样射线构建网格 | 能在平面玩法中直接被砖墙和木墙裁切，且易于 headless 验证 |
+| 警卫可见性由玩家视野或攻击暴露共同决定 | 保留盲区隐藏，同时实现背后开火后的 2 秒反击窗口 |
+| 视野网格仅是传感器的表现层 | headless 可禁用渲染而不削弱角度、距离和遮挡测试 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -29,11 +35,15 @@
 | 用户说已添加 `.gitignore`，但文件不存在 | 本轮创建标准 Godot 忽略规则 |
 | 新项目第一次直接运行 `--check-only` 时全局脚本类尚未缓存 | 先执行一次 headless 编辑器导入，再运行语法检查 |
 | macOS 沙箱中 Godot 4.7 headless 启动主场景连续三次在日志目录/MoltenVK 路径崩溃 | 停止重复该命令；以 check-only、场景测试和后续 Android 真机验证覆盖，项目继续使用 Mobile |
+| ImmediateMesh 即使在 headless 场景测试中也会触发 macOS 图形路径 | GameVisionCone3D 在 headless 下只禁用绘制；共享感知算法照常运行和测试 |
 
 ## 资源
 - `docs/design/GDD-MVP-v0.1.md`
 - `docs/design/glossary.md`
 - `docs/design/decisions/`
+- `scripts/perception/vision_sensor_3d.gd`
+- `scripts/perception/vision_cone_3d.gd`
+- `scripts/actors/pistol_guard.gd`
 
 ## 视觉/浏览器发现
 - 本轮尚未进行视觉或浏览器检查。
