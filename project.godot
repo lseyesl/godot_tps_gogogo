@@ -8,6 +8,10 @@ config_version=5
 config/name="GoGoGo"
 run/main_scene="res://scenes/main/main.tscn"
 
+[autoload]
+
+GameRunState="*res://scripts/session/run_state.gd"
+
 [display]
 
 window/size/viewport_width=1280

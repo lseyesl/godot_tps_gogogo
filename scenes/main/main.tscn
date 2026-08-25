@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -23,6 +23,8 @@
 [ext_resource type="PackedScene" path="res://scenes/world/extraction_point_3d.tscn" id="21_extraction"]
 [ext_resource type="Script" path="res://scripts/mission/mission_controller.gd" id="22_mission"]
 [ext_resource type="Script" path="res://scripts/ui/objective_indicator.gd" id="23_indicator"]
+[ext_resource type="Script" path="res://scripts/world/content_spawner_3d.gd" id="24_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/world/health_pack_3d.tscn" id="25_health_pack"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -123,38 +125,170 @@ position = Vector3(-9, 0, 7)
 [node name="GasolineBarrelWall" parent="." instance=ExtResource("15_gasoline_barrel")]
 position = Vector3(-7, 0, 7)
 
-[node name="HeavyPistolPickup" parent="." instance=ExtResource("16_weapon_pickup")]
-position = Vector3(12, 0, 7)
-definition = ExtResource("17_heavy_pistol")
-
-[node name="MachineGunPickup" parent="." instance=ExtResource("16_weapon_pickup")]
-position = Vector3(15, 0, 7)
-definition = ExtResource("18_machine_gun")
-
-[node name="RocketLauncherPickup" parent="." instance=ExtResource("16_weapon_pickup")]
-position = Vector3(18, 0, 7)
-definition = ExtResource("19_rocket_launcher")
-
-[node name="BonusMachineGunPickup" parent="." instance=ExtResource("16_weapon_pickup")]
-position = Vector3(21, 0, 7)
-definition = ExtResource("18_machine_gun")
-
-[node name="ObjectivePoint" parent="." instance=ExtResource("20_objective")]
-position = Vector3(28, 0, -19)
-
 [node name="ExtractionPoint" parent="." instance=ExtResource("21_extraction")]
 position = Vector3(0, 0, 5)
+
+[node name="ContentCandidates" type="Node3D" parent="."]
+
+[node name="GuardCandidates" type="Node3D" parent="ContentCandidates"]
+
+[node name="Guard01" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-24, 0, -16)
+rotation_degrees = Vector3(0, 135, 0)
+
+[node name="Guard02" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-18, 0, -15)
+rotation_degrees = Vector3(0, 150, 0)
+
+[node name="Guard03" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-12, 0, -16)
+rotation_degrees = Vector3(0, 165, 0)
+
+[node name="Guard04" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(12, 0, -16)
+rotation_degrees = Vector3(0, -165, 0)
+
+[node name="Guard05" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(18, 0, -15)
+rotation_degrees = Vector3(0, -150, 0)
+
+[node name="Guard06" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(24, 0, -16)
+rotation_degrees = Vector3(0, -135, 0)
+
+[node name="Guard07" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-26, 0, -6)
+rotation_degrees = Vector3(0, 90, 0)
+
+[node name="Guard08" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(26, 0, -6)
+rotation_degrees = Vector3(0, -90, 0)
+
+[node name="Guard09" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-24, 0, 12)
+rotation_degrees = Vector3(0, 60, 0)
+
+[node name="Guard10" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-18, 0, 16)
+rotation_degrees = Vector3(0, 45, 0)
+
+[node name="Guard11" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-10, 0, 17)
+rotation_degrees = Vector3(0, 20, 0)
+
+[node name="Guard12" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(10, 0, 17)
+rotation_degrees = Vector3(0, -20, 0)
+
+[node name="Guard13" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(18, 0, 16)
+rotation_degrees = Vector3(0, -45, 0)
+
+[node name="Guard14" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(25, 0, 12)
+rotation_degrees = Vector3(0, -60, 0)
+
+[node name="Guard15" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(-27, 0, 2)
+rotation_degrees = Vector3(0, 80, 0)
+
+[node name="Guard16" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
+position = Vector3(27, 0, 2)
+rotation_degrees = Vector3(0, -80, 0)
+
+[node name="ObjectiveCandidates" type="Node3D" parent="ContentCandidates"]
+
+[node name="Objective01" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
+position = Vector3(28, 0, -19)
+
+[node name="Objective02" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
+position = Vector3(-28, 0, -19)
+
+[node name="Objective03" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
+position = Vector3(29, 0, -18)
+
+[node name="Objective04" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
+position = Vector3(-29, 0, -18)
+
+[node name="WeaponCandidates" type="Node3D" parent="ContentCandidates"]
+
+[node name="Weapon01" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(-20, 0, 8)
+
+[node name="Weapon02" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(-14, 0, 12)
+
+[node name="Weapon03" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(-8, 0, 14)
+
+[node name="Weapon04" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(8, 0, 14)
+
+[node name="Weapon05" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(14, 0, 12)
+
+[node name="Weapon06" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(20, 0, 8)
+
+[node name="Weapon07" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(-22, 0, -4)
+
+[node name="Weapon08" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(22, 0, -4)
+
+[node name="Weapon09" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(-16, 0, -12)
+
+[node name="Weapon10" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
+position = Vector3(16, 0, -12)
+
+[node name="HealthCandidates" type="Node3D" parent="ContentCandidates"]
+
+[node name="Health01" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(-22, 0, 14)
+
+[node name="Health02" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(-14, 0, 17)
+
+[node name="Health03" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(0, 0, 16)
+
+[node name="Health04" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(14, 0, 17)
+
+[node name="Health05" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(22, 0, 14)
+
+[node name="Health06" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(-24, 0, -10)
+
+[node name="Health07" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(0, 0, -14)
+
+[node name="Health08" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
+position = Vector3(24, 0, -10)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector3(0, 0, 5)
 
-[node name="PistolGuard" parent="." instance=ExtResource("9_guard")]
-rotation = Vector3(0, 3.14159, 0)
+[node name="ContentSpawner3D" type="Node3D" parent="."]
+script = ExtResource("24_spawner")
+guard_scene = ExtResource("9_guard")
+objective_scene = ExtResource("20_objective")
+weapon_pickup_scene = ExtResource("16_weapon_pickup")
+health_pack_scene = ExtResource("25_health_pack")
+heavy_pistol_definition = ExtResource("17_heavy_pistol")
+machine_gun_definition = ExtResource("18_machine_gun")
+rocket_launcher_definition = ExtResource("19_rocket_launcher")
+guard_candidates_path = NodePath("../ContentCandidates/GuardCandidates")
+objective_candidates_path = NodePath("../ContentCandidates/ObjectiveCandidates")
+weapon_candidates_path = NodePath("../ContentCandidates/WeaponCandidates")
+health_candidates_path = NodePath("../ContentCandidates/HealthCandidates")
 
 [node name="MissionController" type="Node" parent="."]
 script = ExtResource("22_mission")
 player_path = NodePath("../Player")
-objective_path = NodePath("../ObjectivePoint")
+objective_path = NodePath("../ContentSpawner3D/ObjectivePoint")
 extraction_path = NodePath("../ExtractionPoint")
 
 [node name="Camera3D" type="Camera3D" parent="."]
@@ -303,6 +437,23 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "用时  00:00\n击杀  0\n剩余生命  5\n撤离  完成"
 horizontal_alignment = 1
+
+[node name="Actions" type="HBoxContainer" parent="HUD/ResultPanel/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(150, 52)
+text = "重试本局"
+
+[node name="NewGameButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(150, 52)
+text = "新游戏"
 
 [node name="Help" type="Label" parent="HUD"]
 offset_left = 24.0

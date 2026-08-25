@@ -8,6 +8,8 @@ signal collected(pickup: GameWeaponPickup3D, player: PlayerCharacter)
 @export var stored_reserve: int = -1
 @export var rotate_speed: float = 1.1
 
+var _player: PlayerCharacter
+
 @onready var visual: MeshInstance3D = $Visual
 @onready var label: Label3D = $Label3D
 
@@ -18,9 +20,14 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 	label.text = definition.display_name
 	_apply_visual_style()
+	_resolve_player()
 
 func _process(delta: float) -> void:
 	visual.rotate_y(rotate_speed * delta)
+	if _player == null or not is_instance_valid(_player):
+		_resolve_player()
+	if _player != null and _player.vision != null:
+		visible = _player.vision.can_see(self)
 
 func collect_for_player(player: PlayerCharacter, confirmed: bool = false) -> bool:
 	if player == null or not is_instance_valid(player):
@@ -85,3 +92,6 @@ func _apply_visual_style() -> void:
 		_:
 			material.albedo_color = Color(0.65, 0.68, 0.72, 1)
 	visual.material_override = material
+
+func _resolve_player() -> void:
+	_player = get_tree().get_first_node_in_group("player") as PlayerCharacter

@@ -3,6 +3,7 @@ extends SceneTree
 var _failures: Array[String] = []
 var _weapon_integration_completed := false
 var _mission_integration_completed := false
+var _layout_integration_completed := false
 
 func _init() -> void:
 	call_deferred("_run")
@@ -11,6 +12,8 @@ func _run() -> void:
 	_test_weapon_definition()
 	await _test_weapon_runtime()
 	_test_health_component()
+	await _test_random_layout_and_health()
+	_expect(_layout_integration_completed, "random layout integration test completes without runtime errors")
 	await _test_navigation_grid()
 	await _test_cover_behavior()
 	await _test_environment_reactions()
@@ -95,6 +98,103 @@ func _test_health_component() -> void:
 	_expect(is_equal_approx(health.current_health, 3.0), "health returns to maximum")
 	health.queue_free()
 
+func _test_random_layout_and_health() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var run_state := root.get_node("GameRunState")
+	run_state.call("begin_new_game_with_seed", 1357911)
+	var first_instance := scene.instantiate()
+	root.add_child(first_instance)
+	await process_frame
+	await physics_frame
+	var first_input := first_instance.get_node("DebugPlayerInput")
+	first_input.set_process(false)
+	first_input.set_process_unhandled_input(false)
+	_disable_all_guards(first_instance)
+	var player := first_instance.get_node("Player") as PlayerCharacter
+	player.set_physics_process(false)
+	var spawner := first_instance.get_node("ContentSpawner3D") as GameContentSpawner3D
+	var first_signature: Dictionary = spawner.layout_signature.duplicate(true)
+	var guards := _nodes_in_group_under(first_instance, &"guards")
+	var weapons := _nodes_in_group_under(first_instance, &"weapon_pickups")
+	var health_packs := _nodes_in_group_under(first_instance, &"health_pickups")
+	var objective := first_instance.get_node("ContentSpawner3D/ObjectivePoint") as GameObjectivePoint3D
+	var extraction := first_instance.get_node("ExtractionPoint") as GameExtractionPoint3D
+	_expect(spawner.layout_seed == 1357911, "content spawner consumes active run seed")
+	_expect(guards.size() >= 8 and guards.size() <= 12, "seeded layout preplaces eight to twelve guards")
+	_expect(weapons.size() == 4, "seeded layout creates exactly four special weapons")
+	_expect(health_packs.size() == 2, "seeded layout creates exactly two health packs")
+	_expect(objective.global_position.distance_to(extraction.global_position) >= 36.0, "seeded objective candidate remains at least eighteen modules from spawn")
+
+	var guard_candidates := first_instance.get_node("ContentCandidates/GuardCandidates")
+	var no_guard_starts_visible := true
+	for node in guards:
+		var guard := node as PistolGuard
+		if not _position_is_candidate(guard, guard_candidates) or player.vision.can_see(guard):
+			no_guard_starts_visible = false
+	_expect(no_guard_starts_visible, "all guards use validated candidates outside spawn direct vision")
+	_expect(_position_is_candidate(objective, first_instance.get_node("ContentCandidates/ObjectiveCandidates")), "objective uses authored candidate position")
+
+	var weapon_counts := {
+		&"heavy_pistol": 0,
+		&"machine_gun": 0,
+		&"rocket_launcher": 0,
+	}
+	var all_weapons_on_candidates := true
+	for node in weapons:
+		var pickup := node as GameWeaponPickup3D
+		weapon_counts[pickup.definition.weapon_id] += 1
+		all_weapons_on_candidates = all_weapons_on_candidates and _position_is_candidate(
+			pickup,
+			first_instance.get_node("ContentCandidates/WeaponCandidates")
+		)
+		pickup.call("_process", 0.0)
+		_expect(pickup.visible == player.vision.can_see(pickup), "weapon pickup visibility follows player cone and wall occlusion")
+	_expect(weapon_counts[&"heavy_pistol"] >= 1, "weapon budget guarantees heavy pistol")
+	_expect(weapon_counts[&"machine_gun"] >= 1, "weapon budget guarantees machine gun")
+	_expect(weapon_counts[&"rocket_launcher"] >= 1, "weapon budget guarantees rocket launcher")
+	_expect(all_weapons_on_candidates, "all weapons use authored candidate positions")
+
+	var health_candidates := first_instance.get_node("ContentCandidates/HealthCandidates")
+	for node in health_packs:
+		var candidate_pack := node as GameHealthPack3D
+		_expect(_position_is_candidate(candidate_pack, health_candidates), "health pack uses authored candidate position")
+		candidate_pack.call("_process", 0.0)
+		_expect(candidate_pack.get_node("VisualRoot").visible == player.vision.can_see(candidate_pack), "health pack visibility follows player cone and wall occlusion")
+	var health_pack := health_packs[0] as GameHealthPack3D
+	_expect(not health_pack.collect_for_player(player), "full-health player does not consume health pack")
+	_expect(not health_pack.is_queued_for_deletion(), "unused full-health pack remains in world")
+	player.apply_damage(3.0)
+	_expect(health_pack.collect_for_player(player), "injured player automatically consumes health pack")
+	_expect(is_equal_approx(player.health.current_health, 4.0), "health pack restores two points without exceeding maximum")
+
+	first_instance.queue_free()
+	await process_frame
+	_expect(int(run_state.call("retry_current_game")) == 1357911, "retry retains active run seed")
+	var retry_instance := scene.instantiate()
+	root.add_child(retry_instance)
+	await process_frame
+	await physics_frame
+	var retry_signature: Dictionary = (retry_instance.get_node("ContentSpawner3D") as GameContentSpawner3D).layout_signature.duplicate(true)
+	_expect(retry_signature == first_signature, "retry seed reconstructs identical guards, objective, weapons and health layout")
+	_expect(_nodes_in_group_under(retry_instance, &"health_pickups").size() == 2, "retry restores consumed health packs")
+	_expect(is_equal_approx((retry_instance.get_node("Player") as PlayerCharacter).health.current_health, 5.0), "retry restores player health to initial state")
+	retry_instance.queue_free()
+	await process_frame
+
+	run_state.call("begin_new_game_with_seed", 2468022)
+	var new_game_instance := scene.instantiate()
+	root.add_child(new_game_instance)
+	await process_frame
+	await physics_frame
+	var new_signature: Dictionary = (new_game_instance.get_node("ContentSpawner3D") as GameContentSpawner3D).layout_signature.duplicate(true)
+	_expect(new_signature != first_signature, "new game seed creates a different content layout")
+	_expect(new_game_instance.get_node_or_null("HUD/ResultPanel/Margin/Rows/Actions/RetryButton") is Button, "failure result provides retry action")
+	_expect(new_game_instance.get_node_or_null("HUD/ResultPanel/Margin/Rows/Actions/NewGameButton") is Button, "result provides new-game action")
+	_layout_integration_completed = true
+	new_game_instance.queue_free()
+	await process_frame
+	run_state.call("begin_new_game_with_seed", 97531)
+
 func _test_navigation_grid() -> void:
 	var scene := load("res://scenes/main/main.tscn") as PackedScene
 	var instance := scene.instantiate()
@@ -104,8 +204,8 @@ func _test_navigation_grid() -> void:
 	var debug_input := instance.get_node("DebugPlayerInput")
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
-	var guard := instance.get_node("PistolGuard") as PistolGuard
-	guard.set_physics_process(false)
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
+	_disable_all_guards(instance)
 	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
 	var wall := instance.get_node("WoodWallD") as DamageableWall
 	_expect(navigation != null, "main scene contains 2D grid navigation")
@@ -140,9 +240,9 @@ func _test_cover_behavior() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node("Player") as PlayerCharacter
-	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
 	var cover_service := instance.get_node("CoverService3D") as GameCoverService3D
-	guard.set_physics_process(false)
+	_disable_all_guards(instance)
 	player.set_physics_process(false)
 	player.global_position = Vector3(0.0, 0.0, 5.0)
 	guard.global_position = Vector3.ZERO
@@ -203,13 +303,13 @@ func _test_environment_reactions() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node("Player") as PlayerCharacter
-	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
 	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
 	var reaction_hub := instance.get_node("EnvironmentReactionHub") as GameEnvironmentReactionHub
 	var oil := instance.get_node("OilBarrelWall") as OilBarrelWall
 	var burnable_wood := instance.get_node("BurnableWoodWall") as DamageableWall
 	var gasoline := instance.get_node("GasolineBarrelWall") as GasolineBarrelWall
-	guard.set_physics_process(false)
+	_disable_all_guards(instance)
 	player.set_physics_process(false)
 	_expect(is_equal_approx(oil.health.max_health, 4.0), "oil barrel durability is four")
 	_expect(is_equal_approx(gasoline.health.max_health, 3.0), "gasoline barrel durability is three")
@@ -292,7 +392,7 @@ func _test_main_scene() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
-	var guard := instance.get_node_or_null("PistolGuard") as PistolGuard
+	var guard := instance.get_node_or_null("ContentSpawner3D/PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
@@ -300,7 +400,7 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
-	_expect(instance.get_node_or_null("ObjectivePoint") is GameObjectivePoint3D, "main scene contains remote objective point")
+	_expect(instance.get_node_or_null("ContentSpawner3D/ObjectivePoint") is GameObjectivePoint3D, "main scene contains remote objective point")
 	_expect(instance.get_node_or_null("ExtractionPoint") is GameExtractionPoint3D, "main scene contains spawn extraction point")
 	_expect(instance.get_node_or_null("MissionController") is GameMissionController, "main scene contains mission controller")
 	_expect(instance.get_node_or_null("HUD/ObjectiveIndicator") is GameObjectiveIndicator, "HUD contains edge objective indicator")
@@ -309,7 +409,7 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
 	if player != null and guard != null:
-		guard.set_physics_process(false)
+		_disable_all_guards(instance)
 		player.global_position = Vector3(0.0, 0.0, 5.0)
 		player.set_aim_input(Vector2(0.0, -1.0), true)
 		guard.global_position = Vector3.ZERO
@@ -334,7 +434,7 @@ func _test_main_scene() -> void:
 		_expect(player.health.current_health < player.health.max_health, "guard warning ends in a damaging first shot")
 		_expect(guard.exposure_remaining > 0.0, "guard attack starts two second exposure")
 
-		guard.set_physics_process(false)
+		_disable_all_guards(instance)
 		player.set_aim_input(Vector2(0.0, 1.0), true)
 		guard.call("_update_player_visibility")
 		_expect(guard.visual_root.visible, "attack exposure reveals guard outside player cone")
@@ -369,8 +469,8 @@ func _test_weapon_pickups_and_rocket() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node("Player") as PlayerCharacter
-	var guard := instance.get_node("PistolGuard") as PistolGuard
-	guard.set_physics_process(false)
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
+	_disable_all_guards(instance)
 	player.set_physics_process(false)
 	var pickup_nodes := instance.get_tree().get_nodes_in_group("weapon_pickups")
 	_expect(pickup_nodes.size() == 4, "main scene contains four special weapon pickups")
@@ -378,13 +478,13 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(instance.get_node_or_null("HUD/WeaponButtons/SpecialWeaponButton") is Button, "HUD contains special weapon switch button")
 	_expect(instance.get_node_or_null("HUD/SwapWeaponButton") is Button, "HUD contains contextual weapon swap button")
 
-	var heavy_pickup := instance.get_node("HeavyPistolPickup") as GameWeaponPickup3D
+	var heavy_pickup := instance.get_node("ContentSpawner3D/HeavyPistolPickup") as GameWeaponPickup3D
 	_expect(heavy_pickup.collect_for_player(player), "empty special slot automatically collects weapon pickup")
 	_expect(player.special_weapon != null and player.special_weapon.definition.weapon_id == &"heavy_pistol", "automatic pickup equips heavy pistol in special slot")
 	_expect(player.default_weapon != null and player.default_weapon.definition.weapon_id == &"standard_pistol", "special pickup permanently preserves standard pistol")
 	player.special_weapon.set_ammo_state(4, 7)
 
-	var machine_pickup := instance.get_node("MachineGunPickup") as GameWeaponPickup3D
+	var machine_pickup := instance.get_node("ContentSpawner3D/MachineGunPickup") as GameWeaponPickup3D
 	_expect(not machine_pickup.collect_for_player(player), "different special weapon requires explicit confirmation")
 	_expect((instance.get_node("HUD/SwapWeaponButton") as Button).visible, "different pickup exposes temporary swap button")
 	_expect(player.confirm_weapon_swap(), "player can confirm offered special weapon exchange")
@@ -408,11 +508,13 @@ func _test_weapon_pickups_and_rocket() -> void:
 		_expect(preserved_drop.stored_magazine == 4 and preserved_drop.stored_reserve == 7, "dropped weapon preserves magazine and reserve state")
 
 	player.special_weapon.set_ammo_state(12, 10)
-	var bonus_pickup := instance.get_node("BonusMachineGunPickup") as GameWeaponPickup3D
+	var refill_pickup_scene := load("res://scenes/world/weapon_pickup_3d.tscn") as PackedScene
+	var bonus_pickup := refill_pickup_scene.instantiate() as GameWeaponPickup3D
+	bonus_pickup.definition = load("res://resources/weapons/machine_gun.tres") as WeaponDefinition
+	instance.add_child(bonus_pickup)
 	_expect(bonus_pickup.collect_for_player(player), "same-type pickup automatically replenishes reserve")
 	_expect(player.special_weapon.reserve_ammo == 58, "same-type pickup adds its configured reserve ammunition")
-	var full_pickup_scene := load("res://scenes/world/weapon_pickup_3d.tscn") as PackedScene
-	var full_pickup := full_pickup_scene.instantiate() as GameWeaponPickup3D
+	var full_pickup := refill_pickup_scene.instantiate() as GameWeaponPickup3D
 	full_pickup.definition = load("res://resources/weapons/machine_gun.tres") as WeaponDefinition
 	full_pickup.stored_reserve = 12
 	instance.add_child(full_pickup)
@@ -469,11 +571,11 @@ func _test_mission_loop() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node("Player") as PlayerCharacter
-	var guard := instance.get_node("PistolGuard") as PistolGuard
-	var objective := instance.get_node("ObjectivePoint") as GameObjectivePoint3D
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
+	var objective := instance.get_node("ContentSpawner3D/ObjectivePoint") as GameObjectivePoint3D
 	var extraction := instance.get_node("ExtractionPoint") as GameExtractionPoint3D
 	var mission := instance.get_node("MissionController") as GameMissionController
-	guard.set_physics_process(false)
+	_disable_all_guards(instance)
 	player.set_physics_process(false)
 	_expect(mission.current_phase == GameMissionController.MissionPhase.INFILTRATION, "mission starts in objective infiltration phase")
 	_expect(not extraction.extraction_enabled, "spawn extraction is disabled before objective activation")
@@ -485,8 +587,9 @@ func _test_mission_loop() -> void:
 	var objective_indicator := instance.get_node("HUD/ObjectiveIndicator") as GameObjectiveIndicator
 	objective_indicator.call("_process", 0.0)
 	_expect((objective_indicator.get_node("Marker/Status") as Label).text == "任务 · 远", "edge indicator labels remote mission target")
-	_expect(mission.remaining_guards == 1, "mission tracks initial remaining guard count")
-	_expect((instance.get_node("HUD/StatusPanel/Margin/Rows/EnemyCountLabel") as Label).text == "剩余警卫：1", "HUD displays remaining enemy count as threat reference")
+	var initial_guard_count := mission.remaining_guards
+	_expect(initial_guard_count >= 8 and initial_guard_count <= 12, "mission tracks randomized eight-to-twelve guard budget")
+	_expect((instance.get_node("HUD/StatusPanel/Margin/Rows/EnemyCountLabel") as Label).text == "剩余警卫：%d" % initial_guard_count, "HUD displays randomized remaining enemy count as threat reference")
 
 	player.global_position = objective.global_position
 	await physics_frame
@@ -509,6 +612,11 @@ func _test_mission_loop() -> void:
 	_expect(extraction.extraction_enabled, "objective activation enables spawn extraction")
 	_expect(mission.get_current_target() == extraction, "objective indicator switches to spawn extraction")
 	_expect(guard.current_state == PistolGuard.GuardState.INVESTIGATE, "objective alarm sends surviving guard to investigate")
+	var every_guard_alerted := true
+	for node in instance.get_tree().get_nodes_in_group("guards"):
+		if instance.is_ancestor_of(node) and (node as PistolGuard).current_state != PistolGuard.GuardState.INVESTIGATE:
+			every_guard_alerted = false
+	_expect(every_guard_alerted, "objective alarm alerts every surviving preplaced guard")
 	var guard_alarm_target: Vector3 = guard.get("_last_known_player_position")
 	_expect(guard_alarm_target.is_equal_approx(objective.global_position), "global alarm reveals only objective position to guard")
 	player.global_position += Vector3(4.0, 0.0, 0.0)
@@ -518,7 +626,7 @@ func _test_mission_loop() -> void:
 	player.global_position = extraction.global_position
 	extraction.call("_on_body_entered", player)
 	_expect(mission.current_phase == GameMissionController.MissionPhase.WON, "entering enabled spawn extraction wins immediately")
-	_expect(mission.remaining_guards == 1, "mission can be won without eliminating final guard")
+	_expect(mission.remaining_guards == initial_guard_count, "mission can be won without eliminating any remaining guards")
 	_expect(not player.controls_enabled and not player.request_fire(), "successful extraction disables further player control and firing")
 	_expect((instance.get_node("HUD/ResultPanel") as PanelContainer).visible, "successful extraction opens result summary")
 	_expect((instance.get_node("HUD/ResultPanel/Margin/Rows/ResultTitle") as Label).text == "撤离成功", "result summary reports successful extraction")
@@ -533,12 +641,13 @@ func _test_mission_loop() -> void:
 	failure_input.set_process(false)
 	failure_input.set_process_unhandled_input(false)
 	var failure_player := failure_instance.get_node("Player") as PlayerCharacter
-	var failure_guard := failure_instance.get_node("PistolGuard") as PistolGuard
+	var failure_guard := failure_instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
 	var failure_mission := failure_instance.get_node("MissionController") as GameMissionController
-	failure_guard.set_physics_process(false)
+	_disable_all_guards(failure_instance)
 	failure_player.set_physics_process(false)
+	var failure_initial_guards := failure_mission.remaining_guards
 	failure_guard.apply_damage(failure_guard.health.max_health, failure_player)
-	_expect(failure_mission.remaining_guards == 0 and failure_mission.kills == 1, "guard death immediately updates remaining count and kill statistic")
+	_expect(failure_mission.remaining_guards == failure_initial_guards - 1 and failure_mission.kills == 1, "guard death immediately updates remaining count and kill statistic")
 	failure_player.apply_damage(failure_player.health.max_health, failure_guard)
 	_expect(failure_mission.current_phase == GameMissionController.MissionPhase.FAILED, "player death immediately fails active mission")
 	_expect(not failure_player.controls_enabled, "mission failure disables further player control")
@@ -558,9 +667,9 @@ func _test_sound_investigation() -> void:
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
 	var player := instance.get_node("Player") as PlayerCharacter
-	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var guard := instance.get_node("ContentSpawner3D/PistolGuard") as PistolGuard
 	var sound_hub := instance.get_node("SoundEventHub") as GameSoundEventHub
-	guard.set_physics_process(false)
+	_disable_all_guards(instance)
 	player.global_position = Vector3(0.0, 0.0, 5.0)
 	guard.global_position = Vector3(10.0, 0.0, 5.0)
 	guard.current_state = PistolGuard.GuardState.PATROL
@@ -582,3 +691,21 @@ func _test_sound_investigation() -> void:
 func _expect(condition: bool, message: String) -> void:
 	if not condition:
 		_failures.append(message)
+
+func _disable_all_guards(instance: Node) -> void:
+	for node in instance.get_tree().get_nodes_in_group("guards"):
+		if node is PistolGuard and instance.is_ancestor_of(node):
+			(node as PistolGuard).set_physics_process(false)
+
+func _nodes_in_group_under(instance: Node, group_name: StringName) -> Array[Node]:
+	var result: Array[Node] = []
+	for node in instance.get_tree().get_nodes_in_group(group_name):
+		if instance.is_ancestor_of(node):
+			result.append(node)
+	return result
+
+func _position_is_candidate(node: Node3D, container: Node) -> bool:
+	for candidate in container.get_children():
+		if candidate is Node3D and node.global_position.is_equal_approx((candidate as Node3D).global_position):
+			return true
+	return false

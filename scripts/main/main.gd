@@ -4,7 +4,7 @@ extends Node3D
 @onready var _health_label: Label = %HealthLabel
 @onready var _ammo_label: Label = %AmmoLabel
 @onready var _guard_state_label: Label = %GuardStateLabel
-@onready var _guard: PistolGuard = $PistolGuard
+@onready var _guard: PistolGuard = $ContentSpawner3D/PistolGuard
 @onready var _mission: GameMissionController = $MissionController
 @onready var _objective_status_label: Label = %ObjectiveStatusLabel
 @onready var _enemy_count_label: Label = %EnemyCountLabel
@@ -12,6 +12,8 @@ extends Node3D
 @onready var _result_panel: PanelContainer = %ResultPanel
 @onready var _result_title: Label = %ResultTitle
 @onready var _result_details: Label = %ResultDetails
+@onready var _retry_button: Button = %RetryButton
+@onready var _new_game_button: Button = %NewGameButton
 @onready var _default_weapon_button: Button = %DefaultWeaponButton
 @onready var _special_weapon_button: Button = %SpecialWeaponButton
 @onready var _swap_weapon_button: Button = %SwapWeaponButton
@@ -28,6 +30,8 @@ func _ready() -> void:
 	_default_weapon_button.pressed.connect(_player.switch_to_default_weapon)
 	_special_weapon_button.pressed.connect(_player.switch_to_special_weapon)
 	_swap_weapon_button.pressed.connect(_player.confirm_weapon_swap)
+	_retry_button.pressed.connect(_on_retry_pressed)
+	_new_game_button.pressed.connect(_on_new_game_pressed)
 	_on_health_changed(_player.health.current_health, _player.health.max_health)
 	_bind_weapon(_player.weapon)
 	_on_mission_phase_changed(_mission.current_phase, _mission.current_phase)
@@ -110,6 +114,7 @@ func _show_result(title: String, summary: Dictionary) -> void:
 	_activation_progress.visible = false
 	_result_panel.visible = true
 	_result_title.text = title
+	_retry_button.visible = not summary.get("extracted", false)
 	var elapsed: float = summary.get("elapsed_seconds", 0.0)
 	var total_seconds := int(elapsed)
 	var minutes := floori(elapsed / 60.0)
@@ -121,6 +126,14 @@ func _show_result(title: String, summary: Dictionary) -> void:
 		int(summary.get("remaining_health", 0.0)),
 		"完成" if summary.get("extracted", false) else "未完成",
 	]
+
+func _on_retry_pressed() -> void:
+	get_node("/root/GameRunState").call("retry_current_game")
+	get_tree().reload_current_scene()
+
+func _on_new_game_pressed() -> void:
+	get_node("/root/GameRunState").call("begin_new_game")
+	get_tree().reload_current_scene()
 
 func _on_guard_state_changed(_previous: int, current: int) -> void:
 	_guard_state_label.text = "GUARD  %s" % PistolGuard.GuardState.keys()[current]
