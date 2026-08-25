@@ -8,6 +8,7 @@ func _init() -> void:
 func _run() -> void:
 	_test_weapon_definition()
 	_test_health_component()
+	await _test_navigation_grid()
 	await _test_main_scene()
 	await _test_sound_investigation()
 	if _failures.is_empty():
@@ -40,6 +41,41 @@ func _test_health_component() -> void:
 	_expect(is_equal_approx(health.heal(5.0), 1.0), "healing clamps at maximum")
 	_expect(is_equal_approx(health.current_health, 3.0), "health returns to maximum")
 	health.queue_free()
+
+func _test_navigation_grid() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	var guard := instance.get_node("PistolGuard") as PistolGuard
+	guard.set_physics_process(false)
+	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
+	var wall := instance.get_node("WoodWallD") as DamageableWall
+	_expect(navigation != null, "main scene contains 2D grid navigation")
+	_expect(navigation.is_world_position_blocked(Vector3(1.0, 0.0, -7.0)), "indestructible brick wall blocks overlapping navigation cells")
+	_expect(navigation.is_world_position_blocked(wall.global_position), "intact wood wall blocks its navigation cell")
+	var start := Vector3(3.0, 0.0, 5.0)
+	var target := Vector3(3.0, 0.0, -5.0)
+	var path_before := navigation.get_world_path(start, target)
+	_expect(not path_before.is_empty(), "grid finds a route around intact wood wall")
+	var revision_before := navigation.revision
+	guard.global_position = start
+	guard.call("_move_toward_navigation_target", target)
+	_expect(guard.get("_planned_navigation_revision") == revision_before, "guard stores the navigation revision used for its route")
+	wall.apply_damage(5.0)
+	_expect(not navigation.is_world_position_blocked(Vector3(3.0, 0.0, -3.0)), "destroyed wood wall opens its navigation cell immediately")
+	_expect(navigation.revision > revision_before, "wall destruction advances navigation revision")
+	guard.call("_move_toward_navigation_target", target)
+	_expect(guard.get("_planned_navigation_revision") == navigation.revision, "guard replans after navigation revision changes")
+	var path_after := navigation.get_world_path(start, target)
+	_expect(not path_after.is_empty(), "grid still finds a route after wall destruction")
+	_expect(path_after.size() < path_before.size(), "opening a wall shortens the route through its former cell")
+	instance.queue_free()
+	await process_frame
 
 func _test_main_scene() -> void:
 	var scene := load("res://scenes/main/main.tscn") as PackedScene

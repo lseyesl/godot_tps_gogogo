@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/ui/touch_input_router.gd" id="8_touch_router"]
 [ext_resource type="PackedScene" path="res://scenes/actors/pistol_guard.tscn" id="9_guard"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event_hub.gd" id="10_sound_hub"]
+[ext_resource type="Script" path="res://scripts/navigation/grid_navigation_3d.gd" id="11_grid_navigation"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -53,6 +54,9 @@ script = ExtResource("1_main")
 [node name="SoundEventHub" type="Node" parent="."]
 script = ExtResource("10_sound_hub")
 
+[node name="GridNavigation3D" type="Node" parent="."]
+script = ExtResource("11_grid_navigation")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
 
@@ -66,7 +70,7 @@ shadow_enabled = true
 mesh = SubResource("PlaneMesh_floor")
 material_override = SubResource("Material_floor")
 
-[node name="BrickWall" type="StaticBody3D" parent="."]
+[node name="BrickWall" type="StaticBody3D" parent="." groups=["navigation_obstacles"]]
 position = Vector3(0, 0, -8)
 collision_layer = 2
 collision_mask = 1

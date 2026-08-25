@@ -36,6 +36,11 @@ var _last_known_player_position := Vector3.ZERO
 var _last_exposed_position := Vector3.ZERO
 var _exposure_was_visible := false
 var _active_sound_priority: int = 0
+var _navigation: GameGridNavigation3D
+var _navigation_path := PackedVector3Array()
+var _navigation_path_index: int = 0
+var _planned_navigation_revision: int = -1
+var _planned_target := Vector3(INF, INF, INF)
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var weapon: HitscanWeapon = $VisualRoot/WeaponPivot/Muzzle/StandardPistol
@@ -53,6 +58,7 @@ func _ready() -> void:
 		sound_hub.sound_emitted.connect(_on_sound_emitted)
 	last_position_marker.top_level = true
 	last_position_marker.visible = false
+	_navigation = GameGridNavigation3D.find_in_tree(self)
 	_resolve_player()
 
 func _physics_process(delta: float) -> void:
@@ -125,13 +131,7 @@ func _process_combat(delta: float) -> void:
 			_aim_lock_remaining = shot_direction_lock_seconds
 
 func _process_search(delta: float) -> void:
-	var planar_delta := _last_known_player_position - global_position
-	planar_delta.y = 0.0
-	if planar_delta.length() > 0.45:
-		velocity = planar_delta.normalized() * search_speed
-		_face_position(_last_known_player_position)
-		move_and_slide()
-	else:
+	if _move_toward_navigation_target(_last_known_player_position):
 		velocity = Vector3.ZERO
 		rotate_y(patrol_turn_speed * delta)
 		_state_timer = maxf(0.0, _state_timer - delta)
@@ -141,13 +141,7 @@ func _process_search(delta: float) -> void:
 		_transition_to(GuardState.PATROL)
 
 func _process_investigate(delta: float) -> void:
-	var planar_delta := _last_known_player_position - global_position
-	planar_delta.y = 0.0
-	if planar_delta.length() > 0.45:
-		velocity = planar_delta.normalized() * search_speed
-		_face_position(_last_known_player_position)
-		move_and_slide()
-	else:
+	if _move_toward_navigation_target(_last_known_player_position):
 		velocity = Vector3.ZERO
 		rotate_y(patrol_turn_speed * delta)
 		_state_timer = maxf(0.0, _state_timer - delta)
@@ -219,7 +213,53 @@ func _transition_to(next_state: int) -> void:
 		return
 	var previous := current_state
 	current_state = next_state
+	if current_state != GuardState.INVESTIGATE and current_state != GuardState.SEARCH:
+		_clear_navigation_path()
 	state_changed.emit(previous, current_state)
+
+func _move_toward_navigation_target(target: Vector3) -> bool:
+	var planar_delta := target - global_position
+	planar_delta.y = 0.0
+	if planar_delta.length() <= 0.45:
+		return true
+	if _navigation == null or not is_instance_valid(_navigation):
+		_navigation = GameGridNavigation3D.find_in_tree(self)
+	if _navigation == null:
+		_move_directly_toward(target)
+		return false
+	var target_changed := _planned_target.distance_squared_to(target) > 0.04
+	if target_changed or _planned_navigation_revision != _navigation.revision or _navigation_path.is_empty():
+		_navigation_path = _navigation.get_world_path(global_position, target)
+		_navigation_path_index = 0
+		_planned_target = target
+		_planned_navigation_revision = _navigation.revision
+	while _navigation_path_index < _navigation_path.size():
+		var waypoint := _navigation_path[_navigation_path_index]
+		waypoint.y = global_position.y
+		if global_position.distance_squared_to(waypoint) > 0.1225:
+			_move_directly_toward(waypoint)
+			return false
+		_navigation_path_index += 1
+	if _navigation_path.is_empty():
+		velocity = Vector3.ZERO
+		return true
+	return true
+
+func _move_directly_toward(target: Vector3) -> void:
+	var direction := target - global_position
+	direction.y = 0.0
+	if direction.length_squared() <= 0.001:
+		velocity = Vector3.ZERO
+		return
+	velocity = direction.normalized() * search_speed
+	_face_position(target)
+	move_and_slide()
+
+func _clear_navigation_path() -> void:
+	_navigation_path.clear()
+	_navigation_path_index = 0
+	_planned_navigation_revision = -1
+	_planned_target = Vector3(INF, INF, INF)
 
 func _resolve_player() -> void:
 	_player = get_tree().get_first_node_in_group("player") as PlayerCharacter
