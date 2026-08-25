@@ -22,6 +22,7 @@ var _footstep_timer := 0.0
 var special_weapon: GameWeapon3D
 var current_weapon_slot := WeaponSlot.DEFAULT
 var _offered_swap_pickup: Node
+var controls_enabled := true
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var default_weapon: GameWeapon3D = $WeaponPivot/Muzzle/StandardPistol
@@ -43,16 +44,18 @@ func _physics_process(delta: float) -> void:
 	_update_footsteps(delta)
 
 func set_move_input(value: Vector2) -> void:
-	_move_input = value.limit_length(1.0)
+	_move_input = value.limit_length(1.0) if controls_enabled else Vector2.ZERO
 
 func set_aim_input(value: Vector2, active: bool = true) -> void:
+	if not controls_enabled:
+		return
 	if value.length_squared() > 0.01:
 		_requested_aim = value.normalized()
 	if aim_line != null:
 		aim_line.set_active(active)
 
 func request_fire() -> bool:
-	if weapon == null:
+	if not controls_enabled or weapon == null:
 		return false
 	aim_line.set_active(true)
 	return weapon.try_fire(aim_direction)
@@ -60,6 +63,14 @@ func request_fire() -> bool:
 func release_fire() -> void:
 	if aim_line != null:
 		aim_line.set_active(false)
+
+func set_controls_enabled(value: bool) -> void:
+	controls_enabled = value
+	if controls_enabled:
+		return
+	_move_input = Vector2.ZERO
+	velocity = Vector3.ZERO
+	release_fire()
 
 func equip_special_weapon(
 	definition: WeaponDefinition,

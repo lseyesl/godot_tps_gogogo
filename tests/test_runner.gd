@@ -2,6 +2,7 @@ extends SceneTree
 
 var _failures: Array[String] = []
 var _weapon_integration_completed := false
+var _mission_integration_completed := false
 
 func _init() -> void:
 	call_deferred("_run")
@@ -14,6 +15,8 @@ func _run() -> void:
 	await _test_cover_behavior()
 	await _test_environment_reactions()
 	await _test_main_scene()
+	await _test_mission_loop()
+	_expect(_mission_integration_completed, "mission integration test completes without runtime errors")
 	await _test_weapon_pickups_and_rocket()
 	_expect(_weapon_integration_completed, "weapon pickup and rocket integration test completes without runtime errors")
 	await _test_sound_investigation()
@@ -297,6 +300,10 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
+	_expect(instance.get_node_or_null("ObjectivePoint") is GameObjectivePoint3D, "main scene contains remote objective point")
+	_expect(instance.get_node_or_null("ExtractionPoint") is GameExtractionPoint3D, "main scene contains spawn extraction point")
+	_expect(instance.get_node_or_null("MissionController") is GameMissionController, "main scene contains mission controller")
+	_expect(instance.get_node_or_null("HUD/ObjectiveIndicator") is GameObjectiveIndicator, "HUD contains edge objective indicator")
 	_expect(instance.get_node_or_null("HUD/TouchControls") is GameTouchInputRouter, "main scene contains touch input router")
 	_expect(instance.get_node_or_null("HUD/TouchControls/MoveJoystick") is GameVirtualJoystick, "touch layout contains movement joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
@@ -450,6 +457,95 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "empty rocket launcher returns control to default pistol while projectile travels")
 	_weapon_integration_completed = true
 	instance.queue_free()
+	await process_frame
+
+func _test_mission_loop() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await physics_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	var player := instance.get_node("Player") as PlayerCharacter
+	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var objective := instance.get_node("ObjectivePoint") as GameObjectivePoint3D
+	var extraction := instance.get_node("ExtractionPoint") as GameExtractionPoint3D
+	var mission := instance.get_node("MissionController") as GameMissionController
+	guard.set_physics_process(false)
+	player.set_physics_process(false)
+	_expect(mission.current_phase == GameMissionController.MissionPhase.INFILTRATION, "mission starts in objective infiltration phase")
+	_expect(not extraction.extraction_enabled, "spawn extraction is disabled before objective activation")
+	extraction.call("_on_body_entered", player)
+	_expect(mission.current_phase == GameMissionController.MissionPhase.INFILTRATION, "entering disabled extraction cannot complete mission")
+	_expect(objective.global_position.distance_to(extraction.global_position) >= 36.0, "remote objective is at least eighteen two-meter modules from spawn")
+	_expect(mission.get_current_target() == objective, "objective indicator initially targets remote objective")
+	_expect(mission.get_distance_band(objective.global_position.distance_to(player.global_position)) == "远", "remote objective uses approximate far distance band")
+	var objective_indicator := instance.get_node("HUD/ObjectiveIndicator") as GameObjectiveIndicator
+	objective_indicator.call("_process", 0.0)
+	_expect((objective_indicator.get_node("Marker/Status") as Label).text == "任务 · 远", "edge indicator labels remote mission target")
+	_expect(mission.remaining_guards == 1, "mission tracks initial remaining guard count")
+	_expect((instance.get_node("HUD/StatusPanel/Margin/Rows/EnemyCountLabel") as Label).text == "剩余警卫：1", "HUD displays remaining enemy count as threat reference")
+
+	player.global_position = objective.global_position
+	await physics_frame
+	objective.call("_on_body_entered", player)
+	objective.call("_physics_process", 1.0)
+	_expect(is_equal_approx(objective.activation_elapsed, 1.0), "objective accumulates activation progress while player remains inside")
+	_expect((instance.get_node("HUD/ActivationProgress") as ProgressBar).visible, "HUD displays objective activation progress")
+	var progress_before_damage := objective.activation_elapsed
+	player.apply_damage(1.0, guard)
+	objective.call("_physics_process", 0.5)
+	_expect(is_equal_approx(objective.activation_elapsed, progress_before_damage + 0.5), "taking damage does not reset objective activation")
+	objective.call("_on_body_exited", player)
+	_expect(is_zero_approx(objective.activation_elapsed), "leaving objective range resets activation progress")
+	_expect(not (instance.get_node("HUD/ActivationProgress") as ProgressBar).visible, "reset progress hides activation bar")
+
+	objective.call("_on_body_entered", player)
+	objective.call("_physics_process", objective.activation_seconds)
+	_expect(objective.is_activated, "remaining in objective range for three seconds activates mission point")
+	_expect(mission.current_phase == GameMissionController.MissionPhase.EXTRACTION, "objective activation enters extraction phase")
+	_expect(extraction.extraction_enabled, "objective activation enables spawn extraction")
+	_expect(mission.get_current_target() == extraction, "objective indicator switches to spawn extraction")
+	_expect(guard.current_state == PistolGuard.GuardState.INVESTIGATE, "objective alarm sends surviving guard to investigate")
+	var guard_alarm_target: Vector3 = guard.get("_last_known_player_position")
+	_expect(guard_alarm_target.is_equal_approx(objective.global_position), "global alarm reveals only objective position to guard")
+	player.global_position += Vector3(4.0, 0.0, 0.0)
+	var retained_alarm_target: Vector3 = guard.get("_last_known_player_position")
+	_expect(retained_alarm_target.is_equal_approx(objective.global_position), "objective alarm does not continuously reveal player position")
+
+	player.global_position = extraction.global_position
+	extraction.call("_on_body_entered", player)
+	_expect(mission.current_phase == GameMissionController.MissionPhase.WON, "entering enabled spawn extraction wins immediately")
+	_expect(mission.remaining_guards == 1, "mission can be won without eliminating final guard")
+	_expect(not player.controls_enabled and not player.request_fire(), "successful extraction disables further player control and firing")
+	_expect((instance.get_node("HUD/ResultPanel") as PanelContainer).visible, "successful extraction opens result summary")
+	_expect((instance.get_node("HUD/ResultPanel/Margin/Rows/ResultTitle") as Label).text == "撤离成功", "result summary reports successful extraction")
+	instance.queue_free()
+	await process_frame
+
+	var failure_instance := scene.instantiate()
+	root.add_child(failure_instance)
+	await process_frame
+	await physics_frame
+	var failure_input := failure_instance.get_node("DebugPlayerInput")
+	failure_input.set_process(false)
+	failure_input.set_process_unhandled_input(false)
+	var failure_player := failure_instance.get_node("Player") as PlayerCharacter
+	var failure_guard := failure_instance.get_node("PistolGuard") as PistolGuard
+	var failure_mission := failure_instance.get_node("MissionController") as GameMissionController
+	failure_guard.set_physics_process(false)
+	failure_player.set_physics_process(false)
+	failure_guard.apply_damage(failure_guard.health.max_health, failure_player)
+	_expect(failure_mission.remaining_guards == 0 and failure_mission.kills == 1, "guard death immediately updates remaining count and kill statistic")
+	failure_player.apply_damage(failure_player.health.max_health, failure_guard)
+	_expect(failure_mission.current_phase == GameMissionController.MissionPhase.FAILED, "player death immediately fails active mission")
+	_expect(not failure_player.controls_enabled, "mission failure disables further player control")
+	_expect((failure_instance.get_node("HUD/ResultPanel") as PanelContainer).visible, "mission failure opens result summary")
+	_expect((failure_instance.get_node("HUD/ResultPanel/Margin/Rows/ResultTitle") as Label).text == "任务失败", "failure summary reports incomplete extraction")
+	_mission_integration_completed = true
+	failure_instance.queue_free()
 	await process_frame
 
 func _test_sound_investigation() -> void:

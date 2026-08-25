@@ -111,6 +111,20 @@ func apply_damage(amount: float, source: Node = null) -> float:
 func can_see_player() -> bool:
 	return _player != null and vision.can_see(_player)
 
+func alert_to_objective(objective_position: Vector3) -> void:
+	if current_state == GuardState.DEAD:
+		return
+	_last_known_player_position = objective_position
+	_active_sound_priority = GameSoundEventHub.Priority.EXPLOSION
+	_state_timer = 2.0
+	_aim_lock_remaining = 0.0
+	_lost_sight_time = 0.0
+	warning_indicator.visible = false
+	_cover_is_peeking = false
+	_cover_shot_pending = false
+	_clear_navigation_path()
+	_transition_to(GuardState.INVESTIGATE)
+
 func _process_patrol(delta: float) -> void:
 	velocity = Vector3.ZERO
 	rotate_y(patrol_turn_speed * delta)

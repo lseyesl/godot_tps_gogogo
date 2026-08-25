@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -19,6 +19,10 @@
 [ext_resource type="Resource" path="res://resources/weapons/heavy_pistol.tres" id="17_heavy_pistol"]
 [ext_resource type="Resource" path="res://resources/weapons/machine_gun.tres" id="18_machine_gun"]
 [ext_resource type="Resource" path="res://resources/weapons/rocket_launcher.tres" id="19_rocket_launcher"]
+[ext_resource type="PackedScene" path="res://scenes/world/objective_point_3d.tscn" id="20_objective"]
+[ext_resource type="PackedScene" path="res://scenes/world/extraction_point_3d.tscn" id="21_extraction"]
+[ext_resource type="Script" path="res://scripts/mission/mission_controller.gd" id="22_mission"]
+[ext_resource type="Script" path="res://scripts/ui/objective_indicator.gd" id="23_indicator"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -135,11 +139,23 @@ definition = ExtResource("19_rocket_launcher")
 position = Vector3(21, 0, 7)
 definition = ExtResource("18_machine_gun")
 
+[node name="ObjectivePoint" parent="." instance=ExtResource("20_objective")]
+position = Vector3(28, 0, -19)
+
+[node name="ExtractionPoint" parent="." instance=ExtResource("21_extraction")]
+position = Vector3(0, 0, 5)
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector3(0, 0, 5)
 
 [node name="PistolGuard" parent="." instance=ExtResource("9_guard")]
 rotation = Vector3(0, 3.14159, 0)
+
+[node name="MissionController" type="Node" parent="."]
+script = ExtResource("22_mission")
+player_path = NodePath("../Player")
+objective_path = NodePath("../ObjectivePoint")
+extraction_path = NodePath("../ExtractionPoint")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 script = ExtResource("4_camera")
@@ -158,7 +174,7 @@ camera_path = NodePath("../Camera3D")
 offset_left = 24.0
 offset_top = 24.0
 offset_right = 420.0
-offset_bottom = 150.0
+offset_bottom = 192.0
 theme_override_styles/panel = SubResource("Style_panel")
 
 [node name="Margin" type="MarginContainer" parent="HUD/StatusPanel"]
@@ -185,6 +201,108 @@ text = "STANDARD PISTOL  6 / 6  ·  ∞"
 [node name="GuardStateLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
 unique_name_in_owner = true
 text = "GUARD  PATROL"
+
+[node name="ObjectiveStatusLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+unique_name_in_owner = true
+text = "目标：前往任务点"
+
+[node name="EnemyCountLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+unique_name_in_owner = true
+text = "剩余警卫：1"
+
+[node name="ActivationProgress" type="ProgressBar" parent="HUD"]
+unique_name_in_owner = true
+visible = false
+offset_left = 440.0
+offset_top = 38.0
+offset_right = 840.0
+offset_bottom = 72.0
+value = 0.0
+show_percentage = false
+
+[node name="ActivationLabel" type="Label" parent="HUD/ActivationProgress"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "正在激活任务点"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ObjectiveIndicator" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("23_indicator")
+mission_path = NodePath("../../MissionController")
+player_path = NodePath("../../Player")
+camera_path = NodePath("../../Camera3D")
+
+[node name="Marker" type="VBoxContainer" parent="HUD/ObjectiveIndicator"]
+offset_right = 94.0
+offset_bottom = 64.0
+theme_override_constants/separation = 0
+
+[node name="Arrow" type="Label" parent="HUD/ObjectiveIndicator/Marker"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.78, 0.18, 1)
+theme_override_font_sizes/font_size = 30
+text = "▲"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="HUD/ObjectiveIndicator/Marker"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.62, 1)
+text = "任务 · 远"
+horizontal_alignment = 1
+
+[node name="ResultPanel" type="PanelContainer" parent="HUD"]
+unique_name_in_owner = true
+visible = false
+z_index = 20
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -155.0
+offset_right = 230.0
+offset_bottom = 155.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="HUD/ResultPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="Rows" type="VBoxContainer" parent="HUD/ResultPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="ResultTitle" type="Label" parent="HUD/ResultPanel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "撤离成功"
+horizontal_alignment = 1
+
+[node name="ResultDetails" type="Label" parent="HUD/ResultPanel/Margin/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "用时  00:00\n击杀  0\n剩余生命  5\n撤离  完成"
+horizontal_alignment = 1
 
 [node name="Help" type="Label" parent="HUD"]
 offset_left = 24.0
