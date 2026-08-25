@@ -3,6 +3,7 @@
 android/build/
 builds/
 exports/
+/build/
 
 # Export credentials and local editor state
 export_credentials.cfg

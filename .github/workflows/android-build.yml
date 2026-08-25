@@ -1,0 +1,70 @@
+name: Android Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-debug-apk:
+    name: Test and export debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: barichello/godot-ci:4.7
+    env:
+      GODOT_VERSION: "4.7"
+      APK_PATH: build/android/gogogo-debug.apk
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Godot export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          template_source="/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          template_target="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          test -d "${template_source}"
+          mkdir -p "$(dirname "${template_target}")"
+          cp -R "${template_source}" "${template_target}"
+          if [ -f /root/.config/godot/editor_settings-4.tres ]; then
+            mkdir -p "${HOME}/.config/godot"
+            cp /root/.config/godot/editor_settings-4.tres "${HOME}/.config/godot/"
+          fi
+
+      - name: Import project and check scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --headless --xr-mode off --path . --editor --quit
+          godot --headless --xr-mode off --path . --check-only --quit
+
+      - name: Run core regression tests
+        shell: bash
+        run: godot --headless --xr-mode off --path . --script res://tests/test_runner.gd
+
+      - name: Export Android debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "${APK_PATH}")"
+          godot --headless --path . --export-debug Android "${APK_PATH}"
+          test -s "${APK_PATH}"
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gogogo-android-debug-${{ github.run_number }}
+          path: ${{ env.APK_PATH }}
+          if-no-files-found: error
+          retention-days: 14

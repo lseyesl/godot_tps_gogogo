@@ -453,11 +453,11 @@
 ## 五问重启检查
 | 问题 | 答案 |
 |------|------|
-| 我在哪里？ | 阶段 38：轻度瞄准吸附、盲区表现与环境间接反馈切片完成 |
-| 我要去哪里？ | 下一阶段进行 Android 真机导出、安全区与性能验证 |
+| 我在哪里？ | 阶段 41：Android GitHub Actions 构建切片完成 |
+| 我要去哪里？ | 下一阶段在 CI 产出 APK 后进行安全区、60/30 FPS 档位和真机触控验证 |
 | 目标是什么？ | 开始实现冻结 MVP，并交付可运行、可测试的核心切片 |
 | 我学到了什么？ | 见 findings.md |
-| 我做了什么？ | 已完成任务撤离、多武器、随机内容、稳定重试、感知、瞄准吸附、盲区表现、导航、掩体、燃烧与爆炸闭环 |
+| 我做了什么？ | 已完成任务撤离、多武器、随机内容、稳定重试、感知、瞄准吸附、盲区表现、Android CI 构建、导航、掩体、燃烧与爆炸闭环 |
 
 ---
 *每个阶段完成后或遇到错误时更新此文件*
@@ -496,3 +496,27 @@
   - 自动验证盲区静态墙体暗化但不隐藏、动态警卫隐藏、火焰精确效果隐藏，以及爆炸/火焰只产生短时方向反馈。
   - Godot 类缓存导入成功，非沙箱 `--check-only` 通过，完整核心回归输出 `PASS: core slice tests`。
   - `git diff --check` 通过，README 已同步本切片能力和下一阶段。
+
+### 阶段 39：Android 导出预设
+- **状态：** complete
+- 执行的操作：
+  - 恢复文件规划上下文，确认上一切片已提交为 `df75057` 且工作区干净。
+  - 复查 ADR-057、ADR-059、ADR-060 与 GDD 技术验收边界。
+  - 用户调整范围：不搭建本地 Android SDK，改为由 GitHub Actions 统一产出可安装调试 APK。
+  - 创建 Android 导出预设：API 24+、arm64-v8a、调试签名、沉浸式边到边显示，复用工程横屏与 Mobile 渲染设置。
+  - 使用 `--export-pack Android` 成功导出完整 PCK，证明 Godot 能解析预设并编译所有资源/脚本。
+
+### 阶段 40：GitHub Actions Android 构建
+- **状态：** complete
+- 执行的操作：
+  - 新增 `Android Build` workflow，支持 `main` 推送、Pull Request 和手动触发。
+  - 使用 `barichello/godot-ci:4.7` 容器复制导出模板与引擎设置，之后导入、检查、回归、导出。
+  - 导出 `build/android/gogogo-debug.apk`，检查文件非空后使用 `actions/upload-artifact@v4` 保留 14 天。
+
+### 阶段 41：CI 配置验证与提交
+- **状态：** complete
+- 执行的操作：
+  - Ruby YAML 解析通过，Git ignore 正确排除本地 `build/`，关键导出/workflow 字段完整。
+  - 核心测试增加 Android 预设、Godot CI 版本、回归前置和 artifact 上传断言。
+  - Godot `--check-only` 通过，完整核心回归输出 `PASS: core slice tests`，`git diff --check` 通过。
+  - README 已记录手动触发与 artifact 下载流程。

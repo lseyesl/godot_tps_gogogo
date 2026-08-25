@@ -14,6 +14,7 @@
 - 多武器、地图拾取与实体火箭已提交为 `a5d58eb`；继续实现任务激活、全体警戒、返回出生点撤离与结算。
 - 任务激活、全体警戒、撤离与结算已提交为 `fc8bcd8`；继续实现候选点生成、稳定重试种子和急救包。
 - 随机候选点生成、稳定重试种子和急救包已提交为 `c86bdff`；继续实现轻度瞄准吸附与完整盲区表现。
+- 瞄准吸附与盲区反馈已提交为 `df75057`；用户指定 Android 构建由 GitHub Actions 负责，不要求本地 Android 环境。
 
 ## 研究发现
 - 仓库已在 `main` 分支初始化 Git。
@@ -22,6 +23,8 @@
 - 玩家/敌人视野和武器射程的共同尺度为 8 个 2 米模块，即 16 米。
 - 当前环境安装 Godot `4.7.stable.official.5b4e0cb0f`。
 - Godot 工程可以完全使用 PrimitiveMesh 和 typed GDScript 构建首条切片，不依赖外部美术资源。
+- 仓库当前没有 `export_presets.cfg` 或 `.github/workflows/`；`project.godot` 已设置 1280×720、横屏与 Mobile 渲染器。
+- Android 调试 APK 可使用 Godot 默认调试签名在 CI 产出，无需将发布密钥放入仓库；正式上架签名后续单独配置。
 
 ## 技术决策
 | 决策 | 理由 |
@@ -75,6 +78,8 @@
 | 多目标优先选择与原始瞄准射线夹角最小者 | 屏幕触控意图是方向；角度误差直接反映手指瞄准误差，并可用距离作同角度平局 |
 | 盲区表现分为静态结构与动态情报两层 | ADR-009 要求墙体/地形保留暗化轮廓，而警卫、武器和动态威胁完全隐藏 |
 | 盲区环境反馈只传递事件类型与大致方向 | ADR-075 禁止显示精确火区/爆炸位置，且间接闪光不得扩大动态单位显形边界 |
+| CI 首轮产出 arm64 调试 APK | 中端 Android 主要是 arm64；调试签名能直接安装测试且不引入发布密钥管理 |
+| Android 导出前在同一 CI job 运行语法检查和核心回归 | 只有通过玩法回归的提交才产出 APK，避免分发可启动但规则已损坏的构件 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -107,6 +112,8 @@
 - `scripts/world/health_pack_3d.gd`
 - `scripts/input/aim_assist_3d.gd`
 - `scripts/world/world_visibility_3d.gd`
+- `export_presets.cfg`
+- `.github/workflows/android-build.yml`
 
 ## 视觉/浏览器发现
 - 本轮尚未进行视觉或浏览器检查。

@@ -77,6 +77,17 @@ godot --headless --xr-mode off --path . --script res://tests/test_runner.gd
 
 当前自动测试验证同种子布局完全一致、不同种子布局变化、8–12 名警卫、远端任务候选、四件特殊武器预算、两个急救包、满血不消耗、受伤恢复和重试状态复原；同时覆盖任务撤离、四类武器、Android 触控、瞄准吸附、盲区静态/动态边界、环境间接反馈、警卫感知与掩体、声音、动态导航、燃烧、爆炸遮挡及环境连锁。
 
+## GitHub Actions Android 构建
+
+`.github/workflows/android-build.yml` 会在推送到 `main`、提交 Pull Request 或手动触发时：
+
+1. 使用 Godot CI 4.7 容器导入项目并运行语法检查。
+2. 运行完整核心回归测试。
+3. 使用 `export_presets.cfg` 导出 Android arm64 调试 APK。
+4. 上传名为 `gogogo-android-debug-<run number>` 的 workflow artifact，保留 14 天。
+
+调试 APK 用于真机安装与测试，不包含正式上架签名。GitHub 仓库的 **Actions → Android Build → Run workflow** 可手动生成新 APK。
+
 ## 下一条切片
 
-下一阶段可进入 Android 真机导出与安全区/性能验证，再根据真机手感微调虚拟摇杆和瞄准吸附参数。
+下一阶段可在 GitHub Actions 产出 APK 后进行 Android 真机安全区、60/30 FPS 档位与触控手感验证。

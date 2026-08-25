@@ -9,6 +9,7 @@ func _init() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	_test_android_build_configuration()
 	_test_weapon_definition()
 	await _test_weapon_runtime()
 	_test_health_component()
@@ -31,6 +32,19 @@ func _run() -> void:
 	for failure in _failures:
 		push_error(failure)
 	quit(1)
+
+func _test_android_build_configuration() -> void:
+	var preset := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var workflow := FileAccess.get_file_as_string("res://.github/workflows/android-build.yml")
+	_expect(preset.contains('name="Android"'), "Android export preset has the CI preset name")
+	_expect(preset.contains('platform="Android"'), "Android export preset selects the Android platform")
+	_expect(preset.contains('architectures/arm64-v8a=true'), "Android export preset includes arm64")
+	_expect(preset.contains('architectures/armeabi-v7a=false'), "Android export preset excludes legacy armv7")
+	_expect(preset.contains('gradle_build/min_sdk="24"'), "Android export preset supports API 24 and newer")
+	_expect(workflow.contains("barichello/godot-ci:4.7"), "Android workflow uses the matching Godot CI image")
+	_expect(workflow.contains("--script res://tests/test_runner.gd"), "Android workflow runs core regression tests before export")
+	_expect(workflow.contains("--export-debug Android"), "Android workflow exports the configured debug APK")
+	_expect(workflow.contains("actions/upload-artifact@v4"), "Android workflow uploads the APK artifact")
 
 func _test_weapon_definition() -> void:
 	var definition := load("res://resources/weapons/standard_pistol.tres") as WeaponDefinition
