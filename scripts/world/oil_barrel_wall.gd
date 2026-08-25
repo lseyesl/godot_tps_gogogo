@@ -1,10 +1,10 @@
-class_name DamageableWall
+class_name OilBarrelWall
 extends GameEnvironmentModule3D
 
-signal destroyed(wall: DamageableWall)
-signal ignited(wall: DamageableWall)
+signal ignited(barrel: OilBarrelWall)
+signal destroyed(barrel: OilBarrelWall)
 
-@export var burn_duration_seconds: float = 3.0
+@export var burn_duration_seconds: float = 4.0
 @export var fire_damage_radius_meters: float = 1.25
 
 var is_burning := false
@@ -16,7 +16,7 @@ var _fire_tick_remaining: float = 1.0
 
 func _ready() -> void:
 	super._ready()
-	add_to_group("damageable_walls")
+	add_to_group("oil_barrels")
 	add_to_group("flammable_modules")
 	health.depleted.connect(_on_depleted)
 	fire_indicator.visible = false
@@ -32,12 +32,20 @@ func _physics_process(delta: float) -> void:
 			hub.apply_fire_damage(global_position, fire_damage_radius_meters, self)
 		_fire_tick_remaining = 1.0
 	if is_zero_approx(burn_remaining):
-		_destroy()
+		_finish_burning()
 
 func apply_damage(amount: float, source: Node = null) -> float:
+	if is_burning or not environment_active:
+		return 0.0
 	return health.apply_damage(amount, source)
 
 func ignite_from_fire(_source: Node = null) -> void:
+	_start_burning()
+
+func _on_depleted(_source: Node) -> void:
+	_start_burning()
+
+func _start_burning() -> void:
 	if is_burning or not environment_active:
 		return
 	is_burning = true
@@ -58,21 +66,10 @@ func ignite_from_fire(_source: Node = null) -> void:
 		)
 	ignited.emit(self)
 
-func _on_depleted(_source: Node) -> void:
-	_destroy()
-
-func _destroy() -> void:
+func _finish_burning() -> void:
 	if not environment_active:
 		return
 	remove_from_group("active_fire")
 	deactivate_environment_module()
-	var hub := GameSoundEventHub.find_in_tree(self)
-	if hub != null:
-		hub.emit_sound_event(
-			global_position,
-			20.0,
-			GameSoundEventHub.Priority.ENVIRONMENT,
-			self
-		)
 	destroyed.emit(self)
 	queue_free()

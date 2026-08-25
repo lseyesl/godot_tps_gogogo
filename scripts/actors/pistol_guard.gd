@@ -68,6 +68,8 @@ var _strafe_sign: float = 1.0
 
 func _ready() -> void:
 	add_to_group("guards")
+	add_to_group("explosion_targets")
+	add_to_group("fire_damage_targets")
 	health.damaged.connect(_on_damaged)
 	health.depleted.connect(_on_depleted)
 	var sound_hub := GameSoundEventHub.find_in_tree(self)

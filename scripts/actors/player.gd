@@ -20,6 +20,8 @@ var _footstep_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("player")
+	add_to_group("explosion_targets")
+	add_to_group("fire_damage_targets")
 	health.depleted.connect(_on_health_depleted)
 
 func _physics_process(delta: float) -> void:

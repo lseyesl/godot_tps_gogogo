@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -12,6 +12,9 @@
 [ext_resource type="Script" path="res://scripts/audio/sound_event_hub.gd" id="10_sound_hub"]
 [ext_resource type="Script" path="res://scripts/navigation/grid_navigation_3d.gd" id="11_grid_navigation"]
 [ext_resource type="Script" path="res://scripts/ai/cover_service_3d.gd" id="12_cover_service"]
+[ext_resource type="Script" path="res://scripts/world/environment_reaction_hub.gd" id="13_reaction_hub"]
+[ext_resource type="PackedScene" path="res://scenes/world/oil_barrel_wall.tscn" id="14_oil_barrel"]
+[ext_resource type="PackedScene" path="res://scenes/world/gasoline_barrel_wall.tscn" id="15_gasoline_barrel"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -61,6 +64,9 @@ script = ExtResource("11_grid_navigation")
 [node name="CoverService3D" type="Node" parent="."]
 script = ExtResource("12_cover_service")
 
+[node name="EnvironmentReactionHub" type="Node3D" parent="."]
+script = ExtResource("13_reaction_hub")
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_main")
 
@@ -99,6 +105,15 @@ position = Vector3(1, 0, -3)
 
 [node name="WoodWallD" parent="." instance=ExtResource("3_wall")]
 position = Vector3(3, 0, -3)
+
+[node name="OilBarrelWall" parent="." instance=ExtResource("14_oil_barrel")]
+position = Vector3(-11, 0, 7)
+
+[node name="BurnableWoodWall" parent="." instance=ExtResource("3_wall")]
+position = Vector3(-9, 0, 7)
+
+[node name="GasolineBarrelWall" parent="." instance=ExtResource("15_gasoline_barrel")]
+position = Vector3(-7, 0, 7)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector3(0, 0, 5)

@@ -10,6 +10,7 @@ func _run() -> void:
 	_test_health_component()
 	await _test_navigation_grid()
 	await _test_cover_behavior()
+	await _test_environment_reactions()
 	await _test_main_scene()
 	await _test_sound_investigation()
 	if _failures.is_empty():
@@ -141,6 +142,92 @@ func _test_cover_behavior() -> void:
 	instance.queue_free()
 	await process_frame
 
+func _test_environment_reactions() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await process_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	var player := instance.get_node("Player") as PlayerCharacter
+	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
+	var reaction_hub := instance.get_node("EnvironmentReactionHub") as GameEnvironmentReactionHub
+	var oil := instance.get_node("OilBarrelWall") as OilBarrelWall
+	var burnable_wood := instance.get_node("BurnableWoodWall") as DamageableWall
+	var gasoline := instance.get_node("GasolineBarrelWall") as GasolineBarrelWall
+	guard.set_physics_process(false)
+	player.set_physics_process(false)
+	_expect(is_equal_approx(oil.health.max_health, 4.0), "oil barrel durability is four")
+	_expect(is_equal_approx(gasoline.health.max_health, 3.0), "gasoline barrel durability is three")
+	_expect(navigation.is_world_position_blocked(oil.global_position), "intact oil barrel blocks navigation")
+	oil.apply_damage(4.0, player)
+	_expect(oil.is_burning, "oil barrel enters burning state at zero durability")
+	_expect(burnable_wood.is_burning, "fire ignites directly adjacent wood wall")
+	_expect(gasoline.has_exploded, "burning wood immediately triggers adjacent gasoline barrel")
+	_expect(not navigation.is_world_position_blocked(gasoline.global_position), "exploded gasoline barrel opens navigation immediately")
+	_expect((gasoline.get_node("CollisionShape3D") as CollisionShape3D).disabled, "exploded gasoline barrel disables collision immediately")
+	burnable_wood.call("_physics_process", 3.1)
+	_expect(not burnable_wood.environment_active, "burning wood wall disappears after three seconds")
+	_expect(not navigation.is_world_position_blocked(Vector3(-9.0, 0.0, 7.0)), "finished wood fire opens its navigation cell")
+
+	var oil_scene := load("res://scenes/world/oil_barrel_wall.tscn") as PackedScene
+	var wall_scene := load("res://scenes/world/damageable_wall.tscn") as PackedScene
+	var isolated_oil := oil_scene.instantiate() as OilBarrelWall
+	var diagonal_wall := wall_scene.instantiate() as DamageableWall
+	isolated_oil.position = Vector3(11.0, 0.0, 7.0)
+	diagonal_wall.position = Vector3(13.0, 0.0, 9.0)
+	instance.add_child(isolated_oil)
+	instance.add_child(diagonal_wall)
+	await physics_frame
+	player.health.reset_health()
+	player.global_position = isolated_oil.global_position
+	isolated_oil.apply_damage(4.0, player)
+	_expect(not diagonal_wall.is_burning, "fire does not propagate across a diagonal gap")
+	var health_before_fire := player.health.current_health
+	isolated_oil.call("_physics_process", 1.0)
+	_expect(is_equal_approx(player.health.current_health, health_before_fire - 1.0), "active fire deals one damage per second without faction rules")
+	isolated_oil.call("_physics_process", 3.1)
+	_expect(not isolated_oil.environment_active, "oil barrel disappears after four burning seconds")
+	_expect(not navigation.is_world_position_blocked(Vector3(11.0, 0.0, 7.0)), "finished oil fire opens its navigation cell")
+	_expect((isolated_oil.get_node("CollisionShape3D") as CollisionShape3D).disabled, "finished oil fire disables collision immediately")
+
+	player.health.reset_health()
+	guard.global_position = Vector3(20.0, 0.0, 15.0)
+	player.global_position = Vector3(10.0, 0.0, -1.0)
+	var snapshot_wall := wall_scene.instantiate() as DamageableWall
+	snapshot_wall.position = Vector3(10.0, 0.0, 0.0)
+	instance.add_child(snapshot_wall)
+	await physics_frame
+	snapshot_wall.apply_damage(3.0, player)
+	reaction_hub.request_explosion(Vector3(10.0, 1.0, 1.0), 3.0, 3.0, 1.0, player)
+	_expect(not snapshot_wall.environment_active, "explosion destroys a weakened blocking wood wall")
+	_expect(is_equal_approx(player.health.current_health, player.health.max_health), "same explosion does not pass through the wall it destroys")
+
+	player.health.reset_health()
+	guard.health.reset_health()
+	player.global_position = Vector3(15.0, 0.0, 10.0)
+	guard.global_position = Vector3(18.0, 0.0, 10.0)
+	reaction_hub.request_explosion(Vector3(15.0, 1.0, 10.0), 3.0, 3.0, 1.0, player)
+	_expect(is_equal_approx(player.health.current_health, 2.0), "factionless explosion damages its player source at the center")
+	_expect(is_equal_approx(guard.health.current_health, 2.0), "explosion edge deals one damage to guard")
+
+	player.health.reset_health()
+	guard.health.reset_health()
+	player.global_position = Vector3(0.0, 0.0, -9.0)
+	guard.global_position = Vector3(2.0, 0.0, -7.0)
+	var occluded_gasoline := load("res://scenes/world/gasoline_barrel_wall.tscn").instantiate() as GasolineBarrelWall
+	occluded_gasoline.position = Vector3(0.0, 0.0, -7.0)
+	instance.add_child(occluded_gasoline)
+	await physics_frame
+	occluded_gasoline.apply_damage(3.0, player)
+	_expect(is_equal_approx(player.health.current_health, player.health.max_health), "brick wall blocks gasoline explosion damage")
+	_expect(guard.health.current_health < guard.health.max_health, "unoccluded guard takes gasoline explosion damage")
+	instance.queue_free()
+	await process_frame
+
 func _test_main_scene() -> void:
 	var scene := load("res://scenes/main/main.tscn") as PackedScene
 	_expect(scene != null, "main scene loads")
@@ -158,7 +245,10 @@ func _test_main_scene() -> void:
 	_expect(player != null, "main scene contains player")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
-	_expect(instance.get_tree().get_nodes_in_group("damageable_walls").size() == 4, "main scene contains four damageable wall modules")
+	_expect(instance.get_tree().get_nodes_in_group("damageable_walls").size() == 5, "main scene contains five damageable wall modules")
+	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
+	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
+	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
 	_expect(instance.get_node_or_null("HUD/TouchControls") is GameTouchInputRouter, "main scene contains touch input router")
 	_expect(instance.get_node_or_null("HUD/TouchControls/MoveJoystick") is GameVirtualJoystick, "touch layout contains movement joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
