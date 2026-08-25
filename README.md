@@ -79,7 +79,7 @@ godot --headless --xr-mode off --path . --script res://tests/test_runner.gd
 
 ## GitHub Actions Android 构建
 
-`.github/workflows/android-build.yml` 会在推送到 `main`、提交 Pull Request 或手动触发时：
+`.github/workflows/android-build.yml` 只在手动触发时运行：
 
 1. 使用 Godot CI 4.7 容器导入项目并运行语法检查。
 2. 运行完整核心回归测试。

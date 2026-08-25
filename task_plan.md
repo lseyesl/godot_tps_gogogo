@@ -4,7 +4,7 @@
 依据冻结 GDD，持续实现可在 Android 横屏运行的第三人称平面 PvE 射击游戏；本轮先交付可启动、可操作、可自动验证的核心垂直切片。
 
 ## 当前阶段
-阶段 41（完成）
+阶段 42（完成）
 
 ## 各阶段
 
@@ -272,7 +272,7 @@
 - **状态：** complete
 
 ### 阶段 40：GitHub Actions Android 构建
-- [x] 新增主分支、PR 和手动触发的 workflow
+- [x] 新增 Android APK 构建 workflow 与触发入口
 - [x] 在 Godot CI 4.7 容器中执行语法检查和核心回归
 - [x] 导出 arm64 Android 调试 APK 并上传 artifact
 - **状态：** complete
@@ -281,6 +281,13 @@
 - [x] 静态验证 workflow 和导出预设关键字段
 - [x] 运行本地 Godot 语法检查与完整回归
 - [x] 更新 README 和规划文档并提交
+- **状态：** complete
+
+### 阶段 42：Android Build 手动触发收窄
+- [x] 删除 `main` 推送触发
+- [x] 删除 Pull Request 触发
+- [x] 仅保留 `workflow_dispatch` 手动触发
+- [x] 同步 README 并验证 YAML
 - **状态：** complete
 
 ## 关键问题

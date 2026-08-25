@@ -520,3 +520,9 @@
   - 核心测试增加 Android 预设、Godot CI 版本、回归前置和 artifact 上传断言。
   - Godot `--check-only` 通过，完整核心回归输出 `PASS: core slice tests`，`git diff --check` 通过。
   - README 已记录手动触发与 artifact 下载流程。
+
+### 阶段 42：Android Build 手动触发收窄
+- **状态：** complete
+- 执行的操作：
+  - 删除 workflow 的 `push` 和 `pull_request` 触发器，仅保留 `workflow_dispatch`。
+  - README 同步改为仅通过 Actions 页面手动生成 APK。
