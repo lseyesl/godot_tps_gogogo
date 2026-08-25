@@ -9,6 +9,7 @@ func _run() -> void:
 	_test_weapon_definition()
 	_test_health_component()
 	await _test_main_scene()
+	await _test_sound_investigation()
 	if _failures.is_empty():
 		print("PASS: core slice tests")
 		quit(0)
@@ -26,6 +27,7 @@ func _test_weapon_definition() -> void:
 	_expect(is_equal_approx(definition.damage, 1.0), "standard pistol damage is 1")
 	_expect(is_equal_approx(definition.range_meters, 16.0), "standard pistol range is 16 meters")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
+	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
 
 func _test_health_component() -> void:
 	var health := HealthComponent.new()
@@ -109,6 +111,37 @@ func _test_main_scene() -> void:
 		await physics_frame
 		_expect(player.weapon.ammo_in_magazine == 5, "one shot consumes one round")
 		_expect(is_equal_approx(wall.health.current_health, 4.0), "hitscan shot damages wood wall by one")
+	instance.queue_free()
+	await process_frame
+
+func _test_sound_investigation() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await physics_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	var player := instance.get_node("Player") as PlayerCharacter
+	var guard := instance.get_node("PistolGuard") as PistolGuard
+	var sound_hub := instance.get_node("SoundEventHub") as GameSoundEventHub
+	guard.set_physics_process(false)
+	player.global_position = Vector3(0.0, 0.0, 5.0)
+	guard.global_position = Vector3(10.0, 0.0, 5.0)
+	guard.current_state = PistolGuard.GuardState.PATROL
+	_expect(player.request_fire(), "player fires to emit standard pistol sound")
+	_expect(guard.current_state == PistolGuard.GuardState.INVESTIGATE, "guard investigates gunshot inside 12 module hearing radius")
+
+	guard.current_state = PistolGuard.GuardState.PATROL
+	guard.global_position = Vector3(30.0, 0.0, 5.0)
+	sound_hub.emit_sound_event(
+		player.global_position,
+		24.0,
+		GameSoundEventHub.Priority.GUNSHOT,
+		player
+	)
+	_expect(guard.current_state == PistolGuard.GuardState.PATROL, "guard ignores gunshot outside hearing radius")
 	instance.queue_free()
 	await process_frame
 

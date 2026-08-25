@@ -44,6 +44,7 @@ func try_fire(direction: Vector3) -> bool:
 	_shot_cooldown = definition.shot_interval_seconds
 	ammo_changed.emit(ammo_in_magazine, definition.magazine_capacity)
 	fired.emit(global_position, endpoint, not hit.is_empty())
+	_emit_sound_event()
 	if ammo_in_magazine <= 0:
 		_start_reload()
 	return true
@@ -77,3 +78,13 @@ func _start_reload() -> void:
 		return
 	_reload_remaining = definition.reload_seconds
 	reload_started.emit(_reload_remaining)
+
+func _emit_sound_event() -> void:
+	var hub := GameSoundEventHub.find_in_tree(self)
+	if hub != null:
+		hub.emit_sound_event(
+			global_position,
+			definition.sound_radius_meters,
+			definition.sound_priority,
+			_owner_body
+		)

@@ -11,3 +11,5 @@ shot_interval_seconds = 0.45
 magazine_capacity = 6
 reload_seconds = 1.2
 automatic = false
+sound_radius_meters = 24.0
+sound_priority = 3

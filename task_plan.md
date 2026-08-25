@@ -4,7 +4,7 @@
 依据冻结 GDD，持续实现可在 Android 横屏运行的第三人称平面 PvE 射击游戏；本轮先交付可启动、可操作、可自动验证的核心垂直切片。
 
 ## 当前阶段
-阶段 9（完成）
+阶段 12（完成）
 
 ## 各阶段
 
@@ -74,6 +74,26 @@
 - [x] 提交感知与警卫切片
 - **状态：** complete
 
+### 阶段 10：声音事件领域层
+- [x] 创建集中式 SoundEventHub 与声音优先级
+- [x] 武器按 WeaponDefinition 发出声源事件
+- [x] 玩家移动发出 2 模块脚步事件
+- [x] 木墙摧毁发出 10 模块事件
+- **状态：** complete
+
+### 阶段 11：警卫听声调查
+- [x] 增加 INVESTIGATE 状态
+- [x] 只响应听觉半径内且优先级足够的声音
+- [x] 目视玩家与战斗状态优先于普通声音
+- [x] 到达声源后搜索并恢复巡逻
+- **状态：** complete
+
+### 阶段 12：声音切片验证与提交
+- [x] 自动验证武器声源半径和警卫调查
+- [x] 自动验证远距离声音不会触发调查
+- [x] 回归测试并更新文档
+- **状态：** complete
+
 ## 关键问题
 1. ~~当前环境安装的 Godot 4 具体版本是什么？~~ Godot 4.7 stable。
 2. ~~首条切片在不依赖外部美术资源时能否完整运行和验证？~~ 可以；语法检查和自动场景测试通过。
@@ -97,6 +117,7 @@
 | 自定义 `VirtualJoystick` 与 Godot 4.7 新增原生类重名 | 1 | 触控类改用 `GameVirtualJoystick`、`GameFireAimButton`、`GameTouchInputRouter` 命名 |
 | 沙箱内 `git add` 无法创建 `.git/index.lock` | 1 | 使用用户已明确授权的 Git 提权路径执行暂存与提交 |
 | ImmediateMesh 视野网格使 macOS headless 场景测试进入渲染崩溃 | 1 | headless 下跳过纯视觉网格，继续完整测试 VisionSensor 与警卫逻辑；编辑器/Android 正常绘制 |
+| 连续启动 editor import、check-only、test 时后两个 Godot 进程再次触发同一 MoltenVK 崩溃 | 1 | 不原样重试；测试改为独立进程并显式指定兼容渲染后端 |
 
 ## 备注
 - 核心规则变化必须新增 ADR；普通数值可在资源文件中调优。

@@ -10,6 +10,7 @@ enum GuardState {
 	PATROL,
 	WARNING,
 	COMBAT,
+	INVESTIGATE,
 	SEARCH,
 	DEAD,
 }
@@ -34,6 +35,7 @@ var _locked_shot_direction := Vector3.FORWARD
 var _last_known_player_position := Vector3.ZERO
 var _last_exposed_position := Vector3.ZERO
 var _exposure_was_visible := false
+var _active_sound_priority: int = 0
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var weapon: HitscanWeapon = $VisualRoot/WeaponPivot/Muzzle/StandardPistol
@@ -46,6 +48,9 @@ func _ready() -> void:
 	add_to_group("guards")
 	health.damaged.connect(_on_damaged)
 	health.depleted.connect(_on_depleted)
+	var sound_hub := GameSoundEventHub.find_in_tree(self)
+	if sound_hub != null:
+		sound_hub.sound_emitted.connect(_on_sound_emitted)
 	last_position_marker.top_level = true
 	last_position_marker.visible = false
 	_resolve_player()
@@ -64,6 +69,8 @@ func _physics_process(delta: float) -> void:
 			_process_warning(delta)
 		GuardState.COMBAT:
 			_process_combat(delta)
+		GuardState.INVESTIGATE:
+			_process_investigate(delta)
 		GuardState.SEARCH:
 			_process_search(delta)
 	_update_player_visibility()
@@ -131,6 +138,24 @@ func _process_search(delta: float) -> void:
 	if can_see_player():
 		_begin_warning()
 	elif is_zero_approx(_state_timer):
+		_transition_to(GuardState.PATROL)
+
+func _process_investigate(delta: float) -> void:
+	var planar_delta := _last_known_player_position - global_position
+	planar_delta.y = 0.0
+	if planar_delta.length() > 0.45:
+		velocity = planar_delta.normalized() * search_speed
+		_face_position(_last_known_player_position)
+		move_and_slide()
+	else:
+		velocity = Vector3.ZERO
+		rotate_y(patrol_turn_speed * delta)
+		_state_timer = maxf(0.0, _state_timer - delta)
+	if can_see_player():
+		_active_sound_priority = 0
+		_begin_warning()
+	elif is_zero_approx(_state_timer):
+		_active_sound_priority = 0
 		_transition_to(GuardState.PATROL)
 
 func _begin_warning() -> void:
@@ -213,3 +238,17 @@ func _on_depleted(_source: Node) -> void:
 	set_physics_process(false)
 	died.emit(self)
 	queue_free()
+
+func _on_sound_emitted(position: Vector3, radius: float, priority: int, source: Node) -> void:
+	if current_state == GuardState.DEAD or source == self:
+		return
+	if global_position.distance_to(position) > radius:
+		return
+	if current_state == GuardState.WARNING or current_state == GuardState.COMBAT:
+		return
+	if current_state == GuardState.INVESTIGATE and priority < _active_sound_priority:
+		return
+	_active_sound_priority = priority
+	_last_known_player_position = position
+	_state_timer = 2.0
+	_transition_to(GuardState.INVESTIGATE)
