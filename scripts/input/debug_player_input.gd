@@ -7,6 +7,8 @@ extends Node
 @onready var _player: PlayerCharacter = get_node(player_path) as PlayerCharacter
 @onready var _camera: Camera3D = get_node(camera_path) as Camera3D
 
+var _fire_held := false
+
 func _ready() -> void:
 	if OS.has_feature("mobile"):
 		set_process(false)
@@ -22,15 +24,23 @@ func _process(_delta: float) -> void:
 		return
 	_player.set_move_input(Input.get_vector("move_left", "move_right", "move_up", "move_down"))
 	_update_mouse_aim()
+	if _fire_held and _player.weapon.definition.automatic:
+		_player.request_fire()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player == null:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_fire_held = event.pressed
 		if event.pressed:
 			_player.request_fire()
 		else:
 			_player.release_fire()
+	elif event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_1:
+			_player.switch_to_default_weapon()
+		elif event.physical_keycode == KEY_2:
+			_player.switch_to_special_weapon()
 
 func _update_mouse_aim() -> void:
 	if _camera == null:

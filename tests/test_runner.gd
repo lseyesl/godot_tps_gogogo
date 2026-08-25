@@ -1,17 +1,21 @@
 extends SceneTree
 
 var _failures: Array[String] = []
+var _weapon_integration_completed := false
 
 func _init() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
 	_test_weapon_definition()
+	await _test_weapon_runtime()
 	_test_health_component()
 	await _test_navigation_grid()
 	await _test_cover_behavior()
 	await _test_environment_reactions()
 	await _test_main_scene()
+	await _test_weapon_pickups_and_rocket()
+	_expect(_weapon_integration_completed, "weapon pickup and rocket integration test completes without runtime errors")
 	await _test_sound_investigation()
 	if _failures.is_empty():
 		print("PASS: core slice tests")
@@ -31,6 +35,50 @@ func _test_weapon_definition() -> void:
 	_expect(is_equal_approx(definition.range_meters, 16.0), "standard pistol range is 16 meters")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
 	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
+	var heavy := load("res://resources/weapons/heavy_pistol.tres") as WeaponDefinition
+	var machine_gun := load("res://resources/weapons/machine_gun.tres") as WeaponDefinition
+	var rocket := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
+	_expect(heavy != null and heavy.is_valid(), "heavy pistol resource is valid")
+	_expect(heavy.damage == 2.0 and heavy.magazine_capacity == 6, "heavy pistol uses frozen damage and magazine values")
+	_expect(not heavy.infinite_reserve and heavy.starting_reserve_ammo == 18, "heavy pistol starts with finite 18-round reserve")
+	_expect(machine_gun != null and machine_gun.is_valid(), "machine gun resource is valid")
+	_expect(machine_gun.automatic and is_equal_approx(machine_gun.shot_interval_seconds, 0.1), "machine gun supports held fire at ten rounds per second")
+	_expect(machine_gun.magazine_capacity == 24 and machine_gun.starting_reserve_ammo == 48, "machine gun uses frozen ammunition values")
+	_expect(rocket != null and rocket.is_valid(), "rocket launcher resource is valid")
+	_expect(rocket.weapon_type == WeaponDefinition.WeaponType.ROCKET, "rocket launcher selects projectile firing")
+	_expect(rocket.magazine_capacity == 1 and rocket.starting_reserve_ammo == 3, "rocket launcher uses one plus three ammunition")
+	_expect(is_equal_approx(rocket.projectile_speed_meters_per_second, 10.0), "rocket travels at ten meters per second")
+	_expect(is_equal_approx(rocket.explosion_radius_meters, 4.0), "rocket explosion radius is four meters")
+
+func _test_weapon_runtime() -> void:
+	var heavy_definition := load("res://resources/weapons/heavy_pistol.tres") as WeaponDefinition
+	var heavy := GameWeapon3D.new()
+	heavy.definition = heavy_definition
+	root.add_child(heavy)
+	for shot in heavy_definition.magazine_capacity:
+		_expect(heavy.try_fire(Vector3.FORWARD), "finite weapon fires magazine round %d" % (shot + 1))
+		heavy.call("_physics_process", heavy_definition.shot_interval_seconds + 0.01)
+	_expect(heavy.is_reloading(), "empty finite magazine starts automatic reload")
+	heavy.call("_physics_process", heavy_definition.reload_seconds + 0.01)
+	_expect(heavy.ammo_in_magazine == 6, "automatic reload fills heavy pistol magazine")
+	_expect(heavy.reserve_ammo == 12, "automatic reload consumes finite reserve ammunition")
+	heavy.queue_free()
+	await process_frame
+
+	var machine_definition := load("res://resources/weapons/machine_gun.tres") as WeaponDefinition
+	var machine := GameWeapon3D.new()
+	machine.definition = machine_definition
+	root.add_child(machine)
+	var initial_spread := machine.current_spread_degrees
+	for _shot in 4:
+		_expect(machine.try_fire(Vector3.FORWARD), "machine gun accepts repeated cooldown-paced fire requests")
+		machine.call("_physics_process", machine_definition.shot_interval_seconds + 0.01)
+	_expect(machine.current_spread_degrees > initial_spread, "machine gun spread grows during sustained fire")
+	var spread_after_burst := machine.current_spread_degrees
+	machine.call("_physics_process", 1.0)
+	_expect(machine.current_spread_degrees < spread_after_burst, "machine gun spread recovers after firing stops")
+	machine.queue_free()
+	await process_frame
 
 func _test_health_component() -> void:
 	var health := HealthComponent.new()
@@ -136,8 +184,8 @@ func _test_cover_behavior() -> void:
 	guard.global_position = Vector3.ZERO
 	player.global_position = Vector3(0.0, 0.0, 10.0)
 	guard.set("_last_known_player_position", player.global_position)
-	guard.call("_apply_fallback_combat_movement")
 	var toward_band_player := (player.global_position - guard.global_position).normalized()
+	guard.call("_apply_fallback_combat_movement")
 	_expect(absf(guard.velocity.dot(toward_band_player)) < 0.01, "guard strafes laterally inside preferred distance band")
 	instance.queue_free()
 	await process_frame
@@ -301,6 +349,106 @@ func _test_main_scene() -> void:
 		await physics_frame
 		_expect(player.weapon.ammo_in_magazine == 5, "one shot consumes one round")
 		_expect(is_equal_approx(wall.health.current_health, 4.0), "hitscan shot damages wood wall by one")
+	instance.queue_free()
+	await process_frame
+
+func _test_weapon_pickups_and_rocket() -> void:
+	var scene := load("res://scenes/main/main.tscn") as PackedScene
+	var instance := scene.instantiate()
+	root.add_child(instance)
+	await process_frame
+	await physics_frame
+	var debug_input := instance.get_node("DebugPlayerInput")
+	debug_input.set_process(false)
+	debug_input.set_process_unhandled_input(false)
+	var player := instance.get_node("Player") as PlayerCharacter
+	var guard := instance.get_node("PistolGuard") as PistolGuard
+	guard.set_physics_process(false)
+	player.set_physics_process(false)
+	var pickup_nodes := instance.get_tree().get_nodes_in_group("weapon_pickups")
+	_expect(pickup_nodes.size() == 4, "main scene contains four special weapon pickups")
+	_expect(instance.get_node_or_null("HUD/WeaponButtons/DefaultWeaponButton") is Button, "HUD contains default weapon switch button")
+	_expect(instance.get_node_or_null("HUD/WeaponButtons/SpecialWeaponButton") is Button, "HUD contains special weapon switch button")
+	_expect(instance.get_node_or_null("HUD/SwapWeaponButton") is Button, "HUD contains contextual weapon swap button")
+
+	var heavy_pickup := instance.get_node("HeavyPistolPickup") as GameWeaponPickup3D
+	_expect(heavy_pickup.collect_for_player(player), "empty special slot automatically collects weapon pickup")
+	_expect(player.special_weapon != null and player.special_weapon.definition.weapon_id == &"heavy_pistol", "automatic pickup equips heavy pistol in special slot")
+	_expect(player.default_weapon != null and player.default_weapon.definition.weapon_id == &"standard_pistol", "special pickup permanently preserves standard pistol")
+	player.special_weapon.set_ammo_state(4, 7)
+
+	var machine_pickup := instance.get_node("MachineGunPickup") as GameWeaponPickup3D
+	_expect(not machine_pickup.collect_for_player(player), "different special weapon requires explicit confirmation")
+	_expect((instance.get_node("HUD/SwapWeaponButton") as Button).visible, "different pickup exposes temporary swap button")
+	_expect(player.confirm_weapon_swap(), "player can confirm offered special weapon exchange")
+	_expect(player.special_weapon.definition.weapon_id == &"machine_gun", "confirmed exchange equips new special weapon")
+	var touch_router := instance.get_node("HUD/TouchControls") as GameTouchInputRouter
+	var automatic_ammo_before := player.special_weapon.ammo_in_magazine
+	touch_router.set("_fire_held", true)
+	touch_router.call("_process", 0.0)
+	player.special_weapon.call("_physics_process", player.special_weapon.definition.shot_interval_seconds + 0.01)
+	touch_router.call("_process", 0.0)
+	touch_router.set("_fire_held", false)
+	_expect(player.special_weapon.ammo_in_magazine == automatic_ammo_before - 2, "held touch fire repeatedly requests automatic machine-gun shots")
+	var preserved_drop: GameWeaponPickup3D
+	for pickup in instance.get_tree().get_nodes_in_group("weapon_pickups"):
+		var candidate := pickup as GameWeaponPickup3D
+		if candidate != null and candidate.definition.weapon_id == &"heavy_pistol" and candidate != heavy_pickup:
+			preserved_drop = candidate
+			break
+	_expect(preserved_drop != null, "exchange drops replaced special weapon in the world")
+	if preserved_drop != null:
+		_expect(preserved_drop.stored_magazine == 4 and preserved_drop.stored_reserve == 7, "dropped weapon preserves magazine and reserve state")
+
+	player.special_weapon.set_ammo_state(12, 10)
+	var bonus_pickup := instance.get_node("BonusMachineGunPickup") as GameWeaponPickup3D
+	_expect(bonus_pickup.collect_for_player(player), "same-type pickup automatically replenishes reserve")
+	_expect(player.special_weapon.reserve_ammo == 58, "same-type pickup adds its configured reserve ammunition")
+	var full_pickup_scene := load("res://scenes/world/weapon_pickup_3d.tscn") as PackedScene
+	var full_pickup := full_pickup_scene.instantiate() as GameWeaponPickup3D
+	full_pickup.definition = load("res://resources/weapons/machine_gun.tres") as WeaponDefinition
+	full_pickup.stored_reserve = 12
+	instance.add_child(full_pickup)
+	player.special_weapon.set_ammo_state(12, player.special_weapon.definition.max_reserve_ammo)
+	_expect(not full_pickup.collect_for_player(player), "full reserve does not consume same-type pickup")
+	_expect(not full_pickup.is_queued_for_deletion(), "unneeded same-type pickup remains available")
+
+	player.special_weapon.set_ammo_state(1, 0)
+	player.special_weapon.call("_physics_process", player.special_weapon.definition.shot_interval_seconds + 0.01)
+	player.switch_to_special_weapon()
+	_expect(player.request_fire(), "special weapon fires its final available round")
+	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "exhausted special weapon automatically switches back to standard pistol")
+	_expect(player.special_weapon != null and not player.special_weapon.has_any_ammo(), "exhausted special weapon remains stored in its slot")
+
+	var rocket_definition := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
+	player.equip_special_weapon(rocket_definition, 1, 0)
+	player.global_position = Vector3(24.0, 0.0, 14.0)
+	player.set_aim_input(Vector2(0.0, -1.0), true)
+	player.call("_update_aim_direction")
+	guard.global_position = Vector3(player.weapon.global_position.x, 0.0, 6.0)
+	guard.health.reset_health()
+	var guard_depleted := [false]
+	guard.health.depleted.connect(func(_source: Node) -> void:
+		guard_depleted[0] = true
+	)
+	_expect(player.weapon is RocketWeapon, "rocket pickup equips projectile weapon implementation")
+	_expect(player.request_fire(), "rocket launcher spawns a physical rocket")
+	var spawned_rocket: GameRocketProjectile
+	for child in instance.get_children():
+		if child is GameRocketProjectile:
+			spawned_rocket = child as GameRocketProjectile
+			break
+	_expect(spawned_rocket != null, "rocket shot creates visible projectile node")
+	if spawned_rocket != null:
+		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 16.0), "rocket projectile inherits unified 16 meter range")
+		_expect(is_equal_approx(spawned_rocket.explosion_radius_meters, 4.0), "rocket projectile inherits four meter blast radius")
+	for _frame in 60:
+		await physics_frame
+		if guard_depleted[0]:
+			break
+	_expect(guard_depleted[0], "rocket collision resolves factionless center explosion damage")
+	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "empty rocket launcher returns control to default pistol while projectile travels")
+	_weapon_integration_completed = true
 	instance.queue_free()
 	await process_frame
 

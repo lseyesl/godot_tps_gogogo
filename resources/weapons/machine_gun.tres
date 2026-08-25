@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/weapon_definition.gd" id="1_definition"]
+
+[resource]
+script = ExtResource("1_definition")
+weapon_id = &"machine_gun"
+display_name = "Machine Gun"
+weapon_type = 0
+damage = 1.0
+range_meters = 16.0
+shot_interval_seconds = 0.1
+magazine_capacity = 24
+reload_seconds = 1.8
+automatic = true
+infinite_reserve = false
+starting_reserve_ammo = 48
+max_reserve_ammo = 96
+pickup_reserve_ammo = 48
+minimum_spread_degrees = 0.4
+maximum_spread_degrees = 5.0
+spread_per_shot_degrees = 0.45
+spread_recovery_degrees_per_second = 3.5
+sound_radius_meters = 28.0
+sound_priority = 3

@@ -4,18 +4,18 @@
 
 [resource]
 script = ExtResource("1_definition")
-weapon_id = &"standard_pistol"
-display_name = "Standard Pistol"
+weapon_id = &"heavy_pistol"
+display_name = "Heavy Pistol"
 weapon_type = 0
-damage = 1.0
+damage = 2.0
 range_meters = 16.0
-shot_interval_seconds = 0.45
+shot_interval_seconds = 0.65
 magazine_capacity = 6
-reload_seconds = 1.2
+reload_seconds = 1.4
 automatic = false
-infinite_reserve = true
-starting_reserve_ammo = 0
-max_reserve_ammo = 0
-pickup_reserve_ammo = 0
-sound_radius_meters = 24.0
+infinite_reserve = false
+starting_reserve_ammo = 18
+max_reserve_ammo = 36
+pickup_reserve_ammo = 18
+sound_radius_meters = 28.0
 sound_priority = 3

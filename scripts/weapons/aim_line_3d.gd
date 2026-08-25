@@ -13,7 +13,7 @@ var _segments: Array[MeshInstance3D] = []
 var _material: StandardMaterial3D
 var _active := false
 
-@onready var _weapon: HitscanWeapon = get_node(weapon_path) as HitscanWeapon
+@onready var _weapon: GameWeapon3D = get_node(weapon_path) as GameWeapon3D
 @onready var _player: PlayerCharacter = get_node(player_path) as PlayerCharacter
 
 func _ready() -> void:
@@ -55,3 +55,6 @@ func set_active(value: bool) -> void:
 	var color := active_color if _active else idle_color
 	_material.albedo_color = color
 	_material.emission = color
+
+func set_weapon(value: GameWeapon3D) -> void:
+	_weapon = value

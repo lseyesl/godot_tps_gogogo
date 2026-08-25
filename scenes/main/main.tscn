@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
@@ -15,6 +15,10 @@
 [ext_resource type="Script" path="res://scripts/world/environment_reaction_hub.gd" id="13_reaction_hub"]
 [ext_resource type="PackedScene" path="res://scenes/world/oil_barrel_wall.tscn" id="14_oil_barrel"]
 [ext_resource type="PackedScene" path="res://scenes/world/gasoline_barrel_wall.tscn" id="15_gasoline_barrel"]
+[ext_resource type="PackedScene" path="res://scenes/world/weapon_pickup_3d.tscn" id="16_weapon_pickup"]
+[ext_resource type="Resource" path="res://resources/weapons/heavy_pistol.tres" id="17_heavy_pistol"]
+[ext_resource type="Resource" path="res://resources/weapons/machine_gun.tres" id="18_machine_gun"]
+[ext_resource type="Resource" path="res://resources/weapons/rocket_launcher.tres" id="19_rocket_launcher"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -115,6 +119,22 @@ position = Vector3(-9, 0, 7)
 [node name="GasolineBarrelWall" parent="." instance=ExtResource("15_gasoline_barrel")]
 position = Vector3(-7, 0, 7)
 
+[node name="HeavyPistolPickup" parent="." instance=ExtResource("16_weapon_pickup")]
+position = Vector3(12, 0, 7)
+definition = ExtResource("17_heavy_pistol")
+
+[node name="MachineGunPickup" parent="." instance=ExtResource("16_weapon_pickup")]
+position = Vector3(15, 0, 7)
+definition = ExtResource("18_machine_gun")
+
+[node name="RocketLauncherPickup" parent="." instance=ExtResource("16_weapon_pickup")]
+position = Vector3(18, 0, 7)
+definition = ExtResource("19_rocket_launcher")
+
+[node name="BonusMachineGunPickup" parent="." instance=ExtResource("16_weapon_pickup")]
+position = Vector3(21, 0, 7)
+definition = ExtResource("18_machine_gun")
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 position = Vector3(0, 0, 5)
 
@@ -171,8 +191,34 @@ offset_left = 24.0
 offset_top = 655.0
 offset_right = 620.0
 offset_bottom = 700.0
-text = "WASD 移动  ·  鼠标瞄准  ·  左键单发  ·  木墙 5 发摧毁"
+text = "WASD 移动  ·  鼠标瞄准  ·  左键射击  ·  1/2 切换武器"
 theme_override_colors/font_color = Color(0.72, 0.78, 0.84, 1)
+
+[node name="WeaponButtons" type="HBoxContainer" parent="HUD"]
+offset_left = 872.0
+offset_top = 24.0
+offset_right = 1256.0
+offset_bottom = 102.0
+theme_override_constants/separation = 10
+
+[node name="DefaultWeaponButton" type="Button" parent="HUD/WeaponButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(180, 72)
+text = "STANDARD PISTOL\n6 / 6 · ∞"
+
+[node name="SpecialWeaponButton" type="Button" parent="HUD/WeaponButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 72)
+text = "SPECIAL\nEMPTY"
+
+[node name="SwapWeaponButton" type="Button" parent="HUD"]
+unique_name_in_owner = true
+visible = false
+offset_left = 918.0
+offset_top = 520.0
+offset_right = 1138.0
+offset_bottom = 584.0
+text = "交换特殊武器"
 
 [node name="TouchControls" type="Control" parent="HUD"]
 layout_mode = 3
