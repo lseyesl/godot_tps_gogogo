@@ -10,6 +10,7 @@ func _init() -> void:
 
 func _run() -> void:
 	_test_android_build_configuration()
+	_test_touch_movement_response()
 	_test_weapon_definition()
 	await _test_weapon_runtime()
 	_test_health_component()
@@ -68,6 +69,18 @@ func _test_android_build_configuration() -> void:
 	_expect(workflow.contains("generate_release_notes: true"), "Android workflow generates release notes")
 	_expect(workflow.contains("files: ${{ env.APK_PATH }}"), "Android workflow attaches the APK to the release")
 	_expect(not workflow.contains("actions/upload-artifact@v4"), "Android workflow does not retain a duplicate temporary artifact")
+
+func _test_touch_movement_response() -> void:
+	var joystick := GameVirtualJoystick.new()
+	joystick.size = Vector2(160.0, 160.0)
+	root.add_child(joystick)
+	joystick.call("_update_value", joystick.size * 0.5 + Vector2(joystick.movement_radius * 0.5, 0.0))
+	_expect(joystick.value.length() >= 0.62, "half joystick drag produces responsive movement output")
+	joystick.call("_update_value", joystick.size * 0.5 + Vector2(joystick.movement_radius, 0.0))
+	_expect(is_equal_approx(joystick.value.length(), 1.0), "full joystick drag reaches maximum movement output")
+	joystick.call("_update_value", joystick.size * 0.5 + Vector2(joystick.movement_radius * 0.08, 0.0))
+	_expect(joystick.value == Vector2.ZERO, "small joystick drift remains inside the deadzone")
+	joystick.queue_free()
 
 func _test_weapon_definition() -> void:
 	var definition := load("res://resources/weapons/standard_pistol.tres") as WeaponDefinition
@@ -472,6 +485,7 @@ func _test_main_scene() -> void:
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
 	var guard := instance.get_node_or_null("ContentSpawner3D/PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
+	_expect(is_equal_approx(player.move_speed, 6.0), "player moves at six meters per second")
 	_expect(player.get_node_or_null("ShotFeedback3D") is GameShotFeedback3D, "player contains reusable shot feedback")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")

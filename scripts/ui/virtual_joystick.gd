@@ -3,7 +3,8 @@ extends Control
 
 signal vector_changed(value: Vector2)
 
-@export_range(20.0, 160.0, 1.0) var movement_radius: float = 72.0
+@export_range(20.0, 160.0, 1.0) var movement_radius: float = 58.0
+@export_range(0.0, 0.4, 0.01) var deadzone: float = 0.12
 @export var base_color := Color(0.2, 0.28, 0.36, 0.48)
 @export var knob_color := Color(0.42, 0.95, 0.8, 0.82)
 
@@ -52,7 +53,13 @@ func _notification(what: int) -> void:
 
 func _update_value(local_position: Vector2) -> void:
 	var delta := local_position - size * 0.5
-	value = (delta / movement_radius).limit_length(1.0)
+	var raw := (delta / movement_radius).limit_length(1.0)
+	var strength := raw.length()
+	if strength <= deadzone:
+		value = Vector2.ZERO
+	else:
+		var normalized_strength := clampf((strength - deadzone) / (1.0 - deadzone), 0.0, 1.0)
+		value = raw.normalized() * sqrt(normalized_strength)
 	vector_changed.emit(value)
 	queue_redraw()
 

@@ -10,7 +10,7 @@ enum WeaponSlot {
 	SPECIAL,
 }
 
-@export var move_speed: float = 4.5
+@export var move_speed: float = 6.0
 @export var turn_speed_radians: float = 16.0
 @export var footstep_interval_seconds: float = 0.45
 @export var footstep_radius_meters: float = 4.0
