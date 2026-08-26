@@ -613,9 +613,22 @@
   - 玩家和警卫场景移除胶囊体、方块枪预览网格，换成对应 GLB 预制体；碰撞体和逻辑枪口保持不变。
   - 使用整网格运行时材质绕开 dummy renderer 的空导入材质错误；语法检查和完整核心回归均通过。
 
+### 阶段 52：环境原型模型接入
+- **状态：** complete
+- 执行的操作：
+  - 用户已将 BrickWall、WoodenWall、WoodenCrate、Sandbag、OilDrum、FuelCan、Medkit、MissionTerminal 和 ExtractionBeacon 模型放入原型目录。
+  - 计划先检查实际 GLB 层级与尺度，再创建表现预制体并替换地图视觉，玩法碰撞和领域逻辑保持不变。
+  - 9 个 GLB 均确认是带 StandardMaterial3D 的单网格；已按实际 AABB 创建独立表现预制体，统一修正居中原点、地面高度和世界尺度。
+  - 木墙、油桶墙、汽油桶墙、急救包、任务终端和撤离信标已替换旧 PrimitiveMesh；砖墙改为重复 2 米标准模型，避免拉伸砖块。
+  - 新增木箱与沙袋静态掩体预制体并放入地图，纳入碰撞、导航障碍和盲区静态表现。
+  - 静态盲区材质逻辑增加导入 GLB 表面材质回退，保证没有 `material_override` 的模型仍可暗化。
+  - 自动测试补齐砖墙、木墙、木箱、沙袋、两类桶、急救包、任务终端和撤离信标的真实模型节点断言，并确认旧预览节点已移除。
+  - 沙箱外 Godot 语法检查与完整核心回归通过，输出 `PASS: core slice tests`。
+
 ## 本轮 Android CI 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
 |--------|------|---------|---------|
+| 2026-08-26 | 环境 GLB 材质探针在沙箱内无法打开 `user://logs` 并触发 MoltenVK signal 11 | 1 | 不在沙箱内重复；改用已授权的沙箱外 Godot headless 路径完成只读检查 |
 | 2026-08-26 | Docker CLI 无法连接 OrbStack daemon，本机无法启动 `barichello/godot-ci:4.7` 重放 | 1 | 不重复尝试；使用用户的远端日志为原始反馈，新增快速环境自检作为本地回归缝隙 |
 | 2026-08-26 | 沙箱网络无法解析 `raw.githubusercontent.com` | 1 | 按工具规则改为申请非沙箱网络读取镜像源配置 |
 | 2026-08-26 | 本机旧版 Ruby 缺少 `Array#filter_map`，shell 区块批量语法检查未执行 | 1 | YAML 解析已通过；改用 `map { ... }.compact` 后重新检查，不重复使用不兼容 API |

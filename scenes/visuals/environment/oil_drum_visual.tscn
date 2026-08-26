@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/prototypes/OilDrum.glb" id="1_model"]
+
+[node name="OilDrumVisual" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+position = Vector3(0, 0.5501, 0)
+scale = Vector3(1.1, 1.1, 1.1)

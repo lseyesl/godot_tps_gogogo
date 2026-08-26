@@ -1,21 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/gasoline_barrel_wall.gd" id="1_gasoline"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
+[ext_resource type="PackedScene" path="res://scenes/visuals/environment/fuel_can_visual.tscn" id="3_visual"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_module"]
-size = Vector3(2, 2.5, 0.8)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_barrel"]
-top_radius = 0.3
-bottom_radius = 0.3
-height = 2.1
-radial_segments = 10
-
-[sub_resource type="StandardMaterial3D" id="Material_gasoline"]
-albedo_color = Color(0.72, 0.08, 0.045, 1)
-metallic = 0.52
-roughness = 0.38
+size = Vector3(2, 1.25, 0.85)
 
 [node name="GasolineBarrelWall" type="StaticBody3D"]
 collision_layer = 10
@@ -23,23 +13,16 @@ collision_mask = 1
 script = ExtResource("1_gasoline")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.25, 0)
+position = Vector3(0, 0.625, 0)
 shape = SubResource("BoxShape_module")
 
-[node name="BarrelLeft" type="MeshInstance3D" parent="."]
-position = Vector3(-0.65, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_gasoline")
+[node name="FuelCanLeft" parent="." instance=ExtResource("3_visual")]
+position = Vector3(-0.6, 0, 0)
 
-[node name="BarrelCenter" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_gasoline")
+[node name="FuelCanCenter" parent="." instance=ExtResource("3_visual")]
 
-[node name="BarrelRight" type="MeshInstance3D" parent="."]
-position = Vector3(0.65, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_gasoline")
+[node name="FuelCanRight" parent="." instance=ExtResource("3_visual")]
+position = Vector3(0.6, 0, 0)
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")

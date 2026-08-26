@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/prototypes/Sandbag.glb" id="1_model"]
+
+[node name="SandbagVisual" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+position = Vector3(0, 0.3865, 0)
+scale = Vector3(2, 2, 2)

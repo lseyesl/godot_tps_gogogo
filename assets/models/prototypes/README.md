@@ -9,4 +9,6 @@
 - 武器挂点：`Grip`、`Muzzle`
 - 文件名使用小写蛇形命名，例如 `player_pistol_prototype.glb`
 
+当前环境原型沿用美术交付文件名：`BrickWall.glb`、`WoodenWall.glb`、`WoodenCrate.glb`、`Sandbag.glb`、`OilDrum.glb`、`FuelCan.glb`、`Medkit.glb`、`MissionTerminal.glb` 和 `ExtractionBeacon.glb`。Godot 包装场景位于 `scenes/visuals/environment/`，负责贴地、缩放和复用；不要直接在玩法地图中拉伸 GLB。
+
 正式模型通过评审后再移动到对应的正式资源目录。

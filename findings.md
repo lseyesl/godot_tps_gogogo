@@ -106,6 +106,10 @@
 | 保持标准 Android 导出并清空 SDK 覆盖 | 仅为固定 API 版本启用自定义 Gradle 会额外要求 Android Build Template；当前测试分发使用模板默认值更小、更稳定 |
 | 地图安全以真实双向视野而非距离近似验收 | 直接调用每个警卫候选的 VisionSensor，可同时覆盖 120° 朝向、16 米距离和墙体遮挡 |
 | 玩家与警卫复用同一兵人 GLB | 两个轻量场景实例化共享表现预制体，再用整网格运行时材质分别染成青绿和红色，避免复制模型资源 |
+| 环境原型模型按玩法场景包装而不替换根节点 | GLB 只负责表现；既有 StaticBody3D/Area3D、碰撞体、耐久、导航、任务和拾取脚本继续作为权威玩法边界 |
+| 环境 GLB 全部采用居中原点与单 MeshInstance3D | 墙体宽约 1 米，桶/终端高约 1 米，急救包约 1×0.52×0.78 米；包装场景负责上移半高并按现有模块尺寸缩放 |
+| 长砖墙应重复标准视觉模块而非拉伸单个模型 | 主墙长 18 米、出生后墙长 10 米、侧墙长 8 米；按 2 米模块平铺可保留砖块比例并让连接端无缝 |
+| 任务和撤离状态光效应继续保留独立 MeshInstance3D | `objective_point_3d.gd` 依赖 `VisualRoot/Beacon`，`extraction_point_3d.gd` 依赖 `VisualRoot/Zone` 动态换材质；GLB 替换实体造型但不替换状态光效 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -116,6 +120,9 @@
 | ImmediateMesh 即使在 headless 场景测试中也会触发 macOS 图形路径 | GameVisionCone3D 在 headless 下只禁用绘制；共享感知算法照常运行和测试 |
 | 沙箱内 Godot 偶发在 `user://logs` / MoltenVK 路径 signal 11 | 使用已授权的非沙箱 headless 命令完成语法与回归验证；代码测试本身通过 |
 | GLB 网格表面在 dummy renderer 下没有可用原始材质 | 不读取或逐表面覆盖空材质，直接为 MeshInstance3D 设置统一 `material_override`，阵营染色与 headless 回归均稳定 |
+| 9 个环境 GLB 首次加入时尚未生成 Godot 导入元数据 | 运行一次 headless 编辑器导入后全部成功生成 `.glb.import`；本机 EditorSettings 保存错误仍是已知沙箱噪声 |
+| 环境 GLB 使用嵌入图片且 Godot 配置为提取到源目录 | 导入生成的 `*_0.png` 是模型材质依赖，必须与 GLB 和 `.import` 一同提交，否则新克隆可能丢失贴图 |
+| 导入模型的基础颜色主要来自纹理而非 `albedo_color` | 盲区暗化从首个表面材质复制纹理，再用 `material_override` 施加 0.3 倍颜色倍率；测试不能继续使用旧纯色材质的固定 0.2 亮度阈值 |
 
 ## 资源
 - `docs/design/GDD-MVP-v0.1.md`
@@ -143,6 +150,9 @@
 - `.github/workflows/android-build.yml`
 - `assets/models/prototypes/player.glb`
 - `scenes/visuals/shared_miniature.tscn`
+- `scenes/visuals/environment/`
+- `scenes/world/wooden_crate_3d.tscn`
+- `scenes/world/sandbag_wall_3d.tscn`
 
 ## 视觉/浏览器发现
 - 本轮尚未进行视觉或浏览器检查。

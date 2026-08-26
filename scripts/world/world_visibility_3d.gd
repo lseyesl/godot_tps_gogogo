@@ -79,6 +79,8 @@ func _apply_static_visibility(root_node: Node3D, in_view: bool) -> void:
 		var key := mesh_instance.get_instance_id()
 		if not _material_states.has(key):
 			var original := mesh_instance.material_override as StandardMaterial3D
+			if original == null and mesh_instance.mesh != null and mesh_instance.mesh.get_surface_count() > 0:
+				original = mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
 			if original == null:
 				continue
 			var visible_material := original.duplicate() as StandardMaterial3D

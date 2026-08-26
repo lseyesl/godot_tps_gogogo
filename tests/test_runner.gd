@@ -509,11 +509,24 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")
 	_expect(instance.get_node_or_null("SpawnLeftWall") is StaticBody3D, "spawn courtyard has indestructible left cover")
 	_expect(instance.get_node_or_null("SpawnRightWall") is StaticBody3D, "spawn courtyard has indestructible right cover")
+	_expect(instance.get_node_or_null("BrickWall/VisualRoot/Module01/Model/world/geometry_0") is MeshInstance3D, "brick walls use repeated imported model modules")
+	_expect(instance.get_node_or_null("BrickWall/MeshInstance3D") == null, "brick wall primitive preview is removed")
+	_expect(instance.get_node_or_null("WoodWallA/WoodenWallVisual/Model/world/geometry_0") is MeshInstance3D, "damageable walls use the imported wooden wall model")
+	_expect(instance.get_node_or_null("WoodWallA/MeshInstance3D") == null, "wood wall primitive preview is removed")
+	_expect(instance.get_node_or_null("WoodenCrateCover/WoodenCrateVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported wooden crate cover")
+	_expect(instance.get_node_or_null("SandbagCover/SandbagVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported sandbag cover")
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
+	_expect(instance.get_node_or_null("OilBarrelWall/OilDrumLeft/Model/world/geometry_0") is MeshInstance3D, "oil wall uses the imported oil drum model")
+	_expect(instance.get_node_or_null("OilBarrelWall/BarrelLeft") == null, "oil barrel primitive preview is removed")
+	_expect(instance.get_node_or_null("GasolineBarrelWall/FuelCanLeft/Model/world/geometry_0") is MeshInstance3D, "gasoline wall uses the imported fuel can model")
+	_expect(instance.get_node_or_null("GasolineBarrelWall/BarrelLeft") == null, "gasoline barrel primitive preview is removed")
 	_expect(instance.get_node_or_null("ContentSpawner3D/ObjectivePoint") is GameObjectivePoint3D, "main scene contains remote objective point")
 	_expect(instance.get_node_or_null("ExtractionPoint") is GameExtractionPoint3D, "main scene contains spawn extraction point")
+	_expect(instance.get_node_or_null("ContentSpawner3D/HealthPack1/VisualRoot/MedkitVisual/Model/world/geometry_0") is MeshInstance3D, "health pickup uses the imported medkit model")
+	_expect(instance.get_node_or_null("ContentSpawner3D/ObjectivePoint/VisualRoot/MissionTerminalVisual/Model/world/geometry_0") is MeshInstance3D, "objective uses the imported mission terminal model")
+	_expect(instance.get_node_or_null("ExtractionPoint/VisualRoot/ExtractionBeaconVisual/Model/world/geometry_0") is MeshInstance3D, "extraction uses the imported beacon model")
 	_expect(instance.get_node_or_null("MissionController") is GameMissionController, "main scene contains mission controller")
 	_expect(instance.get_node_or_null("HUD/ObjectiveIndicator") is GameObjectiveIndicator, "HUD contains edge objective indicator")
 	_expect(instance.get_node_or_null("HUD/TouchControls") is GameTouchInputRouter, "main scene contains touch input router")
@@ -725,9 +738,10 @@ func _test_aim_assist_and_blind_visibility() -> void:
 	var wall := instance.get_node("WoodWallD") as DamageableWall
 	player.rotation = Vector3(0.0, PI, 0.0)
 	visibility.update_visibility_now()
-	var wall_mesh := wall.get_node("MeshInstance3D") as MeshInstance3D
+	var wall_mesh := wall.find_child("geometry_0", true, false) as MeshInstance3D
+	_expect(wall_mesh != null, "wood wall exposes its imported model mesh to static visibility")
 	var blind_material := wall_mesh.material_override as StandardMaterial3D
-	_expect(wall.visible and blind_material.albedo_color.get_luminance() < 0.2, "blind static wall remains present with a dark desaturated material")
+	_expect(wall.visible and blind_material != null and blind_material.albedo_color.get_luminance() <= visibility.blind_brightness + 0.01, "blind static wall remains present with a dark desaturated material")
 
 	primary.global_position = Vector3(3.0, 0.0, -1.0)
 	primary.exposure_remaining = 0.0

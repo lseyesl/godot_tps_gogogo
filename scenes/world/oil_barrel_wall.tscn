@@ -1,21 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/oil_barrel_wall.gd" id="1_oil"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
+[ext_resource type="PackedScene" path="res://scenes/visuals/environment/oil_drum_visual.tscn" id="3_visual"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_module"]
-size = Vector3(2, 2.5, 0.8)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_barrel"]
-top_radius = 0.3
-bottom_radius = 0.3
-height = 2.1
-radial_segments = 10
-
-[sub_resource type="StandardMaterial3D" id="Material_oil"]
-albedo_color = Color(0.1, 0.13, 0.16, 1)
-metallic = 0.65
-roughness = 0.42
+size = Vector3(2, 1.25, 0.85)
 
 [sub_resource type="SphereMesh" id="SphereMesh_fire"]
 radius = 0.32
@@ -36,34 +26,27 @@ collision_mask = 1
 script = ExtResource("1_oil")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 1.25, 0)
+position = Vector3(0, 0.625, 0)
 shape = SubResource("BoxShape_module")
 
-[node name="BarrelLeft" type="MeshInstance3D" parent="."]
-position = Vector3(-0.65, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_oil")
+[node name="OilDrumLeft" parent="." instance=ExtResource("3_visual")]
+position = Vector3(-0.6, 0, 0)
 
-[node name="BarrelCenter" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_oil")
+[node name="OilDrumCenter" parent="." instance=ExtResource("3_visual")]
 
-[node name="BarrelRight" type="MeshInstance3D" parent="."]
-position = Vector3(0.65, 1.05, 0)
-mesh = SubResource("CylinderMesh_barrel")
-material_override = SubResource("Material_oil")
+[node name="OilDrumRight" parent="." instance=ExtResource("3_visual")]
+position = Vector3(0.6, 0, 0)
 
 [node name="FireIndicator" type="Node3D" parent="."]
 visible = false
 
 [node name="FlameLeft" type="MeshInstance3D" parent="FireIndicator"]
-position = Vector3(-0.45, 2.35, 0)
+position = Vector3(-0.45, 1.35, 0)
 mesh = SubResource("SphereMesh_fire")
 material_override = SubResource("Material_fire")
 
 [node name="FlameRight" type="MeshInstance3D" parent="FireIndicator"]
-position = Vector3(0.42, 2.5, 0)
+position = Vector3(0.42, 1.45, 0)
 scale = Vector3(0.8, 1.25, 0.8)
 mesh = SubResource("SphereMesh_fire")
 material_override = SubResource("Material_fire")
