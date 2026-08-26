@@ -17,6 +17,8 @@ var _pivot_rest := Vector3.ZERO
 var _flash: MeshInstance3D
 var _tracer: MeshInstance3D
 var _impact: MeshInstance3D
+var _damage_marker: MeshInstance3D
+var _damage_remaining := 0.0
 var _audio: AudioStreamPlayer3D
 
 func _ready() -> void:
@@ -30,17 +32,22 @@ func _ready() -> void:
 func bind_weapon(value: GameWeapon3D) -> void:
 	if _weapon != null and _weapon.fired.is_connected(_on_weapon_fired):
 		_weapon.fired.disconnect(_on_weapon_fired)
+	if _weapon != null and _weapon.damage_confirmed.is_connected(_on_damage_confirmed):
+		_weapon.damage_confirmed.disconnect(_on_damage_confirmed)
 	_weapon = value
 	if _weapon != null and not _weapon.fired.is_connected(_on_weapon_fired):
 		_weapon.fired.connect(_on_weapon_fired)
+		_weapon.damage_confirmed.connect(_on_damage_confirmed)
 
 func _process(delta: float) -> void:
 	_flash_remaining = maxf(0.0, _flash_remaining - delta)
 	_tracer_remaining = maxf(0.0, _tracer_remaining - delta)
 	_hit_remaining = maxf(0.0, _hit_remaining - delta)
+	_damage_remaining = maxf(0.0, _damage_remaining - delta)
 	_flash.visible = _flash_remaining > 0.0
 	_tracer.visible = _tracer_remaining > 0.0
 	_impact.visible = _hit_remaining > 0.0
+	_damage_marker.visible = _damage_remaining > 0.0
 	if _pivot != null:
 		_pivot.position = _pivot.position.lerp(_pivot_rest, minf(1.0, delta * 22.0))
 
@@ -62,6 +69,10 @@ func _on_weapon_fired(origin: Vector3, endpoint: Vector3, hit: bool) -> void:
 		_audio.play()
 	if OS.has_feature("mobile"):
 		Input.vibrate_handheld(30)
+
+func _on_damage_confirmed(_target: Object, position: Vector3, _amount: float) -> void:
+	_damage_remaining = 0.14
+	_damage_marker.global_position = position
 
 func _create_visuals() -> void:
 	var flash_material := _emissive_material(Color(1.0, 0.72, 0.18, 0.95))
@@ -90,9 +101,18 @@ func _create_visuals() -> void:
 	_impact.mesh = impact_mesh
 	_impact.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_impact)
+	_damage_marker = MeshInstance3D.new()
+	var damage_mesh := SphereMesh.new()
+	damage_mesh.radius = 0.3
+	damage_mesh.height = 0.6
+	damage_mesh.material = _emissive_material(Color(1.0, 0.95, 0.82, 0.92))
+	_damage_marker.mesh = damage_mesh
+	_damage_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_damage_marker)
 	_flash.visible = false
 	_tracer.visible = false
 	_impact.visible = false
+	_damage_marker.visible = false
 
 func _create_audio() -> void:
 	_audio = AudioStreamPlayer3D.new()

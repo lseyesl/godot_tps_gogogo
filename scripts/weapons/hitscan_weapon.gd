@@ -6,11 +6,14 @@ extends GameWeapon3D
 func _perform_shot(direction: Vector3) -> Dictionary:
 	var hit := _query_trajectory(direction)
 	var endpoint: Vector3 = hit.get("position", global_position + direction * definition.range_meters)
+	var damaged := false
+	var target: Object
 	if not hit.is_empty():
 		var collider := hit.get("collider") as Object
 		if collider != null and collider.has_method("apply_damage"):
-			collider.call("apply_damage", definition.damage, _owner_body)
-	return {"endpoint": endpoint, "hit": not hit.is_empty()}
+			damaged = float(collider.call("apply_damage", definition.damage, _owner_body)) > 0.0
+			target = collider
+	return {"endpoint": endpoint, "hit": not hit.is_empty(), "damaged": damaged, "target": target, "damage": definition.damage}
 
 func get_aim_endpoint(direction: Vector3) -> Vector3:
 	if definition == null or direction.length_squared() <= 0.0001:

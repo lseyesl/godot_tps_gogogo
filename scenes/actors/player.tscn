@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/actors/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/perception/vision_cone_3d.gd" id="7_vision_cone"]
 [ext_resource type="Script" path="res://scripts/input/aim_assist_3d.gd" id="8_aim_assist"]
 [ext_resource type="Script" path="res://scripts/weapons/shot_feedback_3d.gd" id="9_feedback"]
+[ext_resource type="Script" path="res://scripts/actors/damage_feedback_3d.gd" id="10_damage_feedback"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_player"]
 radius = 0.4
@@ -48,6 +49,12 @@ material_override = SubResource("Material_player")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")
 max_health = 5.0
+
+[node name="DamageFeedback3D" type="Node" parent="."]
+script = ExtResource("10_damage_feedback")
+health_path = NodePath("../HealthComponent")
+visual_root_path = NodePath("..")
+show_screen_flash = true
 
 [node name="WeaponPivot" type="Node3D" parent="."]
 position = Vector3(0.45, 1.05, -0.2)

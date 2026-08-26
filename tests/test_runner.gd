@@ -487,7 +487,9 @@ func _test_main_scene() -> void:
 	_expect(player != null, "main scene contains player")
 	_expect(is_equal_approx(player.move_speed, 6.0), "player moves at six meters per second")
 	_expect(player.get_node_or_null("ShotFeedback3D") is GameShotFeedback3D, "player contains reusable shot feedback")
+	_expect(player.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "player contains damage feedback")
 	_expect(guard != null, "main scene contains pistol guard")
+	_expect(guard.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "guard contains damage feedback")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
 	_expect(_nodes_in_group_under(instance, &"damageable_walls").size() == 23, "main scene contains twenty-three damageable wall modules")
 	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")
@@ -506,6 +508,12 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
 	if player != null and guard != null:
 		_disable_all_guards(instance)
+		var player_damage_feedback := player.get_node("DamageFeedback3D") as GameDamageFeedback3D
+		var guard_damage_feedback := guard.get_node("DamageFeedback3D") as GameDamageFeedback3D
+		player.health.damaged.emit(1.0, guard)
+		guard.health.damaged.emit(1.0, player)
+		_expect(player_damage_feedback.hits_presented == 1, "player damage signal immediately triggers screen and model feedback")
+		_expect(guard_damage_feedback.hits_presented == 1, "guard damage signal immediately triggers model feedback")
 		var feedback := player.get_node("ShotFeedback3D") as GameShotFeedback3D
 		var feedback_before := feedback.shots_presented
 		player.weapon.fired.emit(player.weapon.global_position, player.weapon.global_position + Vector3.FORWARD, true)

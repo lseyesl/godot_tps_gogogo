@@ -2,6 +2,7 @@ class_name GameWeapon3D
 extends Marker3D
 
 signal fired(origin: Vector3, endpoint: Vector3, hit: bool)
+signal damage_confirmed(target: Object, position: Vector3, amount: float)
 signal ammo_changed(in_magazine: int, magazine_capacity: int)
 signal reserve_changed(reserve: int, maximum: int)
 signal reload_started(duration: float)
@@ -61,6 +62,8 @@ func try_fire(direction: Vector3) -> bool:
 	_shot_sequence += 1
 	ammo_changed.emit(ammo_in_magazine, definition.magazine_capacity)
 	fired.emit(global_position, endpoint, result.get("hit", false))
+	if result.get("damaged", false):
+		damage_confirmed.emit(result.get("target"), endpoint, result.get("damage", definition.damage))
 	_emit_sound_event()
 	if ammo_in_magazine <= 0:
 		if definition.infinite_reserve or reserve_ammo > 0:

@@ -1,10 +1,11 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/actors/pistol_guard.gd" id="1_guard"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
 [ext_resource type="Script" path="res://scripts/weapons/hitscan_weapon.gd" id="3_weapon"]
 [ext_resource type="Resource" path="res://resources/weapons/standard_pistol.tres" id="4_definition"]
 [ext_resource type="Script" path="res://scripts/perception/vision_sensor_3d.gd" id="5_vision"]
+[ext_resource type="Script" path="res://scripts/actors/damage_feedback_3d.gd" id="6_damage_feedback"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_guard"]
 radius = 0.4
@@ -51,6 +52,11 @@ shape = SubResource("CapsuleShape_guard")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")
 max_health = 3.0
+
+[node name="DamageFeedback3D" type="Node" parent="."]
+script = ExtResource("6_damage_feedback")
+health_path = NodePath("../HealthComponent")
+visual_root_path = NodePath("../VisualRoot")
 
 [node name="VisionSensor3D" type="Node3D" parent="."]
 script = ExtResource("5_vision")
