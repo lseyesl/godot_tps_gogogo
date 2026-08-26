@@ -164,6 +164,11 @@ func _test_random_layout_and_health() -> void:
 	_expect(objective.global_position.distance_to(extraction.global_position) >= 36.0, "seeded objective candidate remains at least eighteen modules from spawn")
 
 	var guard_candidates := first_instance.get_node("ContentCandidates/GuardCandidates")
+	var obstacle_count := _nodes_in_group_under(first_instance, &"navigation_obstacles").size()
+	_expect(obstacle_count >= 24, "authored map provides enough obstacles to split combat into local encounters")
+	var exposure := await _measure_authored_guard_exposure(first_instance, player, guard_candidates)
+	_expect(exposure.spawn_count == 0, "no authored guard candidate can see the player at spawn")
+	_expect(exposure.maximum_count <= 2, "opening route exposes the player to at most two authored guards at once")
 	var no_guard_starts_visible := true
 	for node in guards:
 		var guard := node as PistolGuard
@@ -232,6 +237,41 @@ func _test_random_layout_and_health() -> void:
 	new_game_instance.queue_free()
 	await process_frame
 	run_state.call("begin_new_game_with_seed", 97531)
+
+func _measure_authored_guard_exposure(instance: Node3D, player: PlayerCharacter, candidates: Node) -> Dictionary:
+	var guard_scene := load("res://scenes/actors/pistol_guard.tscn") as PackedScene
+	var probes: Array[PistolGuard] = []
+	for marker_node in candidates.get_children():
+		var marker := marker_node as Marker3D
+		var probe := guard_scene.instantiate() as PistolGuard
+		instance.add_child(probe)
+		probe.global_transform = marker.global_transform
+		probe.set_physics_process(false)
+		probes.append(probe)
+	await physics_frame
+	var original_position := player.global_position
+	var sample_positions: Array[Vector3] = [
+		Vector3(0.0, 0.0, 5.0),
+		Vector3(0.0, 0.0, 1.0),
+		Vector3(-5.0, 0.0, -2.0),
+		Vector3(5.0, 0.0, -2.0),
+	]
+	var counts := PackedInt32Array()
+	var maximum_count := 0
+	for position in sample_positions:
+		player.global_position = position
+		await physics_frame
+		var visible_count := 0
+		for probe in probes:
+			if probe.vision.can_see(player):
+				visible_count += 1
+		counts.append(visible_count)
+		maximum_count = maxi(maximum_count, visible_count)
+	player.global_position = original_position
+	for probe in probes:
+		probe.queue_free()
+	await process_frame
+	return {"spawn_count": counts[0], "maximum_count": maximum_count, "counts": counts}
 
 func _test_navigation_grid() -> void:
 	var scene := load("res://scenes/main/main.tscn") as PackedScene
@@ -434,7 +474,10 @@ func _test_main_scene() -> void:
 	_expect(player != null, "main scene contains player")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
-	_expect(instance.get_tree().get_nodes_in_group("damageable_walls").size() == 5, "main scene contains five damageable wall modules")
+	_expect(_nodes_in_group_under(instance, &"damageable_walls").size() == 23, "main scene contains twenty-three damageable wall modules")
+	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")
+	_expect(instance.get_node_or_null("SpawnLeftWall") is StaticBody3D, "spawn courtyard has indestructible left cover")
+	_expect(instance.get_node_or_null("SpawnRightWall") is StaticBody3D, "spawn courtyard has indestructible right cover")
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")

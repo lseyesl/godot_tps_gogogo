@@ -18,6 +18,7 @@
 - 用户要求 Android Build 只允许手动触发，不在 `main` 推送或 Pull Request 时自动构建。
 - 用户要求构建后的 Android APK 直接放入 GitHub Release，不再只保留 workflow artifact。
 - 第二次真实 Action 导出证明 Java/Android SDK 路径已修复；当前失败推进到 Godot 4.7 导出预设校验阶段。
+- 用户反馈旧地图遮挡过少，导致离开出生区后频繁陷入一对多并快速死亡。
 
 ## 研究发现
 - 仓库已在 `main` 分支初始化 Git。
@@ -37,6 +38,8 @@
 - Godot 4.7 明确拒绝在 `gradle_build/use_gradle_build=false` 时覆盖 Min SDK 与 Target SDK；当前预设同时触发了两项校验错误。
 - Android 导出要求项目启用 `rendering/textures/vram_compression/import_etc2_astc`；当前 `project.godot` 未设置该项。
 - 新日志中的 `cannot connect to daemon at tcp:5037` 出现在导出配置已经失败之后，属于设备检测噪声，不是当前首要根因。
+- 真实感知探针覆盖 20 个种子时，旧地图有 14/20 个种子在出生瞬间已被一名警卫看见；玩家在侧翼开枪可使最多 7 名警卫进入调查。
+- 旧测试仅断言玩家看不到警卫，没有反向断言警卫看不到玩家，因此放过了出生背后威胁。
 
 ## 技术决策
 | 决策 | 理由 |
@@ -95,6 +98,7 @@
 | Release 标签由 `workflow_dispatch` 输入并在 shell 中校验 | 允许明确版本发布，同时避免未经校验的输入进入版本修改命令；标签去掉可选 `v` 后写入 APK 版本名 |
 | Release 首轮仍附加调试签名 APK | 延续当前真机测试用途，不引入仓库发布密钥；正式商店签名属于后续独立发布流程 |
 | 保持标准 Android 导出并清空 SDK 覆盖 | 仅为固定 API 版本启用自定义 Gradle 会额外要求 Android Build Template；当前测试分发使用模板默认值更小、更稳定 |
+| 地图安全以真实双向视野而非距离近似验收 | 直接调用每个警卫候选的 VisionSensor，可同时覆盖 120° 朝向、16 米距离和墙体遮挡 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
