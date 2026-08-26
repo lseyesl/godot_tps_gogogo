@@ -1,18 +1,18 @@
-[gd_scene load_steps=35 format=3]
+[gd_scene format=3 uid="uid://bpjxyrdcoumqy"]
 
-[ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://cfdrt0tibf18n" path="res://scripts/main/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/world/damageable_wall.tscn" id="3_wall"]
-[ext_resource type="Script" path="res://scripts/camera/fixed_follow_camera.gd" id="4_camera"]
-[ext_resource type="Script" path="res://scripts/input/debug_player_input.gd" id="5_input"]
-[ext_resource type="Script" path="res://scripts/ui/virtual_joystick.gd" id="6_joystick"]
-[ext_resource type="Script" path="res://scripts/ui/fire_aim_button.gd" id="7_fire_button"]
-[ext_resource type="Script" path="res://scripts/ui/touch_input_router.gd" id="8_touch_router"]
+[ext_resource type="Script" uid="uid://7vxb7vltmv17" path="res://scripts/camera/fixed_follow_camera.gd" id="4_camera"]
+[ext_resource type="Script" uid="uid://ckoa8dworqme7" path="res://scripts/input/debug_player_input.gd" id="5_input"]
+[ext_resource type="Script" uid="uid://bgx825kagxddk" path="res://scripts/ui/virtual_joystick.gd" id="6_joystick"]
+[ext_resource type="Script" uid="uid://flf0qcg1f382" path="res://scripts/ui/fire_aim_button.gd" id="7_fire_button"]
+[ext_resource type="Script" uid="uid://cy0nby7q2xau7" path="res://scripts/ui/touch_input_router.gd" id="8_touch_router"]
 [ext_resource type="PackedScene" path="res://scenes/actors/pistol_guard.tscn" id="9_guard"]
-[ext_resource type="Script" path="res://scripts/audio/sound_event_hub.gd" id="10_sound_hub"]
-[ext_resource type="Script" path="res://scripts/navigation/grid_navigation_3d.gd" id="11_grid_navigation"]
-[ext_resource type="Script" path="res://scripts/ai/cover_service_3d.gd" id="12_cover_service"]
-[ext_resource type="Script" path="res://scripts/world/environment_reaction_hub.gd" id="13_reaction_hub"]
+[ext_resource type="Script" uid="uid://cxav2o0sfiuxy" path="res://scripts/audio/sound_event_hub.gd" id="10_sound_hub"]
+[ext_resource type="Script" uid="uid://6mbfugw01v8t" path="res://scripts/navigation/grid_navigation_3d.gd" id="11_grid_navigation"]
+[ext_resource type="Script" uid="uid://7yilfh7082a8" path="res://scripts/ai/cover_service_3d.gd" id="12_cover_service"]
+[ext_resource type="Script" uid="uid://cr7tyllskmo84" path="res://scripts/world/environment_reaction_hub.gd" id="13_reaction_hub"]
 [ext_resource type="PackedScene" path="res://scenes/world/oil_barrel_wall.tscn" id="14_oil_barrel"]
 [ext_resource type="PackedScene" path="res://scenes/world/gasoline_barrel_wall.tscn" id="15_gasoline_barrel"]
 [ext_resource type="PackedScene" path="res://scenes/world/weapon_pickup_3d.tscn" id="16_weapon_pickup"]
@@ -21,28 +21,11 @@
 [ext_resource type="Resource" path="res://resources/weapons/rocket_launcher.tres" id="19_rocket_launcher"]
 [ext_resource type="PackedScene" path="res://scenes/world/objective_point_3d.tscn" id="20_objective"]
 [ext_resource type="PackedScene" path="res://scenes/world/extraction_point_3d.tscn" id="21_extraction"]
-[ext_resource type="Script" path="res://scripts/mission/mission_controller.gd" id="22_mission"]
-[ext_resource type="Script" path="res://scripts/ui/objective_indicator.gd" id="23_indicator"]
-[ext_resource type="Script" path="res://scripts/world/content_spawner_3d.gd" id="24_spawner"]
+[ext_resource type="Script" uid="uid://dytwaogal7r5y" path="res://scripts/mission/mission_controller.gd" id="22_mission"]
+[ext_resource type="Script" uid="uid://8af41oboxo7q" path="res://scripts/ui/objective_indicator.gd" id="23_indicator"]
+[ext_resource type="Script" uid="uid://x8s45ru8t66g" path="res://scripts/world/content_spawner_3d.gd" id="24_spawner"]
 [ext_resource type="PackedScene" path="res://scenes/world/health_pack_3d.tscn" id="25_health_pack"]
-[ext_resource type="Script" path="res://scripts/world/world_visibility_3d.gd" id="26_visibility"]
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
-size = Vector2(60, 40)
-
-[sub_resource type="StandardMaterial3D" id="Material_floor"]
-albedo_color = Color(0.11, 0.14, 0.18, 1)
-roughness = 0.95
-
-[sub_resource type="BoxShape3D" id="BoxShape_brick"]
-size = Vector3(18, 2.5, 0.5)
-
-[sub_resource type="BoxMesh" id="BoxMesh_brick"]
-size = Vector3(18, 2.5, 0.5)
-
-[sub_resource type="StandardMaterial3D" id="Material_brick"]
-albedo_color = Color(0.32, 0.35, 0.4, 1)
-roughness = 0.82
+[ext_resource type="Script" uid="uid://ckbabvs4l4d21" path="res://scripts/world/world_visibility_3d.gd" id="26_visibility"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -51,6 +34,23 @@ ambient_light_source = 3
 ambient_light_color = Color(0.42, 0.5, 0.62, 1)
 ambient_light_energy = 0.65
 tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.11, 0.14, 0.18, 1)
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(60, 40)
+
+[sub_resource type="BoxShape3D" id="BoxShape_brick"]
+size = Vector3(18, 2.5, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Material_brick"]
+albedo_color = Color(0.32, 0.35, 0.4, 1)
+roughness = 0.82
+
+[sub_resource type="BoxMesh" id="BoxMesh_brick"]
+size = Vector3(18, 2.5, 0.5)
 
 [sub_resource type="StyleBoxFlat" id="Style_panel"]
 bg_color = Color(0.035, 0.05, 0.075, 0.86)
@@ -63,220 +63,203 @@ corner_radius_bottom_left = 10
 font_size = 22
 font_color = Color(0.82, 0.95, 0.92, 1)
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=669966023]
 script = ExtResource("1_main")
 
-[node name="SoundEventHub" type="Node" parent="."]
+[node name="SoundEventHub" type="Node" parent="." unique_id=1747527746]
 script = ExtResource("10_sound_hub")
 
-[node name="GridNavigation3D" type="Node" parent="."]
+[node name="GridNavigation3D" type="Node" parent="." unique_id=139345396]
 script = ExtResource("11_grid_navigation")
 
-[node name="CoverService3D" type="Node" parent="."]
+[node name="CoverService3D" type="Node" parent="." unique_id=1249499940]
 script = ExtResource("12_cover_service")
 
-[node name="EnvironmentReactionHub" type="Node3D" parent="."]
+[node name="EnvironmentReactionHub" type="Node3D" parent="." unique_id=1513764874]
 script = ExtResource("13_reaction_hub")
 
-[node name="WorldVisibility3D" type="Node" parent="."]
+[node name="WorldVisibility3D" type="Node" parent="." unique_id=1337518775]
 script = ExtResource("26_visibility")
 player_path = NodePath("../Player")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1030060724]
 environment = SubResource("Environment_main")
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-58, -32, 0)
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=360401501]
+transform = Transform3D(0.8480481, 0.44939703, -0.28081444, 0, 0.52991927, 0.8480481, 0.52991927, -0.7191856, 0.44939703, 0, 0, 0)
 light_color = Color(0.93, 0.96, 1, 1)
 light_energy = 1.25
 shadow_enabled = true
 
-[node name="Floor" type="MeshInstance3D" parent="." groups=["static_visibility"]]
-mesh = SubResource("PlaneMesh_floor")
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=1310759437 groups=["static_visibility"]]
 material_override = SubResource("Material_floor")
+mesh = SubResource("PlaneMesh_floor")
 
-[node name="BrickWall" type="StaticBody3D" parent="." groups=["navigation_obstacles", "static_visibility"]]
-position = Vector3(0, 0, -8)
+[node name="BrickWall" type="StaticBody3D" parent="." unique_id=704455302 groups=["navigation_obstacles", "static_visibility"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
 collision_layer = 2
-collision_mask = 1
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="BrickWall"]
-position = Vector3(0, 1.25, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BrickWall" unique_id=1335067232]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 shape = SubResource("BoxShape_brick")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="BrickWall"]
-position = Vector3(0, 1.25, 0)
-mesh = SubResource("BoxMesh_brick")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BrickWall" unique_id=1545202331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
 material_override = SubResource("Material_brick")
+mesh = SubResource("BoxMesh_brick")
 
-[node name="WoodWallA" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-3, 0, -3)
+[node name="WoodWallA" parent="." unique_id=1127984070 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -3)
 
-[node name="WoodWallB" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-1, 0, -3)
+[node name="WoodWallB" parent="." unique_id=504374233 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -3)
 
-[node name="WoodWallC" parent="." instance=ExtResource("3_wall")]
-position = Vector3(1, 0, -3)
+[node name="WoodWallC" parent="." unique_id=367317622 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -3)
 
-[node name="WoodWallD" parent="." instance=ExtResource("3_wall")]
-position = Vector3(3, 0, -3)
+[node name="WoodWallD" parent="." unique_id=2080035901 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -3)
 
-[node name="OilBarrelWall" parent="." instance=ExtResource("14_oil_barrel")]
-position = Vector3(-11, 0, 7)
+[node name="OilBarrelWall" parent="." unique_id=1221071054 instance=ExtResource("14_oil_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 7)
 
-[node name="BurnableWoodWall" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-9, 0, 7)
+[node name="BurnableWoodWall" parent="." unique_id=1862402572 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 7)
 
-[node name="GasolineBarrelWall" parent="." instance=ExtResource("15_gasoline_barrel")]
-position = Vector3(-7, 0, 7)
+[node name="GasolineBarrelWall" parent="." unique_id=1253916843 instance=ExtResource("15_gasoline_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 7)
 
-[node name="ExtractionPoint" parent="." instance=ExtResource("21_extraction")]
-position = Vector3(0, 0, 5)
+[node name="ExtractionPoint" parent="." unique_id=996261529 instance=ExtResource("21_extraction")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 
-[node name="ContentCandidates" type="Node3D" parent="."]
+[node name="ContentCandidates" type="Node3D" parent="." unique_id=602211752]
 
-[node name="GuardCandidates" type="Node3D" parent="ContentCandidates"]
+[node name="GuardCandidates" type="Node3D" parent="ContentCandidates" unique_id=1478260711]
 
-[node name="Guard01" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-24, 0, -16)
-rotation_degrees = Vector3(0, 135, 0)
+[node name="Guard01" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=233712963]
+transform = Transform3D(-0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, -0.70710677, -24, 0, -16)
 
-[node name="Guard02" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-18, 0, -15)
-rotation_degrees = Vector3(0, 150, 0)
+[node name="Guard02" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1502927046]
+transform = Transform3D(-0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, -0.8660254, -18, 0, -15)
 
-[node name="Guard03" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-12, 0, -16)
-rotation_degrees = Vector3(0, 165, 0)
+[node name="Guard03" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=571979204]
+transform = Transform3D(-0.9659258, 0, 0.25881913, 0, 1, 0, -0.25881913, 0, -0.9659258, -12, 0, -16)
 
-[node name="Guard04" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(12, 0, -16)
-rotation_degrees = Vector3(0, -165, 0)
+[node name="Guard04" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=784025542]
+transform = Transform3D(-0.9659258, 0, -0.25881913, 0, 1, 0, 0.25881913, 0, -0.9659258, 12, 0, -16)
 
-[node name="Guard05" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(18, 0, -15)
-rotation_degrees = Vector3(0, -150, 0)
+[node name="Guard05" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1354075503]
+transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 18, 0, -15)
 
-[node name="Guard06" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(24, 0, -16)
-rotation_degrees = Vector3(0, -135, 0)
+[node name="Guard06" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=189378608]
+transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, 24, 0, -16)
 
-[node name="Guard07" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-26, 0, -6)
-rotation_degrees = Vector3(0, 90, 0)
+[node name="Guard07" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1480821845]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -26, 0, -6)
 
-[node name="Guard08" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(26, 0, -6)
-rotation_degrees = Vector3(0, -90, 0)
+[node name="Guard08" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=970087884]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 26, 0, -6)
 
-[node name="Guard09" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-24, 0, 12)
-rotation_degrees = Vector3(0, 60, 0)
+[node name="Guard09" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=232290865]
+transform = Transform3D(0.49999997, 0, 0.86602545, 0, 1, 0, -0.86602545, 0, 0.49999997, -24, 0, 12)
 
-[node name="Guard10" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-18, 0, 16)
-rotation_degrees = Vector3(0, 45, 0)
+[node name="Guard10" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=213401320]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -18, 0, 16)
 
-[node name="Guard11" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-10, 0, 17)
-rotation_degrees = Vector3(0, 20, 0)
+[node name="Guard11" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1734851133]
+transform = Transform3D(0.9396926, 0, 0.34202012, 0, 1, 0, -0.34202012, 0, 0.9396926, -10, 0, 17)
 
-[node name="Guard12" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(10, 0, 17)
-rotation_degrees = Vector3(0, -20, 0)
+[node name="Guard12" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=521336623]
+transform = Transform3D(0.9396926, 0, -0.34202012, 0, 1, 0, 0.34202012, 0, 0.9396926, 10, 0, 17)
 
-[node name="Guard13" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(18, 0, 16)
-rotation_degrees = Vector3(0, -45, 0)
+[node name="Guard13" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=2062025409]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 18, 0, 16)
 
-[node name="Guard14" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(25, 0, 12)
-rotation_degrees = Vector3(0, -60, 0)
+[node name="Guard14" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=392504916]
+transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 25, 0, 12)
 
-[node name="Guard15" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(-27, 0, 2)
-rotation_degrees = Vector3(0, 80, 0)
+[node name="Guard15" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=298833474]
+transform = Transform3D(0.17364822, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, 0.17364822, -27, 0, 2)
 
-[node name="Guard16" type="Marker3D" parent="ContentCandidates/GuardCandidates"]
-position = Vector3(27, 0, 2)
-rotation_degrees = Vector3(0, -80, 0)
+[node name="Guard16" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1810344463]
+transform = Transform3D(0.17364822, 0, -0.9848077, 0, 1, 0, 0.9848077, 0, 0.17364822, 27, 0, 2)
 
-[node name="ObjectiveCandidates" type="Node3D" parent="ContentCandidates"]
+[node name="ObjectiveCandidates" type="Node3D" parent="ContentCandidates" unique_id=1738689967]
 
-[node name="Objective01" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
-position = Vector3(28, 0, -19)
+[node name="Objective01" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=1530795811]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -19)
 
-[node name="Objective02" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
-position = Vector3(-28, 0, -19)
+[node name="Objective02" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=49280477]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0, -19)
 
-[node name="Objective03" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
-position = Vector3(29, 0, -18)
+[node name="Objective03" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=85336959]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -18)
 
-[node name="Objective04" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates"]
-position = Vector3(-29, 0, -18)
+[node name="Objective04" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=63556825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 0, -18)
 
-[node name="WeaponCandidates" type="Node3D" parent="ContentCandidates"]
+[node name="WeaponCandidates" type="Node3D" parent="ContentCandidates" unique_id=1938065027]
 
-[node name="Weapon01" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(-20, 0, 8)
+[node name="Weapon01" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1958647276]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 8)
 
-[node name="Weapon02" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(-14, 0, 12)
+[node name="Weapon02" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=926152352]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 12)
 
-[node name="Weapon03" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(-8, 0, 14)
+[node name="Weapon03" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1502314124]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 14)
 
-[node name="Weapon04" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(8, 0, 14)
+[node name="Weapon04" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1672221043]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 14)
 
-[node name="Weapon05" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(14, 0, 12)
+[node name="Weapon05" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1098596352]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12)
 
-[node name="Weapon06" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(20, 0, 8)
+[node name="Weapon06" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=786910554]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 8)
 
-[node name="Weapon07" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(-22, 0, -4)
+[node name="Weapon07" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=612447530]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -4)
 
-[node name="Weapon08" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(22, 0, -4)
+[node name="Weapon08" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=741026631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -4)
 
-[node name="Weapon09" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(-16, 0, -12)
+[node name="Weapon09" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1266487020]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -12)
 
-[node name="Weapon10" type="Marker3D" parent="ContentCandidates/WeaponCandidates"]
-position = Vector3(16, 0, -12)
+[node name="Weapon10" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=539501147]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -12)
 
-[node name="HealthCandidates" type="Node3D" parent="ContentCandidates"]
+[node name="HealthCandidates" type="Node3D" parent="ContentCandidates" unique_id=1188206761]
 
-[node name="Health01" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(-22, 0, 14)
+[node name="Health01" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=785336887]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 14)
 
-[node name="Health02" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(-14, 0, 17)
+[node name="Health02" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1745929698]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 17)
 
-[node name="Health03" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(0, 0, 16)
+[node name="Health03" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=972195723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
 
-[node name="Health04" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(14, 0, 17)
+[node name="Health04" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=604935411]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 17)
 
-[node name="Health05" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(22, 0, 14)
+[node name="Health05" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1217473672]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 14)
 
-[node name="Health06" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(-24, 0, -10)
+[node name="Health06" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1649849480]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, -10)
 
-[node name="Health07" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(0, 0, -14)
+[node name="Health07" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1606772602]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
 
-[node name="Health08" type="Marker3D" parent="ContentCandidates/HealthCandidates"]
-position = Vector3(24, 0, -10)
+[node name="Health08" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1359811221]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, -10)
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector3(0, 0, 5)
+[node name="Player" parent="." unique_id=1034243558 instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 
-[node name="ContentSpawner3D" type="Node3D" parent="."]
+[node name="ContentSpawner3D" type="Node3D" parent="." unique_id=1544825247]
 script = ExtResource("24_spawner")
 guard_scene = ExtResource("9_guard")
 objective_scene = ExtResource("20_objective")
@@ -290,66 +273,74 @@ objective_candidates_path = NodePath("../ContentCandidates/ObjectiveCandidates")
 weapon_candidates_path = NodePath("../ContentCandidates/WeaponCandidates")
 health_candidates_path = NodePath("../ContentCandidates/HealthCandidates")
 
-[node name="MissionController" type="Node" parent="."]
+[node name="MissionController" type="Node" parent="." unique_id=1129440564]
 script = ExtResource("22_mission")
 player_path = NodePath("../Player")
 objective_path = NodePath("../ContentSpawner3D/ObjectivePoint")
 extraction_path = NodePath("../ExtractionPoint")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-script = ExtResource("4_camera")
-target_path = NodePath("../Player")
+[node name="Camera3D" type="Camera3D" parent="." unique_id=882461803]
 current = true
 fov = 52.0
+script = ExtResource("4_camera")
+target_path = NodePath("../Player")
 
-[node name="DebugPlayerInput" type="Node" parent="."]
+[node name="DebugPlayerInput" type="Node" parent="." unique_id=895142005]
 script = ExtResource("5_input")
 player_path = NodePath("../Player")
 camera_path = NodePath("../Camera3D")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1054311452]
 
-[node name="StatusPanel" type="PanelContainer" parent="HUD"]
+[node name="StatusPanel" type="PanelContainer" parent="HUD" unique_id=1614575904]
 offset_left = 24.0
 offset_top = 24.0
 offset_right = 420.0
 offset_bottom = 192.0
 theme_override_styles/panel = SubResource("Style_panel")
 
-[node name="Margin" type="MarginContainer" parent="HUD/StatusPanel"]
+[node name="Margin" type="MarginContainer" parent="HUD/StatusPanel" unique_id=1013608949]
+layout_mode = 2
 theme_override_constants/margin_left = 18
 theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 12
 
-[node name="Rows" type="VBoxContainer" parent="HUD/StatusPanel/Margin"]
+[node name="Rows" type="VBoxContainer" parent="HUD/StatusPanel/Margin" unique_id=1578420638]
+layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Title" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="Title" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=319061505]
+layout_mode = 2
 text = "GOGOGO · CORE SLICE"
 label_settings = SubResource("LabelSettings_title")
 
-[node name="HealthLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="HealthLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=1551243090]
 unique_name_in_owner = true
+layout_mode = 2
 text = "HP  5 / 5"
 
-[node name="AmmoLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="AmmoLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=1523849895]
 unique_name_in_owner = true
+layout_mode = 2
 text = "STANDARD PISTOL  6 / 6  ·  ∞"
 
-[node name="GuardStateLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="GuardStateLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=1796413211]
 unique_name_in_owner = true
+layout_mode = 2
 text = "GUARD  PATROL"
 
-[node name="ObjectiveStatusLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="ObjectiveStatusLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=1114172063]
 unique_name_in_owner = true
+layout_mode = 2
 text = "目标：前往任务点"
 
-[node name="EnemyCountLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows"]
+[node name="EnemyCountLabel" type="Label" parent="HUD/StatusPanel/Margin/Rows" unique_id=1180824405]
 unique_name_in_owner = true
+layout_mode = 2
 text = "剩余警卫：1"
 
-[node name="BlindEventLabel" type="Label" parent="HUD"]
+[node name="BlindEventLabel" type="Label" parent="HUD" unique_id=528496912]
 unique_name_in_owner = true
 visible = false
 offset_left = 590.0
@@ -361,17 +352,16 @@ theme_override_font_sizes/font_size = 28
 text = "爆炸 ▲"
 horizontal_alignment = 1
 
-[node name="ActivationProgress" type="ProgressBar" parent="HUD"]
+[node name="ActivationProgress" type="ProgressBar" parent="HUD" unique_id=1281495878]
 unique_name_in_owner = true
 visible = false
 offset_left = 440.0
 offset_top = 38.0
 offset_right = 840.0
 offset_bottom = 72.0
-value = 0.0
 show_percentage = false
 
-[node name="ActivationLabel" type="Label" parent="HUD/ActivationProgress"]
+[node name="ActivationLabel" type="Label" parent="HUD/ActivationProgress" unique_id=371668704]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -382,7 +372,7 @@ text = "正在激活任务点"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ObjectiveIndicator" type="Control" parent="HUD"]
+[node name="ObjectiveIndicator" type="Control" parent="HUD" unique_id=254333876]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -395,25 +385,26 @@ mission_path = NodePath("../../MissionController")
 player_path = NodePath("../../Player")
 camera_path = NodePath("../../Camera3D")
 
-[node name="Marker" type="VBoxContainer" parent="HUD/ObjectiveIndicator"]
+[node name="Marker" type="VBoxContainer" parent="HUD/ObjectiveIndicator" unique_id=1232527363]
+layout_mode = 0
 offset_right = 94.0
 offset_bottom = 64.0
 theme_override_constants/separation = 0
 
-[node name="Arrow" type="Label" parent="HUD/ObjectiveIndicator/Marker"]
+[node name="Arrow" type="Label" parent="HUD/ObjectiveIndicator/Marker" unique_id=1887912293]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.78, 0.18, 1)
 theme_override_font_sizes/font_size = 30
 text = "▲"
 horizontal_alignment = 1
 
-[node name="Status" type="Label" parent="HUD/ObjectiveIndicator/Marker"]
+[node name="Status" type="Label" parent="HUD/ObjectiveIndicator/Marker" unique_id=764474539]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.9, 0.62, 1)
 text = "任务 · 远"
 horizontal_alignment = 1
 
-[node name="ResultPanel" type="PanelContainer" parent="HUD"]
+[node name="ResultPanel" type="PanelContainer" parent="HUD" unique_id=405671810]
 unique_name_in_owner = true
 visible = false
 z_index = 20
@@ -430,74 +421,81 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("Style_panel")
 
-[node name="Margin" type="MarginContainer" parent="HUD/ResultPanel"]
+[node name="Margin" type="MarginContainer" parent="HUD/ResultPanel" unique_id=1718554144]
 layout_mode = 2
 theme_override_constants/margin_left = 32
 theme_override_constants/margin_top = 28
 theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 28
 
-[node name="Rows" type="VBoxContainer" parent="HUD/ResultPanel/Margin"]
+[node name="Rows" type="VBoxContainer" parent="HUD/ResultPanel/Margin" unique_id=1092606384]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="ResultTitle" type="Label" parent="HUD/ResultPanel/Margin/Rows"]
+[node name="ResultTitle" type="Label" parent="HUD/ResultPanel/Margin/Rows" unique_id=2135660936]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "撤离成功"
 horizontal_alignment = 1
 
-[node name="ResultDetails" type="Label" parent="HUD/ResultPanel/Margin/Rows"]
+[node name="ResultDetails" type="Label" parent="HUD/ResultPanel/Margin/Rows" unique_id=843145653]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "用时  00:00\n击杀  0\n剩余生命  5\n撤离  完成"
+text = "用时  00:00
+击杀  0
+剩余生命  5
+撤离  完成"
 horizontal_alignment = 1
 
-[node name="Actions" type="HBoxContainer" parent="HUD/ResultPanel/Margin/Rows"]
+[node name="Actions" type="HBoxContainer" parent="HUD/ResultPanel/Margin/Rows" unique_id=1355378]
 layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="RetryButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions"]
+[node name="RetryButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions" unique_id=2122054118]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
 text = "重试本局"
 
-[node name="NewGameButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions"]
+[node name="NewGameButton" type="Button" parent="HUD/ResultPanel/Margin/Rows/Actions" unique_id=1169585945]
 unique_name_in_owner = true
-layout_mode = 2
 custom_minimum_size = Vector2(150, 52)
+layout_mode = 2
 text = "新游戏"
 
-[node name="Help" type="Label" parent="HUD"]
+[node name="Help" type="Label" parent="HUD" unique_id=2017522336]
 offset_left = 24.0
 offset_top = 655.0
 offset_right = 620.0
 offset_bottom = 700.0
-text = "WASD 移动  ·  鼠标瞄准  ·  左键射击  ·  1/2 切换武器"
 theme_override_colors/font_color = Color(0.72, 0.78, 0.84, 1)
+text = "WASD 移动  ·  鼠标瞄准  ·  左键射击  ·  1/2 切换武器"
 
-[node name="WeaponButtons" type="HBoxContainer" parent="HUD"]
+[node name="WeaponButtons" type="HBoxContainer" parent="HUD" unique_id=1451249528]
 offset_left = 872.0
 offset_top = 24.0
 offset_right = 1256.0
 offset_bottom = 102.0
 theme_override_constants/separation = 10
 
-[node name="DefaultWeaponButton" type="Button" parent="HUD/WeaponButtons"]
+[node name="DefaultWeaponButton" type="Button" parent="HUD/WeaponButtons" unique_id=186297776]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 72)
-text = "STANDARD PISTOL\n6 / 6 · ∞"
+layout_mode = 2
+text = "STANDARD PISTOL
+6 / 6 · ∞"
 
-[node name="SpecialWeaponButton" type="Button" parent="HUD/WeaponButtons"]
+[node name="SpecialWeaponButton" type="Button" parent="HUD/WeaponButtons" unique_id=22289600]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(190, 72)
-text = "SPECIAL\nEMPTY"
+layout_mode = 2
+text = "SPECIAL
+EMPTY"
 
-[node name="SwapWeaponButton" type="Button" parent="HUD"]
+[node name="SwapWeaponButton" type="Button" parent="HUD" unique_id=1315793068]
 unique_name_in_owner = true
 visible = false
 offset_left = 918.0
@@ -506,7 +504,7 @@ offset_right = 1138.0
 offset_bottom = 584.0
 text = "交换特殊武器"
 
-[node name="TouchControls" type="Control" parent="HUD"]
+[node name="TouchControls" type="Control" parent="HUD" unique_id=721504655]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -520,8 +518,8 @@ move_joystick_path = NodePath("MoveJoystick")
 aim_joystick_path = NodePath("AimJoystick")
 fire_button_path = NodePath("FireButton")
 
-[node name="MoveJoystick" type="Control" parent="HUD/TouchControls"]
-layout_mode = 0
+[node name="MoveJoystick" type="Control" parent="HUD/TouchControls" unique_id=714133005]
+anchors_preset = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 32.0
@@ -531,8 +529,8 @@ offset_bottom = -24.0
 grow_vertical = 0
 script = ExtResource("6_joystick")
 
-[node name="AimJoystick" type="Control" parent="HUD/TouchControls"]
-layout_mode = 0
+[node name="AimJoystick" type="Control" parent="HUD/TouchControls" unique_id=527633929]
+anchors_preset = 0
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -545,8 +543,8 @@ grow_horizontal = 0
 grow_vertical = 0
 script = ExtResource("6_joystick")
 
-[node name="FireButton" type="Control" parent="HUD/TouchControls"]
-layout_mode = 0
+[node name="FireButton" type="Control" parent="HUD/TouchControls" unique_id=1667043665]
+anchors_preset = 0
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
