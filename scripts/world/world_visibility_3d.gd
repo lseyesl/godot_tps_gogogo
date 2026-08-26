@@ -5,8 +5,7 @@ signal blind_environment_event(kind: StringName, direction: Vector2, duration: f
 
 @export var player_path: NodePath
 @export_range(0.02, 1.0, 0.01) var update_interval_seconds: float = 0.1
-@export_range(0.0, 1.0, 0.01) var blind_brightness: float = 0.3
-@export_range(0.0, 1.0, 0.01) var blind_saturation: float = 0.18
+@export_range(0.4, 1.0, 0.01) var outside_view_brightness: float = 0.72
 @export_range(0.1, 3.0, 0.1) var feedback_duration_seconds: float = 1.0
 @export_range(0.0, 2.0, 0.05) var static_surface_tolerance: float = 0.65
 
@@ -37,8 +36,8 @@ func update_visibility_now() -> void:
 	if player == null or player.vision == null:
 		return
 	for node in get_tree().get_nodes_in_group(&"static_visibility"):
-		if node is Node3D:
-			_apply_static_visibility(node as Node3D, is_static_position_visible((node as Node3D).global_position))
+		if node is Node3D and node.name != &"Floor":
+			_update_environment_highlight(node as Node3D)
 	for node in get_tree().get_nodes_in_group(&"active_fire"):
 		if node is Node3D:
 			_set_fire_effect_visible(node as Node3D, is_static_position_visible((node as Node3D).global_position))
@@ -67,7 +66,7 @@ func report_environment_event(kind: StringName, position: Vector3) -> bool:
 	blind_environment_event.emit(kind, last_feedback_direction, feedback_duration_seconds)
 	return true
 
-func _apply_static_visibility(root_node: Node3D, in_view: bool) -> void:
+func _update_environment_highlight(root_node: Node3D) -> void:
 	var meshes: Array[MeshInstance3D] = []
 	if root_node is MeshInstance3D:
 		meshes.append(root_node as MeshInstance3D)
@@ -76,31 +75,29 @@ func _apply_static_visibility(root_node: Node3D, in_view: bool) -> void:
 	for mesh_instance in meshes:
 		if mesh_instance == null or _is_environment_effect(mesh_instance):
 			continue
-		var key := mesh_instance.get_instance_id()
-		if not _material_states.has(key):
-			var original := mesh_instance.material_override as StandardMaterial3D
-			if original == null and mesh_instance.mesh != null and mesh_instance.mesh.get_surface_count() > 0:
-				original = mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
-			if original == null:
-				continue
-			var visible_material := original.duplicate() as StandardMaterial3D
-			var blind_material := original.duplicate() as StandardMaterial3D
-			blind_material.albedo_color = _desaturate(original.albedo_color) * blind_brightness
-			blind_material.albedo_color.a = original.albedo_color.a
-			if blind_material.emission_enabled:
-				blind_material.emission *= blind_brightness
-			_material_states[key] = {"visible": visible_material, "blind": blind_material}
-		var state: Dictionary = _material_states[key]
-		mesh_instance.material_override = state.visible if in_view else state.blind
+		var state := _get_or_create_material_state(mesh_instance)
+		if state.is_empty():
+			continue
+		mesh_instance.material_override = state.highlighted if is_static_position_visible(mesh_instance.global_position) else state.base
 
-func _desaturate(color: Color) -> Color:
-	var luminance := color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722
-	return Color(
-		lerpf(luminance, color.r, blind_saturation),
-		lerpf(luminance, color.g, blind_saturation),
-		lerpf(luminance, color.b, blind_saturation),
-		color.a
-	)
+func _get_or_create_material_state(mesh_instance: MeshInstance3D) -> Dictionary:
+	var key := mesh_instance.get_instance_id()
+	if _material_states.has(key):
+		return _material_states[key]
+	var original := mesh_instance.material_override as StandardMaterial3D
+	if original == null and mesh_instance.mesh != null and mesh_instance.mesh.get_surface_count() > 0:
+		original = mesh_instance.mesh.surface_get_material(0) as StandardMaterial3D
+	if original == null:
+		return {}
+	var base := original.duplicate() as StandardMaterial3D
+	var highlighted := original.duplicate() as StandardMaterial3D
+	base.albedo_color = original.albedo_color * outside_view_brightness
+	base.albedo_color.a = original.albedo_color.a
+	if base.emission_enabled:
+		base.emission *= outside_view_brightness
+	var state := {"base": base, "highlighted": highlighted}
+	_material_states[key] = state
+	return state
 
 func _is_environment_effect(mesh_instance: MeshInstance3D) -> bool:
 	var parent := mesh_instance.get_parent()

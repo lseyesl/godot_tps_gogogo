@@ -2,7 +2,7 @@ class_name FixedFollowCamera
 extends Camera3D
 
 @export var target_path: NodePath
-@export var offset := Vector3(0.0, 18.0, 14.0)
+@export var offset := Vector3(0.0, 14.0, 10.5)
 @export var look_at_height: float = 0.8
 @export_range(0.1, 30.0, 0.1) var follow_sharpness: float = 12.0
 

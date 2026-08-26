@@ -14,6 +14,6 @@ func apply_faction_color(color: Color) -> void:
 			continue
 		var tinted := StandardMaterial3D.new()
 		tinted.albedo_color = color
-		tinted.metallic = 0.08
-		tinted.roughness = 0.72
+		tinted.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mesh_instance.material_override = tinted
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

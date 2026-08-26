@@ -505,7 +505,35 @@ func _test_main_scene() -> void:
 	_expect(guard.get_node_or_null("VisualRoot/BodyMesh") == null, "guard primitive preview body is removed")
 	if player_miniature != null and enemy_miniature != null:
 		_expect(player_miniature.faction_color != enemy_miniature.faction_color, "shared miniature instances use distinct faction colors")
-	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
+		for miniature in [player_miniature, enemy_miniature]:
+			var current_miniature := miniature as GameMiniatureVisual3D
+			var meshes: Array[Node] = current_miniature.find_children("*", "MeshInstance3D", true, false)
+			_expect(not meshes.is_empty(), "%s contains a tintable imported mesh" % current_miniature.name)
+			if not meshes.is_empty():
+				var miniature_mesh := meshes[0] as MeshInstance3D
+				var miniature_material := miniature_mesh.material_override as StandardMaterial3D
+				_expect(miniature_material != null and miniature_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "%s keeps a constant faction color while rotating" % current_miniature.name)
+				_expect(miniature_mesh.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "%s does not cast dynamic character shadows" % current_miniature.name)
+	var camera := instance.get_node_or_null("Camera3D") as FixedFollowCamera
+	_expect(camera != null, "main scene contains fixed camera")
+	if camera != null:
+		_expect(camera.offset.is_equal_approx(Vector3(0.0, 14.0, 10.5)), "fixed camera uses the closer gameplay framing")
+	var north_boundary := instance.get_node_or_null("NorthBoundaryWall") as StaticBody3D
+	var south_boundary := instance.get_node_or_null("SouthBoundaryWall") as StaticBody3D
+	var west_boundary := instance.get_node_or_null("WestBoundaryWall") as StaticBody3D
+	var east_boundary := instance.get_node_or_null("EastBoundaryWall") as StaticBody3D
+	_expect(north_boundary != null and south_boundary != null, "map has brick walls across both horizontal boundaries")
+	_expect(west_boundary != null and east_boundary != null, "map has brick walls across both vertical boundaries")
+	if north_boundary != null and south_boundary != null:
+		_expect(north_boundary.call("get_module_count") == 30 and south_boundary.call("get_module_count") == 30, "horizontal boundaries each contain thirty brick modules")
+		_expect(north_boundary.get_node("VisualRoot").get_child_count() == 30, "north boundary builds all imported brick visuals")
+	if west_boundary != null and east_boundary != null:
+		_expect(west_boundary.call("get_module_count") == 20 and east_boundary.call("get_module_count") == 20, "vertical boundaries each contain twenty brick modules")
+		_expect(west_boundary.get_node("VisualRoot").get_child_count() == 20, "west boundary builds all imported brick visuals")
+	for boundary in [north_boundary, south_boundary, west_boundary, east_boundary]:
+		if boundary != null:
+			_expect(boundary.is_in_group("static_visibility"), "%s blocks line of sight" % boundary.name)
+			_expect(boundary.get_node_or_null("CollisionShape3D") is CollisionShape3D, "%s has physical collision" % boundary.name)
 	_expect(_nodes_in_group_under(instance, &"damageable_walls").size() == 23, "main scene contains twenty-three damageable wall modules")
 	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")
 	_expect(instance.get_node_or_null("SpawnLeftWall") is StaticBody3D, "spawn courtyard has indestructible left cover")
@@ -516,7 +544,32 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("WoodWallA/MeshInstance3D") == null, "wood wall primitive preview is removed")
 	_expect(instance.get_node_or_null("WoodenCrateCover/WoodenCrateVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported wooden crate cover")
 	_expect(instance.get_node_or_null("SandbagCover/SandbagVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported sandbag cover")
+	_expect(instance.get_node_or_null("NorthCenterCrateLeft") is StaticBody3D and instance.get_node_or_null("NorthCenterSandbags") is StaticBody3D, "north sector has a mixed cover cluster")
+	_expect(instance.get_node_or_null("WestMidCrate") is StaticBody3D and instance.get_node_or_null("EastMidCrate") is StaticBody3D, "middle flanks have additional crate cover")
+	_expect(instance.get_node_or_null("SouthWestSandbags") is StaticBody3D and instance.get_node_or_null("SouthEastSandbags") is StaticBody3D, "south approaches have additional sandbag cover")
+	var north_building_rear := instance.get_node_or_null("NorthBuildingRearWall") as StaticBody3D
+	var north_building_west := instance.get_node_or_null("NorthBuildingWestWall") as StaticBody3D
+	var north_building_east := instance.get_node_or_null("NorthBuildingEastWall") as StaticBody3D
+	_expect(north_building_rear != null and north_building_west != null and north_building_east != null, "north sector contains an enterable U-shaped brick building")
+	_expect(instance.get_node_or_null("SouthWestBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthWestBuildingEastWall") is StaticBody3D, "south-west sector contains an L-shaped brick building")
+	_expect(instance.get_node_or_null("SouthEastBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthEastBuildingWestWall") is StaticBody3D, "south-east sector contains an L-shaped brick building")
+	for building_wall in [
+		north_building_rear,
+		north_building_west,
+		north_building_east,
+		instance.get_node_or_null("SouthWestBuildingNorthWall"),
+		instance.get_node_or_null("SouthWestBuildingEastWall"),
+		instance.get_node_or_null("SouthEastBuildingNorthWall"),
+		instance.get_node_or_null("SouthEastBuildingWestWall"),
+	]:
+		_expect(building_wall != null and building_wall.is_in_group("navigation_obstacles"), "interior building wall blocks navigation")
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
+	var world_environment := instance.get_node_or_null("WorldEnvironment") as WorldEnvironment
+	var sun := instance.get_node_or_null("Sun") as DirectionalLight3D
+	_expect(world_environment != null and world_environment.environment.ambient_light_energy >= 1.0, "map uses readable ambient lighting")
+	_expect(sun != null and sun.light_energy >= 1.5, "map key light keeps actors and room geometry readable")
+	var world_visibility := instance.get_node_or_null("WorldVisibility3D") as GameWorldVisibility3D
+	_expect(world_visibility != null, "map retains visibility-aware enemy and environment event handling")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
 	_expect(instance.get_node_or_null("OilBarrelWall/OilDrumLeft/Model/world/geometry_0") is MeshInstance3D, "oil wall uses the imported oil drum model")
@@ -668,7 +721,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 
 	var rocket_definition := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
 	player.equip_special_weapon(rocket_definition, 1, 0)
-	player.global_position = Vector3(24.0, 0.0, 14.0)
+	player.global_position = Vector3(10.0, 0.0, 14.0)
 	player.set_aim_input(Vector2(0.0, -1.0), true)
 	player.call("_update_aim_direction")
 	guard.global_position = Vector3(player.weapon.global_position.x, 0.0, 6.0)
@@ -737,12 +790,23 @@ func _test_aim_assist_and_blind_visibility() -> void:
 
 	var visibility := instance.get_node("WorldVisibility3D") as GameWorldVisibility3D
 	var wall := instance.get_node("WoodWallD") as DamageableWall
+	var wall_mesh := wall.find_child("geometry_0", true, false) as MeshInstance3D
+	_expect(wall_mesh != null, "wood wall exposes its imported model mesh")
 	player.rotation = Vector3(0.0, PI, 0.0)
 	visibility.update_visibility_now()
-	var wall_mesh := wall.find_child("geometry_0", true, false) as MeshInstance3D
-	_expect(wall_mesh != null, "wood wall exposes its imported model mesh to static visibility")
-	var blind_material := wall_mesh.material_override as StandardMaterial3D
-	_expect(wall.visible and blind_material != null and blind_material.albedo_color.get_luminance() <= visibility.blind_brightness + 0.01, "blind static wall remains present with a dark desaturated material")
+	var map_material_before := wall_mesh.get_active_material(0) as StandardMaterial3D
+	var map_color_before := map_material_before.albedo_color if map_material_before != null else Color.TRANSPARENT
+	player.rotation = Vector3.ZERO
+	visibility.update_visibility_now()
+	var highlighted_material := wall_mesh.get_active_material(0) as StandardMaterial3D
+	var highlighted_color := highlighted_material.albedo_color if highlighted_material != null else Color.TRANSPARENT
+	_expect(wall.visible and highlighted_color.get_luminance() > map_color_before.get_luminance(), "building geometry becomes brighter inside the unobstructed player view")
+	_expect(highlighted_material != null and not highlighted_material.emission_enabled, "visible building uses its original material without a whitening emission layer")
+	player.rotation = Vector3(0.0, PI, 0.0)
+	visibility.update_visibility_now()
+	var restored_material := wall_mesh.get_active_material(0) as StandardMaterial3D
+	var restored_color := restored_material.albedo_color if restored_material != null else Color.TRANSPARENT
+	_expect(restored_color.is_equal_approx(map_color_before), "building geometry returns to its stable base color outside the player view")
 
 	primary.global_position = Vector3(3.0, 0.0, -1.0)
 	primary.exposure_remaining = 0.0
