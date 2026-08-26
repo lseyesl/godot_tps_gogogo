@@ -472,6 +472,7 @@ func _test_main_scene() -> void:
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
 	var guard := instance.get_node_or_null("ContentSpawner3D/PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
+	_expect(player.get_node_or_null("ShotFeedback3D") is GameShotFeedback3D, "player contains reusable shot feedback")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
 	_expect(_nodes_in_group_under(instance, &"damageable_walls").size() == 23, "main scene contains twenty-three damageable wall modules")
@@ -491,6 +492,10 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
 	if player != null and guard != null:
 		_disable_all_guards(instance)
+		var feedback := player.get_node("ShotFeedback3D") as GameShotFeedback3D
+		var feedback_before := feedback.shots_presented
+		player.weapon.fired.emit(player.weapon.global_position, player.weapon.global_position + Vector3.FORWARD, true)
+		_expect(feedback.shots_presented == feedback_before + 1, "weapon fired signal immediately triggers presentation feedback")
 		player.global_position = Vector3(0.0, 0.0, 5.0)
 		player.set_aim_input(Vector2(0.0, -1.0), true)
 		guard.global_position = Vector3.ZERO

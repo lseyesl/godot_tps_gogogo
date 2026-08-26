@@ -28,6 +28,7 @@ var controls_enabled := true
 @onready var default_weapon: GameWeapon3D = $WeaponPivot/Muzzle/StandardPistol
 @onready var weapon: GameWeapon3D = default_weapon
 @onready var aim_line: AimLine3D = $AimLine3D
+@onready var shot_feedback: GameShotFeedback3D = $ShotFeedback3D
 @onready var vision: GameVisionSensor3D = $VisionSensor3D
 @onready var aim_assist: GameAimAssist3D = $AimAssist3D
 
@@ -37,6 +38,7 @@ func _ready() -> void:
 	add_to_group("fire_damage_targets")
 	health.depleted.connect(_on_health_depleted)
 	default_weapon.set_owner_body(self)
+	shot_feedback.bind_weapon(default_weapon)
 
 func _physics_process(delta: float) -> void:
 	velocity = Vector3(_move_input.x, 0.0, _move_input.y) * move_speed
@@ -160,6 +162,7 @@ func _set_current_weapon(next_weapon: GameWeapon3D, slot: int) -> void:
 	weapon = next_weapon
 	current_weapon_slot = slot
 	aim_line.set_weapon(weapon)
+	shot_feedback.bind_weapon(weapon)
 	weapon_changed.emit(weapon, current_weapon_slot)
 
 func _update_footsteps(delta: float) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/actors/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/perception/vision_sensor_3d.gd" id="6_vision_sensor"]
 [ext_resource type="Script" path="res://scripts/perception/vision_cone_3d.gd" id="7_vision_cone"]
 [ext_resource type="Script" path="res://scripts/input/aim_assist_3d.gd" id="8_aim_assist"]
+[ext_resource type="Script" path="res://scripts/weapons/shot_feedback_3d.gd" id="9_feedback"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_player"]
 radius = 0.4
@@ -69,6 +70,10 @@ owner_body_path = NodePath("../../..")
 script = ExtResource("5_aim_line")
 weapon_path = NodePath("../WeaponPivot/Muzzle/StandardPistol")
 player_path = NodePath("..")
+
+[node name="ShotFeedback3D" type="Node3D" parent="."]
+script = ExtResource("9_feedback")
+weapon_pivot_path = NodePath("../WeaponPivot")
 
 [node name="VisionSensor3D" type="Node3D" parent="."]
 script = ExtResource("6_vision_sensor")
