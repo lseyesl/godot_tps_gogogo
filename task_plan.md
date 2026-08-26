@@ -4,7 +4,7 @@
 依据冻结 GDD，持续实现可在 Android 横屏运行的第三人称平面 PvE 射击游戏；本轮先交付可启动、可操作、可自动验证的核心垂直切片。
 
 ## 当前阶段
-阶段 44（等待远端验证）
+阶段 44（等待远端 Release 复验）
 
 ## 各阶段
 
@@ -301,8 +301,16 @@
 ### 阶段 44：GitHub Action 真实 APK 复验
 - [ ] 将修复提交推送到 GitHub
 - [ ] 手动触发 `Android Build`
-- [ ] 确认导出步骤通过且 APK artifact 非空
+- [ ] 确认导出步骤通过且 Release APK 非空
 - **状态：** pending
+
+### 阶段 45：GitHub Release 发布
+- [x] 为手动构建增加 Release 标签与预发布选项
+- [x] 校验标签并将版本同步到 Android APK
+- [x] 用 GitHub Release asset 替代临时 workflow artifact
+- [x] 同步测试、README 与规划记录并完成本地验证
+- [x] 提交 Release 发布配置
+- **状态：** complete
 
 ## 关键问题
 1. ~~当前环境安装的 Godot 4 具体版本是什么？~~ Godot 4.7 stable。
@@ -327,6 +335,7 @@
 | 静态盲区先按场景模块粒度切换材质 | 当前墙体与滚筒是 2 米模块，可表达遮挡边界且不引入移动端高成本全屏后处理 |
 | Android APK 由 GitHub Actions 的 Godot CI 4.7 容器生成 | 避免开发机必须安装 SDK/模板，同时让每个构件的引擎版本和测试步骤一致 |
 | CI 必须按 Godot 小版本复制 `editor_settings-4.7.tres` | 4.3 起 EditorSettings 按小版本分文件；错用 `editor_settings-4.tres` 会静默丢失 Java/Android SDK 路径 |
+| 手动构建以输入标签发布到 GitHub Release | Release 资产适合长期下载和版本分发；标签同时写入 APK 版本名，临时 Artifact 不再重复保留 |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |
@@ -345,6 +354,7 @@
 | 后退分支测试沿用了探身后的 8–12 米位置 | 1 | 在无掩体距离控制断言前将警卫复位到距玩家 5 米的位置 |
 | 环境火焰队列 pop_front 返回 Variant 被严格警告拦截 | 1 | 将队列元素显式转换为 Node3D 后再传播 |
 | 新增连锁演示木墙使旧场景数量断言仍期望 4 | 1 | 将断言更新为 5，并新增石油、汽油与环境 Hub 的结构验证 |
+| 本地 Ruby 不支持 `Array#filter_map`，workflow shell 批量检查脚本中止 | 1 | 改用兼容旧版 Ruby 的 `map { ... }.compact` 提取所有 `run` 区块 |
 
 ## 备注
 - 核心规则变化必须新增 ADR；普通数值可在资源文件中调优。

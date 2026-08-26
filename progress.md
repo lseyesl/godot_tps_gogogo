@@ -454,7 +454,7 @@
 | 问题 | 答案 |
 |------|------|
 | 我在哪里？ | 阶段 44：Android CI SDK 修复已完成本地验证，等待远端 Action 复验 |
-| 我要去哪里？ | 推送修复后手动触发 Android Build，确认 APK artifact 成功生成 |
+| 我要去哪里？ | 推送配置后手动触发 Android Build，确认 APK 已发布到对应 GitHub Release |
 | 目标是什么？ | 开始实现冻结 MVP，并交付可运行、可测试的核心切片 |
 | 我学到了什么？ | 见 findings.md |
 | 我做了什么？ | 已完成任务撤离、多武器、随机内容、稳定重试、感知、瞄准吸附、盲区表现、Android CI 构建、导航、掩体、燃烧与爆炸闭环 |
@@ -544,8 +544,19 @@
   - 推送本轮修复提交。
   - 在 GitHub Actions 页面手动触发 `Android Build`，回传结果以完成真实容器复验。
 
+### 阶段 45：GitHub Release 发布
+- **状态：** complete
+- 执行的操作：
+  - 手动触发参数增加版本标签与预发布开关，标签限制为语义化版本形式。
+  - 标签版本写入 Android `version/name`，GitHub run number 写入递增的 `version/code`。
+  - workflow 获得最小 `contents: write` 权限，并以 `softprops/action-gh-release@v2` 创建 Release、生成发行说明和上传 APK。
+  - 删除重复的临时 Artifact 上传，README 改为 Releases 下载流程。
+  - Ruby YAML 解析与 5 个 shell 区块语法检查通过，`git diff --check` 通过。
+  - Godot `--check-only` 通过，完整核心回归输出 `PASS: core slice tests`。
+
 ## 本轮 Android CI 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
 |--------|------|---------|---------|
 | 2026-08-26 | Docker CLI 无法连接 OrbStack daemon，本机无法启动 `barichello/godot-ci:4.7` 重放 | 1 | 不重复尝试；使用用户的远端日志为原始反馈，新增快速环境自检作为本地回归缝隙 |
 | 2026-08-26 | 沙箱网络无法解析 `raw.githubusercontent.com` | 1 | 按工具规则改为申请非沙箱网络读取镜像源配置 |
+| 2026-08-26 | 本机旧版 Ruby 缺少 `Array#filter_map`，shell 区块批量语法检查未执行 | 1 | YAML 解析已通过；改用 `map { ... }.compact` 后重新检查，不重复使用不兼容 API |

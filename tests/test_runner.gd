@@ -44,8 +44,11 @@ func _test_android_build_configuration() -> void:
 	_expect(preset.contains('gradle_build/target_sdk="33"'), "Android export preset matches the CI image Android 33 platform")
 	_expect(workflow.contains("barichello/godot-ci:4.7"), "Android workflow uses the matching Godot CI image")
 	_expect(workflow.contains("  workflow_dispatch:"), "Android workflow supports manual dispatch")
+	_expect(workflow.contains("      tag:"), "Android workflow requires a release tag input")
+	_expect(workflow.contains("      prerelease:"), "Android workflow exposes a prerelease input")
 	_expect(not workflow.contains("\n  push:"), "Android workflow does not run on repository pushes")
 	_expect(not workflow.contains("\n  pull_request:"), "Android workflow does not run on pull requests")
+	_expect(workflow.contains("  contents: write"), "Android workflow can create repository releases")
 	_expect(workflow.contains("editor_settings-${GODOT_VERSION}.tres"), "Android workflow copies the versioned Godot 4.7 editor settings")
 	_expect(workflow.contains("JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64"), "Android workflow exposes the Java SDK path")
 	_expect(workflow.contains("ANDROID_HOME: /usr/lib/android-sdk"), "Android workflow exposes the Android SDK path")
@@ -53,7 +56,12 @@ func _test_android_build_configuration() -> void:
 	_expect(workflow.contains('test -x "${JAVA_HOME}/bin/java"'), "Android workflow fails early when Java is unavailable")
 	_expect(workflow.contains("--script res://tests/test_runner.gd"), "Android workflow runs core regression tests before export")
 	_expect(workflow.contains("--export-debug Android"), "Android workflow exports the configured debug APK")
-	_expect(workflow.contains("actions/upload-artifact@v4"), "Android workflow uploads the APK artifact")
+	_expect(workflow.contains('^v?[0-9]+\\.[0-9]+\\.[0-9]+'), "Android workflow validates the release tag format")
+	_expect(workflow.contains("softprops/action-gh-release@v2"), "Android workflow publishes a GitHub Release")
+	_expect(workflow.contains("tag_name: ${{ inputs.tag }}"), "Android workflow publishes under the requested tag")
+	_expect(workflow.contains("generate_release_notes: true"), "Android workflow generates release notes")
+	_expect(workflow.contains("files: ${{ env.APK_PATH }}"), "Android workflow attaches the APK to the release")
+	_expect(not workflow.contains("actions/upload-artifact@v4"), "Android workflow does not retain a duplicate temporary artifact")
 
 func _test_weapon_definition() -> void:
 	var definition := load("res://resources/weapons/standard_pistol.tres") as WeaponDefinition

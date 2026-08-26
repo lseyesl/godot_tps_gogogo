@@ -81,12 +81,12 @@ godot --headless --xr-mode off --path . --script res://tests/test_runner.gd
 
 `.github/workflows/android-build.yml` 只在手动触发时运行：
 
-1. 使用 Godot CI 4.7 容器导入项目并运行语法检查。
-2. 运行完整核心回归测试。
-3. 使用 `export_presets.cfg` 导出 Android arm64 调试 APK。
-4. 上传名为 `gogogo-android-debug-<run number>` 的 workflow artifact，保留 14 天。
+1. 在 **Actions → Android Build → Run workflow** 输入 Release 标签（例如 `v0.1.0`），并选择是否标记为预发布版。
+2. 使用 Godot CI 4.7 容器导入项目、运行语法检查和完整核心回归测试。
+3. 使用标签同步 APK 版本名，并通过 `export_presets.cfg` 导出 Android arm64 调试 APK。
+4. 创建对应标签的 GitHub Release、自动生成发行说明，并附加 `gogogo-android-arm64-debug.apk`。
 
-调试 APK 用于真机安装与测试，不包含正式上架签名。GitHub 仓库的 **Actions → Android Build → Run workflow** 可手动生成新 APK。
+构建成功后可在仓库 **Releases** 页面下载 APK；流水线不再保留重复的临时 workflow artifact。同一标签重新运行会更新对应 Release。调试 APK 用于真机安装与测试，不包含正式上架签名。
 
 流水线会将 Godot CI 镜像中与 4.7 匹配的 EditorSettings 复制到 Actions `HOME`，显式验证 Java 17、Android SDK 33、Build Tools 33.0.2、导出模板和 fontconfig，任一依赖缺失都会在导出前给出清晰失败。
 
