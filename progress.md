@@ -554,9 +554,23 @@
   - Ruby YAML 解析与 5 个 shell 区块语法检查通过，`git diff --check` 通过。
   - Godot `--check-only` 通过，完整核心回归输出 `PASS: core slice tests`。
 
+### 阶段 46：Android 4.7 导出约束修复
+- **状态：** complete
+- 执行的操作：
+  - 真实 GitHub Action 已推进到 Android 导出配置校验，证明前一轮 Java SDK 与 Android SDK 路径修复生效。
+  - 用户日志稳定命中三项配置错误：标准导出模式覆盖 Min SDK、覆盖 Target SDK、缺少 ETC2/ASTC。
+  - 新增针对这三个错误条件的快速配置回归，先在旧配置上确认红灯后再修复。
+  - 红灯命令同时输出 `SDK overrides require Gradle build mode` 与 `ETC2/ASTC is required` 并以状态 1 退出。
+  - `export_presets.cfg` 清空 Min/Target SDK 覆盖，保持标准导出；`project.godot` 启用 ETC2/ASTC。
+  - 修复后快速导出约束、workflow YAML、5 个 shell 区块、Godot `--check-only` 与完整核心回归全部通过。
+  - Android 预设 PCK 导出成功且文件非空；本机无 Android SDK，因此完整 APK 仍由 GitHub Action 复验。
+
 ## 本轮 Android CI 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
 |--------|------|---------|---------|
 | 2026-08-26 | Docker CLI 无法连接 OrbStack daemon，本机无法启动 `barichello/godot-ci:4.7` 重放 | 1 | 不重复尝试；使用用户的远端日志为原始反馈，新增快速环境自检作为本地回归缝隙 |
 | 2026-08-26 | 沙箱网络无法解析 `raw.githubusercontent.com` | 1 | 按工具规则改为申请非沙箱网络读取镜像源配置 |
 | 2026-08-26 | 本机旧版 Ruby 缺少 `Array#filter_map`，shell 区块批量语法检查未执行 | 1 | YAML 解析已通过；改用 `map { ... }.compact` 后重新检查，不重复使用不兼容 API |
+| 2026-08-26 | 首次合并规划补丁因 findings.md 原文上下文不匹配而未应用 | 1 | 重新读取精确上下文，拆分并重放更小补丁 |
+| 2026-08-26 | 本地 PCK 导出结束时无法写用户级 EditorSettings，并报告 macOS 系统 CA 读取错误 | 1 | PCK 已成功生成且非空；两项均为受限本机环境噪声，不影响配置回归或远端 Linux APK 导出 |
+| 2026-08-26 | 最终完整回归复跑无法打开 `user://logs` 并在 MoltenVK 路径 signal 11 | 2 | 兼容渲染后端仍失败，确认是沙箱用户目录限制；沙箱外复跑输出 `PASS: core slice tests` |

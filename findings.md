@@ -17,6 +17,7 @@
 - 瞄准吸附与盲区反馈已提交为 `df75057`；用户指定 Android 构建由 GitHub Actions 负责，不要求本地 Android 环境。
 - 用户要求 Android Build 只允许手动触发，不在 `main` 推送或 Pull Request 时自动构建。
 - 用户要求构建后的 Android APK 直接放入 GitHub Release，不再只保留 workflow artifact。
+- 第二次真实 Action 导出证明 Java/Android SDK 路径已修复；当前失败推进到 Godot 4.7 导出预设校验阶段。
 
 ## 研究发现
 - 仓库已在 `main` 分支初始化 Git。
@@ -33,6 +34,9 @@
 - GitHub Actions 的容器 step 使用 Actions 指定的 `HOME`；仅从 `/root/.config/godot` 条件复制旧 EditorSettings 不能保证 Java/Android SDK 字段存在或匹配当前镜像。
 - `godot-ci` 官方 Dockerfile 使用 `editor_settings-${GODOT_VERSION:0:3}.tres`；对 4.7 镜像实际文件名是 `editor_settings-4.7.tres`，而旧 workflow 错误查找 `editor_settings-4.tres` 并因条件判断静默跳过。
 - 官方镜像固定 Java 为 `/usr/lib/jvm/java-17-openjdk-amd64`、Android SDK 为 `/usr/lib/android-sdk`、Build Tools/API 为 33.0.2/33，且 Dockerfile 未安装 `fontconfig`。
+- Godot 4.7 明确拒绝在 `gradle_build/use_gradle_build=false` 时覆盖 Min SDK 与 Target SDK；当前预设同时触发了两项校验错误。
+- Android 导出要求项目启用 `rendering/textures/vram_compression/import_etc2_astc`；当前 `project.godot` 未设置该项。
+- 新日志中的 `cannot connect to daemon at tcp:5037` 出现在导出配置已经失败之后，属于设备检测噪声，不是当前首要根因。
 
 ## 技术决策
 | 决策 | 理由 |
@@ -90,6 +94,7 @@
 | Android 导出前在同一 CI job 运行语法检查和核心回归 | 只有通过玩法回归的提交才产出 APK，避免分发可启动但规则已损坏的构件 |
 | Release 标签由 `workflow_dispatch` 输入并在 shell 中校验 | 允许明确版本发布，同时避免未经校验的输入进入版本修改命令；标签去掉可选 `v` 后写入 APK 版本名 |
 | Release 首轮仍附加调试签名 APK | 延续当前真机测试用途，不引入仓库发布密钥；正式商店签名属于后续独立发布流程 |
+| 保持标准 Android 导出并清空 SDK 覆盖 | 仅为固定 API 版本启用自定义 Gradle 会额外要求 Android Build Template；当前测试分发使用模板默认值更小、更稳定 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |

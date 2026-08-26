@@ -299,8 +299,8 @@
 - **状态：** complete
 
 ### 阶段 44：GitHub Action 真实 APK 复验
-- [ ] 将修复提交推送到 GitHub
-- [ ] 手动触发 `Android Build`
+- [x] 将 Release workflow 提交推送到 GitHub
+- [x] 手动触发 `Android Build` 并获得真实导出反馈
 - [ ] 确认导出步骤通过且 Release APK 非空
 - **状态：** pending
 
@@ -310,6 +310,13 @@
 - [x] 用 GitHub Release asset 替代临时 workflow artifact
 - [x] 同步测试、README 与规划记录并完成本地验证
 - [x] 提交 Release 发布配置
+- **状态：** complete
+
+### 阶段 46：Android 4.7 导出约束修复
+- [x] 建立 SDK 覆盖与 ETC2/ASTC 缺失的确定性红灯回归
+- [x] 移除标准导出不允许的 SDK 覆盖并启用 ETC2/ASTC
+- [x] 运行配置、Godot 语法与完整核心回归
+- [x] 提交修复，等待远端 Release 复验
 - **状态：** complete
 
 ## 关键问题
@@ -336,6 +343,7 @@
 | Android APK 由 GitHub Actions 的 Godot CI 4.7 容器生成 | 避免开发机必须安装 SDK/模板，同时让每个构件的引擎版本和测试步骤一致 |
 | CI 必须按 Godot 小版本复制 `editor_settings-4.7.tres` | 4.3 起 EditorSettings 按小版本分文件；错用 `editor_settings-4.tres` 会静默丢失 Java/Android SDK 路径 |
 | 手动构建以输入标签发布到 GitHub Release | Release 资产适合长期下载和版本分发；标签同时写入 APK 版本名，临时 Artifact 不再重复保留 |
+| 标准 Android 导出不固定 Min/Target SDK | Godot 4.7 只允许自定义 Gradle 构建覆盖这两个值；本项目无需引入 Android Build Template，使用导出模板默认值并由现有 SDK 33 环境回退处理 |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |
@@ -355,6 +363,9 @@
 | 环境火焰队列 pop_front 返回 Variant 被严格警告拦截 | 1 | 将队列元素显式转换为 Node3D 后再传播 |
 | 新增连锁演示木墙使旧场景数量断言仍期望 4 | 1 | 将断言更新为 5，并新增石油、汽油与环境 Hub 的结构验证 |
 | 本地 Ruby 不支持 `Array#filter_map`，workflow shell 批量检查脚本中止 | 1 | 改用兼容旧版 Ruby 的 `map { ... }.compact` 提取所有 `run` 区块 |
+| Godot 4.7 Android 标准导出拒绝 Min/Target SDK 覆盖，且项目未启用 ETC2/ASTC | 1 | 新增对应配置回归；标准导出不启用自定义 Gradle，改为移除 SDK 覆盖并启用 ETC2/ASTC |
+| 首次批量规划补丁因 findings.md 上下文文字不完全匹配而未应用 | 1 | 拆分为精确的小补丁并以当前文件内容为锚点 |
+| 最终 Godot 回归复跑再次命中 macOS `user://logs`/MoltenVK signal 11 | 2 | `gl_compatibility` 仍失败，确认是沙箱用户目录限制；沙箱外完整回归通过 |
 
 ## 备注
 - 核心规则变化必须新增 ADR；普通数值可在资源文件中调优。
