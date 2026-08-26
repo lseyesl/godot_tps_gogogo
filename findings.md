@@ -26,6 +26,12 @@
 - Godot 工程可以完全使用 PrimitiveMesh 和 typed GDScript 构建首条切片，不依赖外部美术资源。
 - 仓库当前没有 `export_presets.cfg` 或 `.github/workflows/`；`project.godot` 已设置 1280×720、横屏与 Mobile 渲染器。
 - Android 调试 APK 可使用 Godot 默认调试签名在 CI 产出，无需将发布密钥放入仓库；正式上架签名后续单独配置。
+- GitHub Actions 真实导出日志显示 `A valid Java SDK path is required in Editor Settings`，这是 APK 导出终止的直接原因。
+- 同一日志显示 `libfontconfig.so.1` 缺失；它禁用系统字体支持并产生噪声，但 Godot 继续进入 Android 导出配置检查，因此不是本次终止点。
+- `Could not find version of build tools ... using 33.0.2` 是回退提示；`cannot connect to daemon at tcp:5037` 是 ADB 噪声，两者都发生在 Java SDK 配置失败前后，不是主要终止原因。
+- GitHub Actions 的容器 step 使用 Actions 指定的 `HOME`；仅从 `/root/.config/godot` 条件复制旧 EditorSettings 不能保证 Java/Android SDK 字段存在或匹配当前镜像。
+- `godot-ci` 官方 Dockerfile 使用 `editor_settings-${GODOT_VERSION:0:3}.tres`；对 4.7 镜像实际文件名是 `editor_settings-4.7.tres`，而旧 workflow 错误查找 `editor_settings-4.tres` 并因条件判断静默跳过。
+- 官方镜像固定 Java 为 `/usr/lib/jvm/java-17-openjdk-amd64`、Android SDK 为 `/usr/lib/android-sdk`、Build Tools/API 为 33.0.2/33，且 Dockerfile 未安装 `fontconfig`。
 
 ## 技术决策
 | 决策 | 理由 |

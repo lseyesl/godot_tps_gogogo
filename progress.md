@@ -453,8 +453,8 @@
 ## 五问重启检查
 | 问题 | 答案 |
 |------|------|
-| 我在哪里？ | 阶段 41：Android GitHub Actions 构建切片完成 |
-| 我要去哪里？ | 下一阶段在 CI 产出 APK 后进行安全区、60/30 FPS 档位和真机触控验证 |
+| 我在哪里？ | 阶段 44：Android CI SDK 修复已完成本地验证，等待远端 Action 复验 |
+| 我要去哪里？ | 推送修复后手动触发 Android Build，确认 APK artifact 成功生成 |
 | 目标是什么？ | 开始实现冻结 MVP，并交付可运行、可测试的核心切片 |
 | 我学到了什么？ | 见 findings.md |
 | 我做了什么？ | 已完成任务撤离、多武器、随机内容、稳定重试、感知、瞄准吸附、盲区表现、Android CI 构建、导航、掩体、燃烧与爆炸闭环 |
@@ -526,3 +526,26 @@
 - 执行的操作：
   - 删除 workflow 的 `push` 和 `pull_request` 触发器，仅保留 `workflow_dispatch`。
   - README 同步改为仅通过 Actions 页面手动生成 APK。
+
+### 阶段 43：Android CI SDK 环境诊断与修复
+- **状态：** complete
+- 执行的操作：
+  - 从用户提供的原始 Action 日志确认致命症状为 Godot EditorSettings 缺少有效 Java SDK 路径，同时存在 fontconfig 缺失噪声。
+  - 本机 Docker CLI 存在但 daemon 未运行，无法在同镜像中重放真实 APK 导出；原始 GitHub Action 日志作为原始红灯。
+  - 官方 Dockerfile 确认 4.7 镜像的文件是 `editor_settings-4.7.tres`，旧 workflow 错误查找 `editor_settings-4.tres`。
+  - 新增的5个环境回归断言在旧 workflow 上稳定失败，修复后全部转绿。
+  - workflow 显式设置 `JAVA_HOME`、`ANDROID_HOME`、`ANDROID_SDK_ROOT`，复制正确版本 EditorSettings，并在导出前检查 Java、API 33、Build Tools 33.0.2 和 SDK 字段。
+  - workflow 安装 `fontconfig`；Android Target SDK 与镜像已安装的 API 33 对齐，消除字体与 Build Tools 回退噪声。
+  - YAML 及所有 Bash block 语法通过，Godot `--check-only`、完整核心回归和 Android PCK 导出全部通过。
+
+### 阶段 44：GitHub Action 真实 APK 复验
+- **状态：** pending
+- 等待操作：
+  - 推送本轮修复提交。
+  - 在 GitHub Actions 页面手动触发 `Android Build`，回传结果以完成真实容器复验。
+
+## 本轮 Android CI 错误日志
+| 时间戳 | 错误 | 尝试次数 | 解决方案 |
+|--------|------|---------|---------|
+| 2026-08-26 | Docker CLI 无法连接 OrbStack daemon，本机无法启动 `barichello/godot-ci:4.7` 重放 | 1 | 不重复尝试；使用用户的远端日志为原始反馈，新增快速环境自检作为本地回归缝隙 |
+| 2026-08-26 | 沙箱网络无法解析 `raw.githubusercontent.com` | 1 | 按工具规则改为申请非沙箱网络读取镜像源配置 |

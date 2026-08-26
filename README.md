@@ -88,6 +88,8 @@ godot --headless --xr-mode off --path . --script res://tests/test_runner.gd
 
 调试 APK 用于真机安装与测试，不包含正式上架签名。GitHub 仓库的 **Actions → Android Build → Run workflow** 可手动生成新 APK。
 
+流水线会将 Godot CI 镜像中与 4.7 匹配的 EditorSettings 复制到 Actions `HOME`，显式验证 Java 17、Android SDK 33、Build Tools 33.0.2、导出模板和 fontconfig，任一依赖缺失都会在导出前给出清晰失败。
+
 ## 下一条切片
 
 下一阶段可在 GitHub Actions 产出 APK 后进行 Android 真机安全区、60/30 FPS 档位与触控手感验证。

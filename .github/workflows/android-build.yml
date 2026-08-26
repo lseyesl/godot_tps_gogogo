@@ -20,24 +20,41 @@ jobs:
     env:
       GODOT_VERSION: "4.7"
       APK_PATH: build/android/gogogo-debug.apk
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      ANDROID_HOME: /usr/lib/android-sdk
+      ANDROID_SDK_ROOT: /usr/lib/android-sdk
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Prepare Godot export templates
+      - name: Prepare Android export environment
         shell: bash
         run: |
           set -euo pipefail
+          apt-get update
+          apt-get install -y --no-install-recommends fontconfig
+          rm -rf /var/lib/apt/lists/*
+
           template_source="/root/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           template_target="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          settings_source="/root/.config/godot/editor_settings-${GODOT_VERSION}.tres"
+          settings_target="${HOME}/.config/godot/editor_settings-${GODOT_VERSION}.tres"
+
           test -d "${template_source}"
           mkdir -p "$(dirname "${template_target}")"
           cp -R "${template_source}" "${template_target}"
-          if [ -f /root/.config/godot/editor_settings-4.tres ]; then
-            mkdir -p "${HOME}/.config/godot"
-            cp /root/.config/godot/editor_settings-4.tres "${HOME}/.config/godot/"
-          fi
+
+          test -f "${settings_source}"
+          mkdir -p "$(dirname "${settings_target}")"
+          cp "${settings_source}" "${settings_target}"
+
+          test -x "${JAVA_HOME}/bin/java"
+          test -d "${ANDROID_HOME}/build-tools/33.0.2"
+          test -d "${ANDROID_HOME}/platforms/android-33"
+          test -e /usr/lib/x86_64-linux-gnu/libfontconfig.so.1
+          grep -F 'export/android/java_sdk_path = "/usr/lib/jvm/java-17-openjdk-amd64"' "${settings_target}"
+          grep -F 'export/android/android_sdk_path = "/usr/lib/android-sdk"' "${settings_target}"
 
       - name: Import project and check scripts
         shell: bash

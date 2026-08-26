@@ -4,7 +4,7 @@
 依据冻结 GDD，持续实现可在 Android 横屏运行的第三人称平面 PvE 射击游戏；本轮先交付可启动、可操作、可自动验证的核心垂直切片。
 
 ## 当前阶段
-阶段 42（完成）
+阶段 44（等待远端验证）
 
 ## 各阶段
 
@@ -290,6 +290,20 @@
 - [x] 同步 README 并验证 YAML
 - **状态：** complete
 
+### 阶段 43：Android CI SDK 环境诊断与修复
+- [x] 为 Java、Android SDK、导出模板与 fontconfig 建立导出前快速验证
+- [x] 修复 GitHub Actions 容器 HOME 变更后 Godot 丢失 Java/Android SDK 路径的问题
+- [x] 补齐 fontconfig 运行库并消除字体系统错误
+- [x] 运行配置回归、Godot 检查和完整核心测试
+- [x] 提交可本地验证的修复
+- **状态：** complete
+
+### 阶段 44：GitHub Action 真实 APK 复验
+- [ ] 将修复提交推送到 GitHub
+- [ ] 手动触发 `Android Build`
+- [ ] 确认导出步骤通过且 APK artifact 非空
+- **状态：** pending
+
 ## 关键问题
 1. ~~当前环境安装的 Godot 4 具体版本是什么？~~ Godot 4.7 stable。
 2. ~~首条切片在不依赖外部美术资源时能否完整运行和验证？~~ 可以；语法检查和自动场景测试通过。
@@ -312,6 +326,7 @@
 | 瞄准辅助首轮使用 10° 候选锥、40% 插值、最大 3° 修正 | 足以补偿触屏误差又不会瞬间锁定，之后可按 Android 真机数据微调 |
 | 静态盲区先按场景模块粒度切换材质 | 当前墙体与滚筒是 2 米模块，可表达遮挡边界且不引入移动端高成本全屏后处理 |
 | Android APK 由 GitHub Actions 的 Godot CI 4.7 容器生成 | 避免开发机必须安装 SDK/模板，同时让每个构件的引擎版本和测试步骤一致 |
+| CI 必须按 Godot 小版本复制 `editor_settings-4.7.tres` | 4.3 起 EditorSettings 按小版本分文件；错用 `editor_settings-4.tres` 会静默丢失 Java/Android SDK 路径 |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |
