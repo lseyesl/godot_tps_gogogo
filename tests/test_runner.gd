@@ -497,6 +497,7 @@ func _test_main_scene() -> void:
 		if imported_model != null:
 			_expect(imported_model.scale.is_equal_approx(Vector3.ONE * 1.8), "shared miniature fills the actor collision height")
 			_expect(is_equal_approx(imported_model.position.y, 0.9), "enlarged miniature remains grounded")
+			_expect(is_equal_approx(imported_model.rotation.y, PI), "shared miniature faces the same forward direction as actor gameplay")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(guard.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "guard contains damage feedback")
 	var enemy_miniature := guard.get_node_or_null("VisualRoot/EnemyMiniature") as GameMiniatureVisual3D

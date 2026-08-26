@@ -8,4 +8,5 @@ script = ExtResource("2_visual")
 
 [node name="ImportedModel" parent="." instance=ExtResource("1_model")]
 position = Vector3(0, 0.9, 0)
+rotation = Vector3(0, 3.1415927, 0)
 scale = Vector3(1.8, 1.8, 1.8)
