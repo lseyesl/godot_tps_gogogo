@@ -26,6 +26,26 @@ Avoid: photorealism, military photography, fantasy ornament, excessive rubble, h
 
 成图包含砖墙、完整木墙、重度损坏木墙、倒塌木墙、木箱、混凝土矮墙和沙袋墙。三种木墙状态保持了相同支柱、底座和木板语言，可直接作为连续损坏状态参考。
 
+### 模块拼接修订版
+
+当前优先参考：`environment-cover-props-v2.png`
+
+初版的部分墙体底座超出上部墙体或端柱，连续拼接时会让底座先接触并在墙体上部留下缝隙。修订版要求所有墙体的左右端面贯穿整个模块高度对齐。
+
+```text
+Use case: precise-object-edit
+Asset type: revised modular game environment prop concept sheet
+Input image: Image 1 is the edit target. Preserve its canvas, seven-slot layout, objects, camera, scale, colors, materials, lighting, background, spacing, and low-poly painted-resin style.
+Primary request: change only the modular connection geometry of the wall assets so repeated copies can join end-to-end with zero visible gap and zero overlap.
+Required geometry correction: for the brick wall, all three wooden-wall damage states, the concrete low wall, and the sandbag wall, make the base, wall body, vertical end posts/supports, and upper outer silhouette terminate at the exact same left and right vertical connection planes. The base must never protrude beyond the wall or end posts. The wall, posts, bricks, concrete panels, and outermost sandbags must never stop short of or protrude beyond the base. Each asset must have a clean rectangular module footprint of identical visual length from its bottom base to its highest intact outer endpoints. Keep bevels recessed inward from the connection planes. For the damaged wooden wall, preserve the missing central planks but keep both end posts and footprint aligned. For the collapsed wooden state, keep every broken plank, stone, and debris fragment strictly inside the same aligned module footprint; no debris beyond either end plane.
+Composition/framing: keep exactly the same seven asset slots in the same order and approximate positions: brick wall; intact wooden wall; damaged wooden wall; collapsed wooden wall; wooden crate; concrete low wall; sandbag wall.
+Invariants: do not change the wooden crate at all. Preserve object identities, wall heights, damage progression, color palette, matte worn resin materials, orthographic three-quarter top-down camera, dark studio backdrop, shadows, and generous separation. Keep every object fully visible.
+Constraints: no text, measurement marks, arrows, guide lines, characters, new props, logos, or watermark.
+Avoid: protruding base blocks, overhanging end bricks, end posts outside the base, recessed wall endpoints, tapered module ends, debris outside the footprint, gaps implied at connection ends, redesigning the props, changing viewpoint or layout.
+```
+
+后续建模约束：底座、墙体、端柱和上部外轮廓必须在模块局部 X 轴两端共享相同连接平面；倒角只能向内收，任何碎片不得越出模块占地。转角、T 型连接和末端封口应使用独立模块。
+
 ## 交互物概念板
 
 生成结果：`environment-interactive-props.png`
