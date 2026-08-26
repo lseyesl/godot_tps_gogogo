@@ -105,6 +105,7 @@
 | Release 首轮仍附加调试签名 APK | 延续当前真机测试用途，不引入仓库发布密钥；正式商店签名属于后续独立发布流程 |
 | 保持标准 Android 导出并清空 SDK 覆盖 | 仅为固定 API 版本启用自定义 Gradle 会额外要求 Android Build Template；当前测试分发使用模板默认值更小、更稳定 |
 | 地图安全以真实双向视野而非距离近似验收 | 直接调用每个警卫候选的 VisionSensor，可同时覆盖 120° 朝向、16 米距离和墙体遮挡 |
+| 玩家与警卫复用同一兵人 GLB | 两个轻量场景实例化共享表现预制体，再用整网格运行时材质分别染成青绿和红色，避免复制模型资源 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -114,6 +115,7 @@
 | macOS 沙箱中 Godot 4.7 headless 启动主场景连续三次在日志目录/MoltenVK 路径崩溃 | 停止重复该命令；以 check-only、场景测试和后续 Android 真机验证覆盖，项目继续使用 Mobile |
 | ImmediateMesh 即使在 headless 场景测试中也会触发 macOS 图形路径 | GameVisionCone3D 在 headless 下只禁用绘制；共享感知算法照常运行和测试 |
 | 沙箱内 Godot 偶发在 `user://logs` / MoltenVK 路径 signal 11 | 使用已授权的非沙箱 headless 命令完成语法与回归验证；代码测试本身通过 |
+| GLB 网格表面在 dummy renderer 下没有可用原始材质 | 不读取或逐表面覆盖空材质，直接为 MeshInstance3D 设置统一 `material_override`，阵营染色与 headless 回归均稳定 |
 
 ## 资源
 - `docs/design/GDD-MVP-v0.1.md`
@@ -139,6 +141,8 @@
 - `scripts/world/world_visibility_3d.gd`
 - `export_presets.cfg`
 - `.github/workflows/android-build.yml`
+- `assets/models/prototypes/player.glb`
+- `scenes/visuals/shared_miniature.tscn`
 
 ## 视觉/浏览器发现
 - 本轮尚未进行视觉或浏览器检查。

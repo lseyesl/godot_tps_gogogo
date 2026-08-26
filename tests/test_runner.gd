@@ -488,8 +488,16 @@ func _test_main_scene() -> void:
 	_expect(is_equal_approx(player.move_speed, 6.0), "player moves at six meters per second")
 	_expect(player.get_node_or_null("ShotFeedback3D") is GameShotFeedback3D, "player contains reusable shot feedback")
 	_expect(player.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "player contains damage feedback")
+	var player_miniature := player.get_node_or_null("VisualRoot/PlayerMiniature") as GameMiniatureVisual3D
+	_expect(player_miniature != null, "player uses the shared GLB miniature prefab")
+	_expect(player.get_node_or_null("BodyMesh") == null, "player primitive preview body is removed")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(guard.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "guard contains damage feedback")
+	var enemy_miniature := guard.get_node_or_null("VisualRoot/EnemyMiniature") as GameMiniatureVisual3D
+	_expect(enemy_miniature != null, "guard uses the shared GLB miniature prefab")
+	_expect(guard.get_node_or_null("VisualRoot/BodyMesh") == null, "guard primitive preview body is removed")
+	if player_miniature != null and enemy_miniature != null:
+		_expect(player_miniature.faction_color != enemy_miniature.faction_color, "shared miniature instances use distinct faction colors")
 	_expect(instance.get_node_or_null("Camera3D") is FixedFollowCamera, "main scene contains fixed camera")
 	_expect(_nodes_in_group_under(instance, &"damageable_walls").size() == 23, "main scene contains twenty-three damageable wall modules")
 	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/actors/pistol_guard.gd" id="1_guard"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
@@ -6,26 +6,11 @@
 [ext_resource type="Resource" path="res://resources/weapons/standard_pistol.tres" id="4_definition"]
 [ext_resource type="Script" path="res://scripts/perception/vision_sensor_3d.gd" id="5_vision"]
 [ext_resource type="Script" path="res://scripts/actors/damage_feedback_3d.gd" id="6_damage_feedback"]
+[ext_resource type="PackedScene" path="res://scenes/visuals/enemy_miniature.tscn" id="7_miniature"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_guard"]
 radius = 0.4
 height = 1.8
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_guard"]
-radius = 0.4
-height = 1.8
-
-[sub_resource type="StandardMaterial3D" id="Material_guard"]
-albedo_color = Color(0.8, 0.22, 0.18, 1)
-roughness = 0.68
-
-[sub_resource type="BoxMesh" id="BoxMesh_weapon"]
-size = Vector3(0.16, 0.16, 0.75)
-
-[sub_resource type="StandardMaterial3D" id="Material_weapon"]
-albedo_color = Color(0.1, 0.11, 0.15, 1)
-metallic = 0.6
-roughness = 0.3
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_marker"]
 top_radius = 0.52
@@ -67,18 +52,10 @@ occlusion_mask = 2
 
 [node name="VisualRoot" type="Node3D" parent="."]
 
-[node name="BodyMesh" type="MeshInstance3D" parent="VisualRoot"]
-position = Vector3(0, 0.9, 0)
-mesh = SubResource("CapsuleMesh_guard")
-material_override = SubResource("Material_guard")
+[node name="EnemyMiniature" parent="VisualRoot" instance=ExtResource("7_miniature")]
 
 [node name="WeaponPivot" type="Node3D" parent="VisualRoot"]
 position = Vector3(0.45, 1.05, -0.2)
-
-[node name="WeaponMesh" type="MeshInstance3D" parent="VisualRoot/WeaponPivot"]
-position = Vector3(0, 0, -0.34)
-mesh = SubResource("BoxMesh_weapon")
-material_override = SubResource("Material_weapon")
 
 [node name="Muzzle" type="Marker3D" parent="VisualRoot/WeaponPivot"]
 position = Vector3(0, 0, -0.75)
