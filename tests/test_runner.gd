@@ -491,6 +491,12 @@ func _test_main_scene() -> void:
 	var player_miniature := player.get_node_or_null("VisualRoot/PlayerMiniature") as GameMiniatureVisual3D
 	_expect(player_miniature != null, "player uses the shared GLB miniature prefab")
 	_expect(player.get_node_or_null("BodyMesh") == null, "player primitive preview body is removed")
+	if player_miniature != null:
+		var imported_model := player_miniature.get_node_or_null("ImportedModel") as Node3D
+		_expect(imported_model != null, "shared miniature contains the imported model")
+		if imported_model != null:
+			_expect(imported_model.scale.is_equal_approx(Vector3.ONE * 1.8), "shared miniature fills the actor collision height")
+			_expect(is_equal_approx(imported_model.position.y, 0.9), "enlarged miniature remains grounded")
 	_expect(guard != null, "main scene contains pistol guard")
 	_expect(guard.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "guard contains damage feedback")
 	var enemy_miniature := guard.get_node_or_null("VisualRoot/EnemyMiniature") as GameMiniatureVisual3D
