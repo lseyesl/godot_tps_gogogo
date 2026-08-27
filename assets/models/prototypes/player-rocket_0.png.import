@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cwjbbxyjbw8oo"
-path="res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.ctex"
+path.s3tc="res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.s3tc.ctex"
+path.etc2="res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8f11194962ecb4f4c5430df639619206"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/prototypes/player-rocket_0.png"
-dest_files=["res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.ctex"]
+dest_files=["res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.s3tc.ctex", "res://.godot/imported/player-rocket_0.png-ca4cf04e5d100d4793038d4cbc877883.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
