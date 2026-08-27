@@ -493,6 +493,10 @@ func _test_main_scene() -> void:
 	_expect(player.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "player contains damage feedback")
 	var player_miniature := player.get_node_or_null("VisualRoot/PlayerMiniature") as GameMiniatureVisual3D
 	_expect(player_miniature != null, "player uses the shared GLB miniature prefab")
+	var rifle_miniature := player.get_node_or_null("VisualRoot/PlayerRifleMiniature") as GameMiniatureVisual3D
+	var rocket_miniature := player.get_node_or_null("VisualRoot/PlayerRocketMiniature") as GameMiniatureVisual3D
+	_expect(rifle_miniature != null and rocket_miniature != null, "player includes complete rifle and rocket miniature variants")
+	_expect(player_miniature.visible and not rifle_miniature.visible and not rocket_miniature.visible, "player initially shows only the pistol miniature")
 	_expect(player.get_node_or_null("BodyMesh") == null, "player primitive preview body is removed")
 	if player_miniature != null:
 		var imported_model := player_miniature.get_node_or_null("ImportedModel") as Node3D
@@ -686,6 +690,9 @@ func _test_weapon_pickups_and_rocket() -> void:
 	player.set_physics_process(false)
 	var pickup_nodes := instance.get_tree().get_nodes_in_group("weapon_pickups")
 	_expect(pickup_nodes.size() == 4, "main scene contains four special weapon pickups")
+	for pickup_node in pickup_nodes:
+		var pickup := pickup_node as GameWeaponPickup3D
+		_expect(pickup != null and pickup.get_node_or_null("Visual/ImportedWeaponModel") != null, "weapon pickup uses its imported GLB model")
 	_expect(instance.get_node_or_null("HUD/WeaponButtons/DefaultWeaponButton") is Button, "HUD contains default weapon switch button")
 	_expect(instance.get_node_or_null("HUD/WeaponButtons/SpecialWeaponButton") is Button, "HUD contains special weapon switch button")
 	_expect(instance.get_node_or_null("HUD/SwapWeaponButton") is Button, "HUD contains contextual weapon swap button")
@@ -693,6 +700,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	var heavy_pickup := instance.get_node("ContentSpawner3D/HeavyPistolPickup") as GameWeaponPickup3D
 	_expect(heavy_pickup.collect_for_player(player), "empty special slot automatically collects weapon pickup")
 	_expect(player.special_weapon != null and player.special_weapon.definition.weapon_id == &"heavy_pistol", "automatic pickup equips heavy pistol in special slot")
+	_expect(player.pistol_miniature.visible and not player.rifle_miniature.visible and not player.rocket_miniature.visible, "heavy pistol keeps the pistol miniature visible")
 	_expect(player.default_weapon != null and player.default_weapon.definition.weapon_id == &"standard_pistol", "special pickup permanently preserves standard pistol")
 	player.special_weapon.set_ammo_state(4, 7)
 
@@ -701,6 +709,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect((instance.get_node("HUD/SwapWeaponButton") as Button).visible, "different pickup exposes temporary swap button")
 	_expect(player.confirm_weapon_swap(), "player can confirm offered special weapon exchange")
 	_expect(player.special_weapon.definition.weapon_id == &"machine_gun", "confirmed exchange equips new special weapon")
+	_expect(not player.pistol_miniature.visible and player.rifle_miniature.visible and not player.rocket_miniature.visible, "machine gun displays the complete rifle miniature")
 	var touch_router := instance.get_node("HUD/TouchControls") as GameTouchInputRouter
 	var automatic_ammo_before := player.special_weapon.ammo_in_magazine
 	touch_router.set("_fire_held", true)
@@ -739,10 +748,12 @@ func _test_weapon_pickups_and_rocket() -> void:
 	player.switch_to_special_weapon()
 	_expect(player.request_fire(), "special weapon fires its final available round")
 	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "exhausted special weapon automatically switches back to standard pistol")
+	_expect(player.pistol_miniature.visible and not player.rifle_miniature.visible and not player.rocket_miniature.visible, "returning to default weapon restores the pistol miniature")
 	_expect(player.special_weapon != null and not player.special_weapon.has_any_ammo(), "exhausted special weapon remains stored in its slot")
 
 	var rocket_definition := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
 	player.equip_special_weapon(rocket_definition, 1, 0)
+	_expect(not player.pistol_miniature.visible and not player.rifle_miniature.visible and player.rocket_miniature.visible, "rocket launcher displays the complete rocket miniature")
 	player.global_position = Vector3(10.0, 0.0, 14.0)
 	player.set_aim_input(Vector2(0.0, -1.0), true)
 	player.call("_update_aim_direction")
@@ -761,6 +772,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 			break
 	_expect(spawned_rocket != null, "rocket shot creates visible projectile node")
 	if spawned_rocket != null:
+		_expect(spawned_rocket.get_node_or_null("ImportedRocketModel") != null, "rocket projectile uses the imported rocket GLB")
 		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 14.0), "rocket projectile inherits unified 14 meter range")
 		_expect(is_equal_approx(spawned_rocket.explosion_radius_meters, 4.0), "rocket projectile inherits four meter blast radius")
 	for _frame in 60:

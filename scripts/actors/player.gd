@@ -31,6 +31,9 @@ var controls_enabled := true
 @onready var shot_feedback: GameShotFeedback3D = $ShotFeedback3D
 @onready var vision: GameVisionSensor3D = $VisionSensor3D
 @onready var aim_assist: GameAimAssist3D = $AimAssist3D
+@onready var pistol_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerMiniature
+@onready var rifle_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerRifleMiniature
+@onready var rocket_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerRocketMiniature
 
 func _ready() -> void:
 	add_to_group("player")
@@ -39,6 +42,7 @@ func _ready() -> void:
 	health.depleted.connect(_on_health_depleted)
 	default_weapon.set_owner_body(self)
 	shot_feedback.bind_weapon(default_weapon)
+	_update_weapon_visual()
 
 func _physics_process(delta: float) -> void:
 	velocity = Vector3(_move_input.x, 0.0, _move_input.y) * move_speed
@@ -163,7 +167,16 @@ func _set_current_weapon(next_weapon: GameWeapon3D, slot: int) -> void:
 	current_weapon_slot = slot
 	aim_line.set_weapon(weapon)
 	shot_feedback.bind_weapon(weapon)
+	_update_weapon_visual()
 	weapon_changed.emit(weapon, current_weapon_slot)
+
+func _update_weapon_visual() -> void:
+	if pistol_miniature == null or rifle_miniature == null or rocket_miniature == null:
+		return
+	var weapon_id := weapon.definition.weapon_id if weapon != null and weapon.definition != null else &"standard_pistol"
+	pistol_miniature.visible = weapon_id != &"machine_gun" and weapon_id != &"rocket_launcher"
+	rifle_miniature.visible = weapon_id == &"machine_gun"
+	rocket_miniature.visible = weapon_id == &"rocket_launcher"
 
 func _update_footsteps(delta: float) -> void:
 	if _move_input.length_squared() <= 0.01:

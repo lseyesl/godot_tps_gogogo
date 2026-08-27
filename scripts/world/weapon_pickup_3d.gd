@@ -3,6 +3,12 @@ extends Area3D
 
 signal collected(pickup: GameWeaponPickup3D, player: PlayerCharacter)
 
+const WEAPON_MODEL_PATHS := {
+	&"heavy_pistol": "res://assets/models/prototypes/weapon-pistol.glb",
+	&"machine_gun": "res://assets/models/prototypes/weapon-rifle.glb",
+	&"rocket_launcher": "res://assets/models/prototypes/weapon-rocket-launcher.glb",
+}
+
 @export var definition: WeaponDefinition
 @export var stored_magazine: int = -1
 @export var stored_reserve: int = -1
@@ -10,7 +16,7 @@ signal collected(pickup: GameWeaponPickup3D, player: PlayerCharacter)
 
 var _player: PlayerCharacter
 
-@onready var visual: MeshInstance3D = $Visual
+@onready var visual: Node3D = $Visual
 @onready var label: Label3D = $Label3D
 
 func _ready() -> void:
@@ -79,19 +85,16 @@ func _spawn_replaced_pickup(state: Dictionary) -> void:
 	dropped.global_position = global_position
 
 func _apply_visual_style() -> void:
-	var material := StandardMaterial3D.new()
-	material.metallic = 0.62
-	material.roughness = 0.3
-	match definition.weapon_id:
-		&"heavy_pistol":
-			material.albedo_color = Color(0.92, 0.72, 0.2, 1)
-		&"machine_gun":
-			material.albedo_color = Color(0.2, 0.55, 0.92, 1)
-		&"rocket_launcher":
-			material.albedo_color = Color(0.88, 0.2, 0.12, 1)
-		_:
-			material.albedo_color = Color(0.65, 0.68, 0.72, 1)
-	visual.material_override = material
+	var model_path: String = WEAPON_MODEL_PATHS.get(definition.weapon_id, "")
+	if model_path.is_empty():
+		return
+	var model_scene := load(model_path) as PackedScene
+	if model_scene == null:
+		return
+	var model := model_scene.instantiate() as Node3D
+	model.name = "ImportedWeaponModel"
+	model.scale = Vector3.ONE * 1.15
+	visual.add_child(model)
 
 func _resolve_player() -> void:
 	_player = get_tree().get_first_node_in_group("player") as PlayerCharacter
