@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bob53ibqwiii3"
-path="res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.ctex"
+path.s3tc="res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.s3tc.ctex"
+path.etc2="res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5da1aaec864731114bd2098d5b010d9f"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/prototypes/Medkit_0.png"
-dest_files=["res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.ctex"]
+dest_files=["res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.s3tc.ctex", "res://.godot/imported/Medkit_0.png-de82fb4532629777ec028464905d4bea.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
