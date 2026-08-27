@@ -30,6 +30,10 @@
 [ext_resource type="PackedScene" path="res://scenes/world/wooden_crate_3d.tscn" id="28_crate"]
 [ext_resource type="PackedScene" path="res://scenes/world/sandbag_wall_3d.tscn" id="29_sandbag"]
 [ext_resource type="PackedScene" path="res://scenes/world/brick_wall_line_3d.tscn" id="30_boundary_wall"]
+[ext_resource type="Shader" path="res://shaders/ground_tile_assembly.gdshader" id="31_ground_shader"]
+[ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-concrete.png" id="32_ground_concrete"]
+[ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-drainage-grate.png" id="33_ground_drainage"]
+[ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-armored-steel.png" id="34_ground_steel"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -39,9 +43,12 @@ ambient_light_color = Color(0.9405334, 0.9355209, 0.929763, 1)
 ambient_light_energy = 1.6
 tonemap_mode = 2
 
-[sub_resource type="StandardMaterial3D" id="Material_floor"]
-albedo_color = Color(0.18, 0.22, 0.27, 1)
-roughness = 0.95
+[sub_resource type="ShaderMaterial" id="Material_floor"]
+shader = ExtResource("31_ground_shader")
+shader_parameter/concrete_texture = ExtResource("32_ground_concrete")
+shader_parameter/drainage_texture = ExtResource("33_ground_drainage")
+shader_parameter/armored_steel_texture = ExtResource("34_ground_steel")
+shader_parameter/tile_count = Vector2(15, 10)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
@@ -95,6 +102,7 @@ light_energy = 1.55
 shadow_enabled = true
 
 [node name="Floor" type="MeshInstance3D" parent="." unique_id=1310759437 groups=["static_visibility"]]
+position = Vector3(0, -0.04, 0)
 material_override = SubResource("Material_floor")
 mesh = SubResource("PlaneMesh_floor")
 

@@ -526,6 +526,17 @@ func _test_main_scene() -> void:
 	_expect(camera != null, "main scene contains fixed camera")
 	if camera != null:
 		_expect(camera.offset.is_equal_approx(Vector3(0.0, 14.0, 10.5)), "fixed camera uses the closer gameplay framing")
+	var floor_mesh := instance.get_node_or_null("Floor") as MeshInstance3D
+	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
+	if floor_mesh != null:
+		_expect(floor_mesh.position.y <= -0.02, "ground renders below actor bases instead of competing at the same depth")
+		var floor_material := floor_mesh.material_override as ShaderMaterial
+		_expect(floor_material != null, "ground uses the tile assembly shader")
+		if floor_material != null:
+			_expect(floor_material.get_shader_parameter("concrete_texture") != null, "ground assembly includes the concrete concept tile")
+			_expect(floor_material.get_shader_parameter("drainage_texture") != null, "ground assembly includes the drainage concept tile")
+			_expect(floor_material.get_shader_parameter("armored_steel_texture") != null, "ground assembly includes the armored-steel concept tile")
+			_expect(floor_material.get_shader_parameter("tile_count") == Vector2(15.0, 10.0), "four-meter ground modules align with the two-meter navigation grid")
 	var north_boundary := instance.get_node_or_null("NorthBoundaryWall") as StaticBody3D
 	var south_boundary := instance.get_node_or_null("SouthBoundaryWall") as StaticBody3D
 	var west_boundary := instance.get_node_or_null("WestBoundaryWall") as StaticBody3D
