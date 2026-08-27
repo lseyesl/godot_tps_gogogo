@@ -89,7 +89,7 @@ func _test_weapon_definition() -> void:
 		return
 	_expect(definition.is_valid(), "standard pistol resource is valid")
 	_expect(is_equal_approx(definition.damage, 1.0), "standard pistol damage is 1")
-	_expect(is_equal_approx(definition.range_meters, 16.0), "standard pistol range is 16 meters")
+	_expect(is_equal_approx(definition.range_meters, 14.0), "standard pistol range is 14 meters")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
 	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
 	var heavy := load("res://resources/weapons/heavy_pistol.tres") as WeaponDefinition
@@ -102,6 +102,9 @@ func _test_weapon_definition() -> void:
 	_expect(machine_gun.automatic and is_equal_approx(machine_gun.shot_interval_seconds, 0.1), "machine gun supports held fire at ten rounds per second")
 	_expect(machine_gun.magazine_capacity == 24 and machine_gun.starting_reserve_ammo == 48, "machine gun uses frozen ammunition values")
 	_expect(rocket != null and rocket.is_valid(), "rocket launcher resource is valid")
+	for weapon_definition in [definition, heavy, machine_gun, rocket]:
+		_expect(is_equal_approx(weapon_definition.range_meters, 14.0), "all player and guard weapons use the unified 14 meter range")
+		_expect(weapon_definition.range_meters < 16.0, "weapon range remains shorter than player and guard vision")
 	_expect(rocket.weapon_type == WeaponDefinition.WeaponType.ROCKET, "rocket launcher selects projectile firing")
 	_expect(rocket.magazine_capacity == 1 and rocket.starting_reserve_ammo == 3, "rocket launcher uses one plus three ammunition")
 	_expect(is_equal_approx(rocket.projectile_speed_meters_per_second, 10.0), "rocket travels at ten meters per second")
@@ -566,7 +569,10 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	var world_environment := instance.get_node_or_null("WorldEnvironment") as WorldEnvironment
 	var sun := instance.get_node_or_null("Sun") as DirectionalLight3D
-	_expect(world_environment != null and world_environment.environment.ambient_light_energy >= 1.0, "map uses readable ambient lighting")
+	_expect(world_environment != null and world_environment.environment != null, "main scene contains a configured world environment")
+	if world_environment != null and world_environment.environment != null:
+		_expect(world_environment.environment.ambient_light_source == Environment.AMBIENT_SOURCE_COLOR, "environment uses its configured color as the ambient light source")
+		_expect(is_equal_approx(world_environment.environment.ambient_light_energy, 1.3), "ambient fill light keeps the environment readable")
 	_expect(sun != null and sun.light_energy >= 1.5, "map key light keeps actors and room geometry readable")
 	var world_visibility := instance.get_node_or_null("WorldVisibility3D") as GameWorldVisibility3D
 	_expect(world_visibility != null, "map retains visibility-aware enemy and environment event handling")
@@ -739,7 +745,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 			break
 	_expect(spawned_rocket != null, "rocket shot creates visible projectile node")
 	if spawned_rocket != null:
-		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 16.0), "rocket projectile inherits unified 16 meter range")
+		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 14.0), "rocket projectile inherits unified 14 meter range")
 		_expect(is_equal_approx(spawned_rocket.explosion_radius_meters, 4.0), "rocket projectile inherits four meter blast radius")
 	for _frame in 60:
 		await physics_frame
@@ -780,11 +786,14 @@ func _test_aim_assist_and_blind_visibility() -> void:
 	var ammo_before := player.weapon.ammo_in_magazine
 	player.aim_assist.resolve_direction(raw)
 	_expect(player.weapon.ammo_in_magazine == ammo_before, "aim assist never fires automatically")
+	var configured_range := player.weapon.definition.range_meters
+	player.weapon.definition.range_meters = 4.0
+	_expect(player.vision.can_see(primary), "guard beyond weapon range remains visible inside the vision cone")
+	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a visible guard beyond the current weapon range")
+	player.weapon.definition.range_meters = configured_range
 
 	primary.global_position = Vector3(0.0, 0.0, 10.0)
 	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind the player")
-	primary.global_position = Vector3(0.0, 0.0, -13.0)
-	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard beyond the shared sixteen meter range")
 	primary.global_position = Vector3(0.0, 0.0, -10.0)
 	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind an intact wall")
 

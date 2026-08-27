@@ -26,7 +26,7 @@ func resolve_direction(raw_direction: Vector3) -> Vector3:
 	return raw.slerp(target_direction, weight).normalized()
 
 func _find_best_target(raw_direction: Vector3) -> PistolGuard:
-	if _player == null or _player.vision == null:
+	if _player == null or _player.vision == null or _player.weapon == null or _player.weapon.definition == null:
 		return null
 	var best: PistolGuard
 	var best_angle := INF
@@ -42,7 +42,7 @@ func _find_best_target(raw_direction: Vector3) -> PistolGuard:
 		var delta := guard.global_position - origin
 		delta.y = 0.0
 		var distance := delta.length()
-		if distance <= 0.001 or distance > _player.vision.view_distance:
+		if distance <= 0.001 or distance > _player.weapon.definition.range_meters:
 			continue
 		var angle := raw_direction.angle_to(delta / distance)
 		if angle > maximum_angle:
