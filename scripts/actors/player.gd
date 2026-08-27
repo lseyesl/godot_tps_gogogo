@@ -10,6 +10,15 @@ enum WeaponSlot {
 	SPECIAL,
 }
 
+const WEAPON_SWAP_OUT_SECONDS := 0.09
+const WEAPON_SWAP_IN_SECONDS := 0.10
+const WEAPON_SWAP_SETTLE_SECONDS := 0.05
+const WEAPON_SWAP_PULSE_SECONDS := 0.15
+const WEAPON_SWAP_LIFT := 0.08
+const WEAPON_SWAP_SHRINK := 0.85
+const WEAPON_SWAP_OVERSHOOT := 1.06
+const WEAPON_SWAP_ROTATION := deg_to_rad(8.0)
+
 @export var move_speed: float = 6.0
 @export var turn_speed_radians: float = 16.0
 @export var footstep_interval_seconds: float = 0.45
@@ -23,6 +32,8 @@ var special_weapon: GameWeapon3D
 var current_weapon_slot := WeaponSlot.DEFAULT
 var _offered_swap_pickup: Node
 var controls_enabled := true
+var _weapon_visual_tween: Tween
+var _weapon_visual_transition_active := false
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var default_weapon: GameWeapon3D = $WeaponPivot/Muzzle/StandardPistol
@@ -34,6 +45,7 @@ var controls_enabled := true
 @onready var pistol_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerMiniature
 @onready var rifle_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerRifleMiniature
 @onready var rocket_miniature: GameMiniatureVisual3D = $VisualRoot/PlayerRocketMiniature
+@onready var weapon_swap_pulse: MeshInstance3D = $VisualRoot/WeaponSwapPulse
 
 func _ready() -> void:
 	add_to_group("player")
@@ -42,7 +54,7 @@ func _ready() -> void:
 	health.depleted.connect(_on_health_depleted)
 	default_weapon.set_owner_body(self)
 	shot_feedback.bind_weapon(default_weapon)
-	_update_weapon_visual()
+	_set_weapon_visual_immediate(_get_weapon_miniature())
 
 func _physics_process(delta: float) -> void:
 	velocity = Vector3(_move_input.x, 0.0, _move_input.y) * move_speed
@@ -62,7 +74,7 @@ func set_aim_input(value: Vector2, active: bool = true) -> void:
 		aim_line.set_active(active)
 
 func request_fire() -> bool:
-	if not controls_enabled or weapon == null:
+	if not controls_enabled or _weapon_visual_transition_active or weapon == null:
 		return false
 	aim_line.set_active(true)
 	return weapon.try_fire(aim_direction)
@@ -153,6 +165,7 @@ func _update_aim_direction() -> void:
 	look_at(global_position + aim_direction, Vector3.UP)
 
 func _on_health_depleted(_source: Node) -> void:
+	_cancel_weapon_visual_transition()
 	set_physics_process(false)
 	died.emit()
 
@@ -173,10 +186,134 @@ func _set_current_weapon(next_weapon: GameWeapon3D, slot: int) -> void:
 func _update_weapon_visual() -> void:
 	if pistol_miniature == null or rifle_miniature == null or rocket_miniature == null:
 		return
+	var incoming := _get_weapon_miniature()
+	_cancel_weapon_visual_transition()
+	var outgoing := _get_visible_weapon_miniature()
+	if outgoing == null or outgoing == incoming:
+		_set_weapon_visual_immediate(incoming)
+		return
+
+	_weapon_visual_transition_active = true
+	_weapon_visual_tween = create_tween()
+	_weapon_visual_tween.set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	_weapon_visual_tween.tween_property(
+		outgoing,
+		"scale",
+		Vector3.ONE * WEAPON_SWAP_SHRINK,
+		WEAPON_SWAP_OUT_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	_weapon_visual_tween.parallel().tween_property(
+		outgoing,
+		"position",
+		Vector3.UP * WEAPON_SWAP_LIFT,
+		WEAPON_SWAP_OUT_SECONDS
+	)
+	_weapon_visual_tween.parallel().tween_property(
+		outgoing,
+		"rotation",
+		Vector3(0.0, -WEAPON_SWAP_ROTATION, 0.0),
+		WEAPON_SWAP_OUT_SECONDS
+	)
+	_weapon_visual_tween.tween_callback(_show_incoming_weapon_miniature.bind(outgoing, incoming))
+	_weapon_visual_tween.tween_property(
+		incoming,
+		"scale",
+		Vector3.ONE * WEAPON_SWAP_OVERSHOOT,
+		WEAPON_SWAP_IN_SECONDS
+	).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_weapon_visual_tween.parallel().tween_property(
+		incoming,
+		"position",
+		Vector3.ZERO,
+		WEAPON_SWAP_IN_SECONDS
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_weapon_visual_tween.parallel().tween_property(
+		incoming,
+		"rotation",
+		Vector3.ZERO,
+		WEAPON_SWAP_IN_SECONDS
+	)
+	_weapon_visual_tween.parallel().tween_property(
+		weapon_swap_pulse,
+		"scale",
+		Vector3.ONE * 1.35,
+		WEAPON_SWAP_PULSE_SECONDS
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_weapon_visual_tween.parallel().tween_property(
+		weapon_swap_pulse,
+		"transparency",
+		1.0,
+		WEAPON_SWAP_PULSE_SECONDS
+	)
+	_weapon_visual_tween.tween_property(
+		incoming,
+		"scale",
+		Vector3.ONE,
+		WEAPON_SWAP_SETTLE_SECONDS
+	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_weapon_visual_tween.tween_callback(_finish_weapon_visual_transition.bind(incoming))
+
+func _get_weapon_miniature() -> GameMiniatureVisual3D:
 	var weapon_id := weapon.definition.weapon_id if weapon != null and weapon.definition != null else &"standard_pistol"
-	pistol_miniature.visible = weapon_id != &"machine_gun" and weapon_id != &"rocket_launcher"
-	rifle_miniature.visible = weapon_id == &"machine_gun"
-	rocket_miniature.visible = weapon_id == &"rocket_launcher"
+	if weapon_id == &"machine_gun":
+		return rifle_miniature
+	if weapon_id == &"rocket_launcher":
+		return rocket_miniature
+	return pistol_miniature
+
+func _get_visible_weapon_miniature() -> GameMiniatureVisual3D:
+	for miniature in [pistol_miniature, rifle_miniature, rocket_miniature]:
+		if miniature.visible:
+			return miniature
+	return null
+
+func _show_incoming_weapon_miniature(
+	outgoing: GameMiniatureVisual3D,
+	incoming: GameMiniatureVisual3D
+) -> void:
+	_reset_weapon_miniature(outgoing)
+	outgoing.visible = false
+	incoming.visible = true
+	incoming.scale = Vector3.ONE * WEAPON_SWAP_SHRINK
+	incoming.position = Vector3.UP * WEAPON_SWAP_LIFT
+	incoming.rotation = Vector3(0.0, WEAPON_SWAP_ROTATION, 0.0)
+	weapon_swap_pulse.visible = true
+	weapon_swap_pulse.scale = Vector3.ONE * 0.75
+	weapon_swap_pulse.transparency = 0.0
+
+func _finish_weapon_visual_transition(incoming: GameMiniatureVisual3D) -> void:
+	_set_weapon_visual_immediate(incoming)
+	_weapon_visual_transition_active = false
+	_weapon_visual_tween = null
+
+func _cancel_weapon_visual_transition() -> void:
+	if _weapon_visual_tween != null and _weapon_visual_tween.is_valid():
+		_weapon_visual_tween.kill()
+	_weapon_visual_tween = null
+	_weapon_visual_transition_active = false
+	for miniature in [pistol_miniature, rifle_miniature, rocket_miniature]:
+		_reset_weapon_miniature(miniature)
+	_reset_weapon_swap_pulse()
+
+func _set_weapon_visual_immediate(active_miniature: GameMiniatureVisual3D) -> void:
+	for miniature in [pistol_miniature, rifle_miniature, rocket_miniature]:
+		_reset_weapon_miniature(miniature)
+		miniature.visible = miniature == active_miniature
+	_reset_weapon_swap_pulse()
+
+func _reset_weapon_miniature(miniature: GameMiniatureVisual3D) -> void:
+	if miniature == null:
+		return
+	miniature.position = Vector3.ZERO
+	miniature.rotation = Vector3.ZERO
+	miniature.scale = Vector3.ONE
+
+func _reset_weapon_swap_pulse() -> void:
+	if weapon_swap_pulse == null:
+		return
+	weapon_swap_pulse.visible = false
+	weapon_swap_pulse.scale = Vector3.ONE * 0.75
+	weapon_swap_pulse.transparency = 1.0
 
 func _update_footsteps(delta: float) -> void:
 	if _move_input.length_squared() <= 0.01:

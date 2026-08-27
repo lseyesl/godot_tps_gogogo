@@ -709,7 +709,11 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect((instance.get_node("HUD/SwapWeaponButton") as Button).visible, "different pickup exposes temporary swap button")
 	_expect(player.confirm_weapon_swap(), "player can confirm offered special weapon exchange")
 	_expect(player.special_weapon.definition.weapon_id == &"machine_gun", "confirmed exchange equips new special weapon")
+	_expect(player._weapon_visual_transition_active, "switching to the rifle miniature temporarily locks firing")
+	_expect(not player.request_fire(), "player cannot fire while the weapon miniature is changing")
+	await create_timer(0.35).timeout
 	_expect(not player.pistol_miniature.visible and player.rifle_miniature.visible and not player.rocket_miniature.visible, "machine gun displays the complete rifle miniature")
+	_expect(not player._weapon_visual_transition_active and not player.weapon_swap_pulse.visible, "rifle miniature transition finishes and clears its base pulse")
 	var touch_router := instance.get_node("HUD/TouchControls") as GameTouchInputRouter
 	var automatic_ammo_before := player.special_weapon.ammo_in_magazine
 	touch_router.set("_fire_held", true)
@@ -748,11 +752,15 @@ func _test_weapon_pickups_and_rocket() -> void:
 	player.switch_to_special_weapon()
 	_expect(player.request_fire(), "special weapon fires its final available round")
 	_expect(player.current_weapon_slot == PlayerCharacter.WeaponSlot.DEFAULT, "exhausted special weapon automatically switches back to standard pistol")
+	_expect(player._weapon_visual_transition_active, "automatic fallback uses the miniature transition")
+	await create_timer(0.35).timeout
 	_expect(player.pistol_miniature.visible and not player.rifle_miniature.visible and not player.rocket_miniature.visible, "returning to default weapon restores the pistol miniature")
 	_expect(player.special_weapon != null and not player.special_weapon.has_any_ammo(), "exhausted special weapon remains stored in its slot")
 
 	var rocket_definition := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
 	player.equip_special_weapon(rocket_definition, 1, 0)
+	_expect(player._weapon_visual_transition_active, "switching to the rocket miniature temporarily locks firing")
+	await create_timer(0.35).timeout
 	_expect(not player.pistol_miniature.visible and not player.rifle_miniature.visible and player.rocket_miniature.visible, "rocket launcher displays the complete rocket miniature")
 	player.global_position = Vector3(10.0, 0.0, 14.0)
 	player.set_aim_input(Vector2(0.0, -1.0), true)
