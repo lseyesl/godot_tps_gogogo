@@ -16,6 +16,12 @@
 |---|---|---|
 | `player-front-side-pistol.png` | 玩家标准造型图 | 身体比例、头盔、装甲分块、背包、固定持枪姿势、底座、青绿色材质 |
 | `tabletop-miniatures-weapon-modes.png` | 战场与武器模式概念图 | 地图气氛、敌我配色、视野表现、三类武器轮廓、战棋桌面构图 |
+| `player-front-side-rifle.png` | 玩家步枪造型图 | 步枪轮廓、双手握持位置、正面与右侧面关系 |
+| `player-front-side-rocket-launcher.png` | 玩家火箭枪造型图 | 火箭枪比例、肩扛姿势、正面与右侧面关系 |
+| `weapon-pistol.png` | 独立手枪图 | 手枪侧视轮廓与表面分块 |
+| `weapon-rifle.png` | 独立步枪图 | 步枪侧视轮廓、弹匣、护木和瞄具 |
+| `weapon-rocket-launcher.png` | 独立火箭枪图 | 发射管、后喷口、前端加强环、瞄具与握把 |
+| `weapon-rocket-projectile.png` | 独立火箭弹图 | 弹头、发动机段、尾翼、喷口和识别色环 |
 
 后续角色一致性任务必须附带 `player-front-side-pistol.png`；涉及战场、敌人或武器展示时，再追加 `tabletop-miniatures-weapon-modes.png`。
 
@@ -75,6 +81,124 @@ pose in both views; fixed to base; no animation; no text, labels, measurements, 
 parts.
 Avoid: three-quarter camera, running pose, realistic human skin, fantasy armor, chibi proportions, differing designs between views, floating
 character.
+```
+
+### 玩家步枪正面与右侧面
+
+生成结果：`player-front-side-rifle.png`
+
+参考图：Image 1 为 `player-front-side-pistol.png`；Image 2 为 `tabletop-miniatures-weapon-modes.png`。
+
+```text
+Use case: stylized-concept
+Asset type: game character concept sheet for 3D modeling
+Primary request: generate the same teal tabletop soldier miniature holding a compact assault rifle, shown in exactly two consistent views: full-body front view and exact right-side orthographic view.
+Input images: Image 1 is the exact character design, proportions, armor, pose language, front/side sheet layout, teal paint, base, and render-quality reference. Image 2 is the exact tabletop-miniature world style and compact assault-rifle design reference.
+Scene/backdrop: clean dark charcoal studio gradient, no environment and no battlefield props.
+Subject: one identical chunky armored low-poly collectible miniature shown twice; enclosed helmet, narrow black visor, segmented teal armor, backpack, belt pouches, two-handed rigid firing pose, permanently attached to a thick teal circular base. Replace only the pistol with the compact charcoal-gray assault rifle from the reference style.
+Style/medium: polished stylized low-poly 3D render, matte hand-painted resin, restrained edge wear, production-ready modeling reference.
+Composition/framing: landscape concept sheet; front view on the left and exact right-side view on the right; both figures same scale, fully visible, level, generous margins.
+Lighting/mood: neutral soft studio key and rim light, readable armor and weapon details.
+Color palette: dark teal armor and base, charcoal-gray rifle, black visor, restrained worn edges.
+Constraints: exact same character identity, armor, proportions, base, rifle, and rigid pose in both views; exactly two figures; rifle has readable stock, receiver, magazine, handguard, and short barrel; no text, arrows, labels, extra weapons, logos, or watermark.
+Avoid: pistol, rocket launcher, animation pose, kneeling, perspective mismatch, three-quarter side view, cropped base, photoreal human skin, battlefield scenery.
+```
+
+### 玩家火箭枪正面与右侧面
+
+生成结果：`player-front-side-rocket-launcher.png`
+
+参考图：Image 1 为 `player-front-side-pistol.png`；Image 2 为 `tabletop-miniatures-weapon-modes.png`；Image 3 为本轮生成的 `player-front-side-rifle.png`。
+
+```text
+Use case: stylized-concept
+Asset type: game character concept sheet for 3D modeling
+Primary request: generate the same teal tabletop soldier miniature carrying a shoulder-fired compact rocket launcher, shown in exactly two consistent views: full-body front view and exact right-side orthographic view.
+Input images: Image 1 is the exact original character design, proportions, armor, front/side sheet layout, teal paint, base, and render-quality reference. Image 2 is the exact tabletop-miniature style and rocket-launcher silhouette reference. Image 3 is the newly approved rifle character sheet; preserve its character identity, armor construction, scale, base, studio presentation, and modeling-reference clarity.
+Scene/backdrop: clean dark charcoal studio gradient, no environment and no battlefield props.
+Subject: one identical chunky armored low-poly collectible miniature shown twice; enclosed helmet, narrow black visor, segmented teal armor, backpack, belt pouches, permanently attached to a thick teal circular base. The soldier braces a long charcoal-gray shoulder-fired rocket launcher with both hands; launcher rests at shoulder height and points horizontally forward.
+Style/medium: polished stylized low-poly 3D render, matte hand-painted resin, restrained edge wear, production-ready modeling reference.
+Composition/framing: landscape concept sheet; front view on the left and exact right-side view on the right; both figures same scale, fully visible, level, generous margins; launcher completely inside frame.
+Lighting/mood: neutral soft studio key and rim light, readable armor and launcher details.
+Color palette: dark teal armor and base, charcoal-gray launcher, black visor, restrained worn edges.
+Constraints: exact same character identity, armor, proportions, base, launcher, and rigid pose in both views; exactly two figures; launcher has a broad cylindrical tube, flared rear exhaust, reinforced muzzle ring, compact sight and two grips; no loose rocket; no text, arrows, labels, extra weapons, logos, or watermark.
+Avoid: pistol, rifle, bazooka blocking the face in front view, animation pose, kneeling, perspective mismatch, three-quarter side view, cropped launcher or base, battlefield scenery.
+```
+
+### 独立手枪
+
+生成结果：`weapon-pistol.png`
+
+```text
+Use case: stylized-concept
+Asset type: isolated game weapon concept for 3D modeling
+Primary request: generate one compact heavy semi-automatic pistol matching the teal tabletop soldier's original pistol.
+Input images: use the recent original pistol character sheet and tabletop weapon-mode reference as exact design and style references; use the recent rifle and rocket-launcher sheets only for shared material, edge wear, scale language, and studio presentation.
+Scene/backdrop: clean dark charcoal studio gradient, no character, hands, base, environment, props, ammunition, or UI.
+Subject: exactly one charcoal-gray chunky low-poly semi-automatic pistol, complete and unobstructed; squared slide, short barrel, readable muzzle opening, front and rear sights, trigger guard, textured vertical grip, restrained panel lines.
+Style/medium: polished stylized low-poly 3D product render, matte painted resin and dark gunmetal, subtle worn edges, production-ready modeling reference.
+Composition/framing: exact left-side orthographic profile, pistol points right, centered horizontally, generous even margins, entire silhouette visible.
+Lighting/mood: neutral soft studio key and rim light revealing forms without dramatic reflections.
+Color palette: charcoal gray, near-black recesses, tiny restrained steel edge highlights.
+Constraints: exactly one pistol and no separate parts; no text, labels, arrows, logos, watermark, muzzle flash, laser beam, or stand.
+Avoid: realistic branded firearm, teal body panels, rifle stock, suppressor, scope, character, hand, perspective three-quarter view, cropped muzzle or grip.
+```
+
+### 独立步枪
+
+生成结果：`weapon-rifle.png`
+
+```text
+Use case: stylized-concept
+Asset type: isolated game weapon concept for 3D modeling
+Primary request: generate one compact assault rifle exactly matching the rifle carried by the approved teal tabletop soldier.
+Input images: use the recent rifle character sheet as the exact weapon silhouette reference; use the original character and tabletop references for the established art direction; use the isolated pistol only for matching charcoal material, edge wear, lighting, and presentation.
+Scene/backdrop: clean dark charcoal studio gradient, no character, hands, base, environment, props, ammunition, or UI.
+Subject: exactly one charcoal-gray chunky low-poly compact assault rifle, complete and unobstructed; short fixed stock, boxy receiver, curved detachable magazine inserted, vented handguard, short barrel, small muzzle device, simple top sight/optic, trigger and pistol grip.
+Style/medium: polished stylized low-poly 3D product render, matte painted resin and dark gunmetal, subtle worn edges, production-ready modeling reference.
+Composition/framing: exact left-side orthographic profile, rifle points right, centered horizontally, generous even margins, entire silhouette visible.
+Lighting/mood: neutral soft studio key and rim light revealing forms without dramatic reflections.
+Color palette: charcoal gray, near-black recesses, tiny restrained steel edge highlights.
+Constraints: exactly one rifle and no separate parts; preserve the approved rifle's chunky proportions; no text, labels, arrows, logos, watermark, muzzle flash, laser beam, bullets, or stand.
+Avoid: pistol, rocket launcher, long sniper barrel, modern branded firearm, teal body panels, character, hand, perspective three-quarter view, cropped stock or muzzle.
+```
+
+### 独立火箭枪
+
+生成结果：`weapon-rocket-launcher.png`
+
+```text
+Use case: stylized-concept
+Asset type: isolated game weapon concept for 3D modeling
+Primary request: generate one compact shoulder-fired rocket launcher exactly matching the launcher carried by the approved teal tabletop soldier.
+Input images: use the recent rocket-launcher character sheet as the exact weapon silhouette reference; use the tabletop reference for the established launcher language; use the recent isolated pistol and rifle for matching charcoal material, low-poly construction, edge wear, lighting, and presentation.
+Scene/backdrop: clean dark charcoal studio gradient, no character, hands, base, environment, props, rocket projectile, ammunition, smoke, or UI.
+Subject: exactly one charcoal-gray chunky low-poly shoulder-fired launcher, complete and unobstructed; broad cylindrical/octagonal launch tube, flared rear exhaust cone, reinforced front muzzle ring with dark open bore, compact top sight, lower trigger grip and forward support grip.
+Style/medium: polished stylized low-poly 3D product render, matte painted resin and dark gunmetal, subtle worn edges, production-ready modeling reference.
+Composition/framing: exact left-side orthographic profile, launcher points right, centered horizontally, generous even margins, entire silhouette visible.
+Lighting/mood: neutral soft studio key and rim light revealing forms without dramatic reflections.
+Color palette: charcoal gray, near-black openings and recesses, tiny restrained steel edge highlights.
+Constraints: exactly one empty launcher and no separate parts; preserve the approved launcher proportions; both front bore and rear exhaust must read clearly; no text, labels, arrows, logos, watermark, firing effects, rocket, or stand.
+Avoid: rifle, pistol, sci-fi energy cannon, teal body panels, character, hand, perspective three-quarter view, cropped front or rear, loaded projectile protruding from muzzle.
+```
+
+### 独立火箭弹
+
+生成结果：`weapon-rocket-projectile.png`
+
+```text
+Use case: stylized-concept
+Asset type: isolated game ammunition concept for 3D modeling
+Primary request: generate one rocket projectile designed to fit and visually match the approved compact shoulder-fired rocket launcher.
+Input images: use the most recent isolated rocket launcher as the exact launcher scale, bore, material, low-poly construction, edge wear, lighting, and presentation reference; use the recent weapon and character images for the established tabletop-game art direction.
+Scene/backdrop: clean dark charcoal studio gradient, no launcher, character, hands, base, environment, props, smoke, flame, or UI.
+Subject: exactly one complete chunky low-poly rocket projectile, unobstructed; pointed but slightly blunt armored nose cone facing right, cylindrical motor body, narrow stepped neck, four compact stabilizing fins at the rear, recessed exhaust nozzle. Dark charcoal body with one restrained muted orange identification band so it remains readable as ammunition.
+Style/medium: polished stylized low-poly 3D product render, matte painted resin and dark gunmetal, subtle worn edges, production-ready modeling reference.
+Composition/framing: exact left-side orthographic profile, nose points right and exhaust points left, centered horizontally, generous even margins, entire silhouette visible.
+Lighting/mood: neutral soft studio key and rim light revealing geometry without dramatic reflections.
+Color palette: charcoal gray, near-black recesses, muted burnt-orange band, tiny restrained steel edge highlights.
+Constraints: exactly one unfired rocket and no separate parts; diameter plausibly fits the approved launcher muzzle; no text, labels, arrows, logos, watermark, stand, flame, smoke, sparks, or motion blur.
+Avoid: missile rack, grenade, bullet, torpedo, realistic military markings, teal body, character, hand, perspective three-quarter view, cropped nose or fins.
 ```
 
 ## 最终成图特征
