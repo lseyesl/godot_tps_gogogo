@@ -3,4 +3,4 @@
 [ext_resource type="PackedScene" path="res://scenes/visuals/shared_miniature.tscn" id="1_shared"]
 
 [node name="PlayerMiniature" instance=ExtResource("1_shared")]
-faction_color = Color(0.18, 0.78, 0.68, 1)
+faction_color = Color(0.08, 0.48, 0.46, 1)

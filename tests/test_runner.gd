@@ -508,14 +508,19 @@ func _test_main_scene() -> void:
 	_expect(guard.get_node_or_null("VisualRoot/BodyMesh") == null, "guard primitive preview body is removed")
 	if player_miniature != null and enemy_miniature != null:
 		_expect(player_miniature.faction_color != enemy_miniature.faction_color, "shared miniature instances use distinct faction colors")
+		_expect(player_miniature.faction_color.is_equal_approx(Color(0.08, 0.48, 0.46, 1.0)), "player uses the concept-art dark teal armor color")
+		_expect(enemy_miniature.faction_color.is_equal_approx(Color(0.55, 0.16, 0.14, 1.0)), "guards use the concept-art dark red armor color")
 		for miniature in [player_miniature, enemy_miniature]:
 			var current_miniature := miniature as GameMiniatureVisual3D
 			var meshes: Array[Node] = current_miniature.find_children("*", "MeshInstance3D", true, false)
 			_expect(not meshes.is_empty(), "%s contains a tintable imported mesh" % current_miniature.name)
 			if not meshes.is_empty():
 				var miniature_mesh := meshes[0] as MeshInstance3D
-				var miniature_material := miniature_mesh.material_override as StandardMaterial3D
-				_expect(miniature_material != null and miniature_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "%s keeps a constant faction color while rotating" % current_miniature.name)
+				var miniature_material := miniature_mesh.material_override as ShaderMaterial
+				_expect(miniature_material != null, "%s uses the texture-preserving faction shader" % current_miniature.name)
+				if miniature_material != null:
+					_expect(miniature_material.get_shader_parameter("has_albedo_texture") == true, "%s preserves the imported armor, visor, and weapon texture" % current_miniature.name)
+					_expect(miniature_material.get_shader_parameter("faction_color") == current_miniature.faction_color, "%s applies its concept-art faction color" % current_miniature.name)
 				_expect(miniature_mesh.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "%s does not cast dynamic character shadows" % current_miniature.name)
 	var camera := instance.get_node_or_null("Camera3D") as FixedFollowCamera
 	_expect(camera != null, "main scene contains fixed camera")
