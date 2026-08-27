@@ -536,6 +536,9 @@ func _test_main_scene() -> void:
 	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
 	if floor_mesh != null:
 		_expect(floor_mesh.position.y <= -0.02, "ground renders below actor bases instead of competing at the same depth")
+		var vision_cone := player.get_node_or_null("VisionCone3D") as GameVisionCone3D
+		var vision_material := vision_cone.get("_material") as StandardMaterial3D if vision_cone != null else null
+		_expect(vision_material != null and vision_material.no_depth_test, "vision cone range indicator always renders above the ground")
 		var floor_material := floor_mesh.material_override as ShaderMaterial
 		_expect(floor_material != null, "ground uses the tile assembly shader")
 		if floor_material != null:

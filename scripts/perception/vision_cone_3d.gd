@@ -11,19 +11,19 @@ var _material: StandardMaterial3D
 @onready var _sensor: GameVisionSensor3D = get_node(sensor_path) as GameVisionSensor3D
 
 func _ready() -> void:
+	_material = StandardMaterial3D.new()
+	_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_material.albedo_color = cone_color
+	_material.no_depth_test = true
+	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	if DisplayServer.get_name() == "headless":
 		visible = false
 		set_physics_process(false)
 		return
 	_immediate_mesh = ImmediateMesh.new()
 	mesh = _immediate_mesh
-	_material = StandardMaterial3D.new()
-	_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_material.albedo_color = cone_color
-	_material.no_depth_test = false
-	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 func _physics_process(_delta: float) -> void:
 	_rebuild_cone()
