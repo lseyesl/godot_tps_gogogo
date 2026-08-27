@@ -17,3 +17,8 @@ prefix_rule(
     pattern = ["godot", "--headless"],
     decision = "allow",
 )
+
+prefix_rule(
+    pattern = ["godot", ""--path"],
+    decision = "allow"
+)
