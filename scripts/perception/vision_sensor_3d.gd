@@ -2,7 +2,7 @@ class_name GameVisionSensor3D
 extends Node3D
 
 @export var observer_path: NodePath
-@export_range(0.1, 100.0, 0.1) var view_distance: float = 16.0
+@export_range(0.1, 100.0, 0.1) var view_distance: float = 12.0
 @export_range(1.0, 360.0, 1.0) var field_of_view_degrees: float = 120.0
 @export_range(0.0, 4.0, 0.05) var eye_height: float = 1.05
 @export_range(0.0, 4.0, 0.05) var target_height: float = 0.9

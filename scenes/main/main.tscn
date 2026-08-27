@@ -381,6 +381,52 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -10)
 [node name="NorthEastCoverC" parent="." unique_id=1526274182 instance=ExtResource("3_wall")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -10)
 
+[node name="CentralWestPartition" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -5)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+[node name="CentralEastPartition" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -5)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestRoomFrontWall" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -11)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="WestRoomSideWall" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -14)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastRoomFrontWall" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -11)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="EastRoomSideWall" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -14)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+[node name="SouthWestEntryPartition" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, 3)
+length_meters = 4.0
+along_z = true
+blocks_navigation = true
+
+[node name="SouthEastEntryPartition" parent="." instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 3)
+length_meters = 4.0
+along_z = true
+blocks_navigation = true
+
 [node name="ExtractionPoint" parent="." unique_id=996261529 instance=ExtResource("21_extraction")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 

@@ -94,7 +94,7 @@ weapon_pivot_path = NodePath("../WeaponPivot")
 [node name="VisionSensor3D" type="Node3D" parent="."]
 script = ExtResource("6_vision_sensor")
 observer_path = NodePath("..")
-view_distance = 16.0
+view_distance = 12.0
 field_of_view_degrees = 120.0
 occlusion_mask = 2
 

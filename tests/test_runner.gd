@@ -89,7 +89,7 @@ func _test_weapon_definition() -> void:
 		return
 	_expect(definition.is_valid(), "standard pistol resource is valid")
 	_expect(is_equal_approx(definition.damage, 1.0), "standard pistol damage is 1")
-	_expect(is_equal_approx(definition.range_meters, 14.0), "standard pistol range is 14 meters")
+	_expect(is_equal_approx(definition.range_meters, 10.0), "standard pistol range is 10 meters")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
 	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
 	var heavy := load("res://resources/weapons/heavy_pistol.tres") as WeaponDefinition
@@ -103,8 +103,8 @@ func _test_weapon_definition() -> void:
 	_expect(machine_gun.magazine_capacity == 24 and machine_gun.starting_reserve_ammo == 48, "machine gun uses frozen ammunition values")
 	_expect(rocket != null and rocket.is_valid(), "rocket launcher resource is valid")
 	for weapon_definition in [definition, heavy, machine_gun, rocket]:
-		_expect(is_equal_approx(weapon_definition.range_meters, 14.0), "all player and guard weapons use the unified 14 meter range")
-		_expect(weapon_definition.range_meters < 16.0, "weapon range remains shorter than player and guard vision")
+		_expect(is_equal_approx(weapon_definition.range_meters, 10.0), "all player and guard weapons use the unified 10 meter CQB range")
+		_expect(weapon_definition.range_meters < 12.0, "weapon range remains shorter than player and guard vision")
 	_expect(rocket.weapon_type == WeaponDefinition.WeaponType.ROCKET, "rocket launcher selects projectile firing")
 	_expect(rocket.magazine_capacity == 1 and rocket.starting_reserve_ammo == 3, "rocket launcher uses one plus three ammunition")
 	_expect(is_equal_approx(rocket.projectile_speed_meters_per_second, 10.0), "rocket travels at ten meters per second")
@@ -181,7 +181,7 @@ func _test_random_layout_and_health() -> void:
 
 	var guard_candidates := first_instance.get_node("ContentCandidates/GuardCandidates")
 	var obstacle_count := _nodes_in_group_under(first_instance, &"navigation_obstacles").size()
-	_expect(obstacle_count >= 24, "authored map provides enough obstacles to split combat into local encounters")
+	_expect(obstacle_count >= 32, "CQB map provides enough obstacles to split combat into local encounters")
 	var exposure := await _measure_authored_guard_exposure(first_instance, player, guard_candidates)
 	_expect(exposure.spawn_count == 0, "no authored guard candidate can see the player at spawn")
 	_expect(exposure.maximum_count <= 2, "opening route exposes the player to at most two authored guards at once")
@@ -366,7 +366,7 @@ func _test_cover_behavior() -> void:
 	if not cover.is_empty():
 		_expect(not cover_service.is_cover_valid(cover.cover_position, cover.peek_position, player.global_position), "destroying cover invalidates its candidate immediately")
 		guard.call("_refresh_cover_if_needed")
-		_expect(guard.current_state == PistolGuard.GuardState.COMBAT, "guard abandons destroyed cover when no replacement exists")
+		_expect(guard.current_state == PistolGuard.GuardState.MOVE_TO_COVER, "guard leaves destroyed cover for a replacement CQB partition")
 	guard.global_position = Vector3.ZERO
 	guard.set("_last_known_player_position", player.global_position)
 	guard.call("_apply_fallback_combat_movement")
@@ -379,7 +379,7 @@ func _test_cover_behavior() -> void:
 	var toward_distant_player := (player.global_position - guard.global_position).normalized()
 	_expect(guard.velocity.dot(toward_distant_player) > 0.0, "guard advances when fighting beyond preferred distance")
 	guard.global_position = Vector3.ZERO
-	player.global_position = Vector3(0.0, 0.0, 10.0)
+	player.global_position = Vector3(0.0, 0.0, 8.0)
 	guard.set("_last_known_player_position", player.global_position)
 	var toward_band_player := (player.global_position - guard.global_position).normalized()
 	guard.call("_apply_fallback_combat_movement")
@@ -529,7 +529,9 @@ func _test_main_scene() -> void:
 	var camera := instance.get_node_or_null("Camera3D") as FixedFollowCamera
 	_expect(camera != null, "main scene contains fixed camera")
 	if camera != null:
-		_expect(camera.offset.is_equal_approx(Vector3(0.0, 14.0, 10.5)), "fixed camera uses the closer gameplay framing")
+		_expect(camera.offset.is_equal_approx(Vector3(0.0, 10.5, 7.5)), "fixed camera uses the tighter CQB framing")
+	_expect(is_equal_approx(player.vision.view_distance, 12.0), "player uses the reduced 12 meter CQB vision distance")
+	_expect(is_equal_approx(guard.vision.view_distance, 12.0), "guards use the reduced 12 meter CQB vision distance")
 	var floor_mesh := instance.get_node_or_null("Floor") as MeshInstance3D
 	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
 	if floor_mesh != null:
@@ -576,6 +578,9 @@ func _test_main_scene() -> void:
 	_expect(north_building_rear != null and north_building_west != null and north_building_east != null, "north sector contains an enterable U-shaped brick building")
 	_expect(instance.get_node_or_null("SouthWestBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthWestBuildingEastWall") is StaticBody3D, "south-west sector contains an L-shaped brick building")
 	_expect(instance.get_node_or_null("SouthEastBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthEastBuildingWestWall") is StaticBody3D, "south-east sector contains an L-shaped brick building")
+	_expect(instance.get_node_or_null("CentralWestPartition") is StaticBody3D and instance.get_node_or_null("CentralEastPartition") is StaticBody3D, "central approach has paired CQB sight-line partitions")
+	_expect(instance.get_node_or_null("WestRoomFrontWall") is StaticBody3D and instance.get_node_or_null("WestRoomSideWall") is StaticBody3D, "west lane contains an additional L-shaped CQB room")
+	_expect(instance.get_node_or_null("EastRoomFrontWall") is StaticBody3D and instance.get_node_or_null("EastRoomSideWall") is StaticBody3D, "east lane contains an additional L-shaped CQB room")
 	for building_wall in [
 		north_building_rear,
 		north_building_west,
@@ -584,6 +589,14 @@ func _test_main_scene() -> void:
 		instance.get_node_or_null("SouthWestBuildingEastWall"),
 		instance.get_node_or_null("SouthEastBuildingNorthWall"),
 		instance.get_node_or_null("SouthEastBuildingWestWall"),
+		instance.get_node_or_null("CentralWestPartition"),
+		instance.get_node_or_null("CentralEastPartition"),
+		instance.get_node_or_null("WestRoomFrontWall"),
+		instance.get_node_or_null("WestRoomSideWall"),
+		instance.get_node_or_null("EastRoomFrontWall"),
+		instance.get_node_or_null("EastRoomSideWall"),
+		instance.get_node_or_null("SouthWestEntryPartition"),
+		instance.get_node_or_null("SouthEastEntryPartition"),
 	]:
 		_expect(building_wall != null and building_wall.is_in_group("navigation_obstacles"), "interior building wall blocks navigation")
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
@@ -781,7 +794,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(spawned_rocket != null, "rocket shot creates visible projectile node")
 	if spawned_rocket != null:
 		_expect(spawned_rocket.get_node_or_null("ImportedRocketModel") != null, "rocket projectile uses the imported rocket GLB")
-		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 14.0), "rocket projectile inherits unified 14 meter range")
+		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 10.0), "rocket projectile inherits unified 10 meter CQB range")
 		_expect(is_equal_approx(spawned_rocket.explosion_radius_meters, 4.0), "rocket projectile inherits four meter blast radius")
 	for _frame in 60:
 		await physics_frame

@@ -28,8 +28,8 @@ enum GuardState {
 @export var cover_search_radius_meters: float = 6.0
 @export var cover_hidden_seconds: float = 0.8
 @export var cover_recheck_seconds: float = 0.5
-@export var preferred_min_distance_meters: float = 8.0
-@export var preferred_max_distance_meters: float = 12.0
+@export var preferred_min_distance_meters: float = 6.0
+@export var preferred_max_distance_meters: float = 9.0
 
 var current_state := GuardState.PATROL
 var exposure_remaining: float = 0.0
