@@ -1,0 +1,23 @@
+prefix_rule(
+  pattern = ["git", "status"],
+  decision = "allow",
+  justification = "Read git status"
+)
+
+prefix_rule(
+  pattern = ["git", "diff"],
+  decision = "allow",
+  justification = "Read diff"
+)
+
+prefix_rule(
+  pattern = ["git", "add"],
+  decision = "allow",
+  justification = "Stage files"
+)
+
+prefix_rule(
+  pattern = ["git", "commit"],
+  decision = "allow",
+  justification = "Commit requires review"
+)

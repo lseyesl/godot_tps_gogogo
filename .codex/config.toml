@@ -1,0 +1,11 @@
+# 当前项目使用工作区读写
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+# workspace-write 下开启网络
+network_access = true
+# 添加工作区外允许读写的特定文件夹路径
+writable_roots = [
+    
+]
+

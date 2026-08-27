@@ -1,0 +1,19 @@
+prefix_rule(
+    pattern = ["blender", "--background"],
+    decision = "allow",
+)
+
+prefix_rule(
+    pattern = ["blender", "--factory-startup"],
+    decision = "allow",
+)
+
+prefix_rule(
+    pattern = ["uv", "run"],
+    decision = "allow",
+)
+
+prefix_rule(
+    pattern = ["godot", "--headless"],
+    decision = "allow",
+)
