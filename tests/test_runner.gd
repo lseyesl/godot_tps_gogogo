@@ -532,16 +532,16 @@ func _test_main_scene() -> void:
 		_expect(camera.offset.is_equal_approx(Vector3(0.0, 10.5, 7.5)), "fixed camera uses the tighter CQB framing")
 	_expect(is_equal_approx(player.vision.view_distance, 12.0), "player uses the reduced 12 meter CQB vision distance")
 	_expect(is_equal_approx(guard.vision.view_distance, 12.0), "guards use the reduced 12 meter CQB vision distance")
+	_expect((player.get_node("VisionCone3D") as GameVisionCone3D).ray_count == 128, "vision cone uses enough cached rays for stable occlusion edges while rotating")
 	var floor_mesh := instance.get_node_or_null("Floor") as MeshInstance3D
 	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
 	if floor_mesh != null:
 		_expect(floor_mesh.position.y <= -0.02, "ground renders below actor bases instead of competing at the same depth")
-		var vision_cone := player.get_node_or_null("VisionCone3D") as GameVisionCone3D
-		var vision_material := vision_cone.get("_material") as StandardMaterial3D if vision_cone != null else null
-		_expect(vision_material != null and vision_material.no_depth_test, "vision cone range indicator always renders above the ground")
 		var floor_material := floor_mesh.material_override as ShaderMaterial
 		_expect(floor_material != null, "ground uses the tile assembly shader")
 		if floor_material != null:
+			var ground_shader_source := FileAccess.get_file_as_string("res://shaders/ground_tile_assembly.gdshader")
+			_expect(not ground_shader_source.contains("ALPHA ="), "opaque ground cannot cover the transparent vision cone in the render queue")
 			_expect(floor_material.get_shader_parameter("concrete_texture") != null, "ground assembly includes the concrete concept tile")
 			_expect(floor_material.get_shader_parameter("drainage_texture") != null, "ground assembly includes the drainage concept tile")
 			_expect(floor_material.get_shader_parameter("armored_steel_texture") != null, "ground assembly includes the armored-steel concept tile")
@@ -629,6 +629,12 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("HUD/TouchControls/MoveJoystick") is GameVirtualJoystick, "touch layout contains movement joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
+	var status_panel := instance.get_node_or_null("HUD/StatusPanel") as PanelContainer
+	var result_panel := instance.get_node_or_null("HUD/ResultPanel") as PanelContainer
+	var status_style := status_panel.get_theme_stylebox("panel") as StyleBoxFlat if status_panel != null else null
+	var result_style := result_panel.get_theme_stylebox("panel") as StyleBoxFlat if result_panel != null else null
+	_expect(status_style != null and status_style.bg_color.a <= 0.6, "gameplay status panel stays translucent so it does not hide the left sight line")
+	_expect(result_style != null and result_style.bg_color.a >= 0.8, "result panel retains a more opaque summary background")
 	if player != null and guard != null:
 		_disable_all_guards(instance)
 		var player_damage_feedback := player.get_node("DamageFeedback3D") as GameDamageFeedback3D

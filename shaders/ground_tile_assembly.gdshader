@@ -47,5 +47,4 @@ void fragment() {
 	ALBEDO = tile_color.rgb * 0.52;
 	ROUGHNESS = 0.88;
 	METALLIC = tile_metallic;
-	ALPHA = tile_color.a;
 }

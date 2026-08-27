@@ -106,4 +106,4 @@ player_path = NodePath("..")
 position = Vector3(0, 0.035, 0)
 script = ExtResource("7_vision_cone")
 sensor_path = NodePath("../VisionSensor3D")
-ray_count = 48
+ray_count = 128
