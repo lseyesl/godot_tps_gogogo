@@ -90,6 +90,7 @@ func _test_weapon_definition() -> void:
 	_expect(definition.is_valid(), "standard pistol resource is valid")
 	_expect(is_equal_approx(definition.damage, 1.0), "standard pistol damage is 1")
 	_expect(is_equal_approx(definition.range_meters, 10.0), "standard pistol range is 10 meters")
+	_expect(definition.muzzle_position.is_equal_approx(Vector3(0.13, 1.29, -0.35)), "standard pistol stores its model-aligned muzzle position")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
 	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
 	var heavy := load("res://resources/weapons/heavy_pistol.tres") as WeaponDefinition
@@ -97,11 +98,14 @@ func _test_weapon_definition() -> void:
 	var rocket := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
 	_expect(heavy != null and heavy.is_valid(), "heavy pistol resource is valid")
 	_expect(heavy.damage == 2.0 and heavy.magazine_capacity == 6, "heavy pistol uses frozen damage and magazine values")
+	_expect(heavy.muzzle_position.is_equal_approx(definition.muzzle_position), "heavy pistol uses the complete pistol miniature muzzle")
 	_expect(not heavy.infinite_reserve and heavy.starting_reserve_ammo == 18, "heavy pistol starts with finite 18-round reserve")
 	_expect(machine_gun != null and machine_gun.is_valid(), "machine gun resource is valid")
 	_expect(machine_gun.automatic and is_equal_approx(machine_gun.shot_interval_seconds, 0.1), "machine gun supports held fire at ten rounds per second")
 	_expect(machine_gun.magazine_capacity == 24 and machine_gun.starting_reserve_ammo == 48, "machine gun uses frozen ammunition values")
+	_expect(machine_gun.muzzle_position.is_equal_approx(Vector3(0.12, 1.17, -0.24)), "machine gun stores its model-aligned muzzle position")
 	_expect(rocket != null and rocket.is_valid(), "rocket launcher resource is valid")
+	_expect(rocket.muzzle_position.is_equal_approx(Vector3(0.17, 1.43, -0.76)), "rocket launcher stores its model-aligned muzzle position")
 	for weapon_definition in [definition, heavy, machine_gun, rocket]:
 		_expect(is_equal_approx(weapon_definition.range_meters, 10.0), "all player and guard weapons use the unified 10 meter CQB range")
 		_expect(weapon_definition.range_meters < 12.0, "weapon range remains shorter than player and guard vision")
@@ -497,6 +501,7 @@ func _test_main_scene() -> void:
 	var rocket_miniature := player.get_node_or_null("VisualRoot/PlayerRocketMiniature") as GameMiniatureVisual3D
 	_expect(rifle_miniature != null and rocket_miniature != null, "player includes complete rifle and rocket miniature variants")
 	_expect(player_miniature.visible and not rifle_miniature.visible and not rocket_miniature.visible, "player initially shows only the pistol miniature")
+	_expect(player.to_local(player.weapon.global_position).is_equal_approx(player.weapon.definition.muzzle_position), "player bullet origin aligns with the visible pistol muzzle")
 	_expect(player.get_node_or_null("BodyMesh") == null, "player primitive preview body is removed")
 	if player_miniature != null:
 		var imported_model := player_miniature.get_node_or_null("ImportedModel") as Node3D
@@ -506,6 +511,7 @@ func _test_main_scene() -> void:
 			_expect(is_equal_approx(imported_model.position.y, 0.9), "enlarged miniature remains grounded")
 			_expect(is_equal_approx(imported_model.rotation.y, PI), "shared miniature faces the same forward direction as actor gameplay")
 	_expect(guard != null, "main scene contains pistol guard")
+	_expect(guard.to_local(guard.weapon.global_position).is_equal_approx(guard.weapon.definition.muzzle_position), "guard bullet origin aligns with the visible pistol muzzle")
 	_expect(guard.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "guard contains damage feedback")
 	var enemy_miniature := guard.get_node_or_null("VisualRoot/EnemyMiniature") as GameMiniatureVisual3D
 	_expect(enemy_miniature != null, "guard uses the shared GLB miniature prefab")
@@ -644,6 +650,7 @@ func _test_main_scene() -> void:
 		_expect(player_damage_feedback.hits_presented == 1, "player damage signal immediately triggers screen and model feedback")
 		_expect(guard_damage_feedback.hits_presented == 1, "guard damage signal immediately triggers model feedback")
 		var feedback := player.get_node("ShotFeedback3D") as GameShotFeedback3D
+		_expect(is_zero_approx(feedback.recoil_distance), "shot feedback never moves the logical bullet origin away from the miniature muzzle")
 		var feedback_before := feedback.shots_presented
 		player.weapon.fired.emit(player.weapon.global_position, player.weapon.global_position + Vector3.FORWARD, true)
 		_expect(feedback.shots_presented == feedback_before + 1, "weapon fired signal immediately triggers presentation feedback")
@@ -731,6 +738,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect((instance.get_node("HUD/SwapWeaponButton") as Button).visible, "different pickup exposes temporary swap button")
 	_expect(player.confirm_weapon_swap(), "player can confirm offered special weapon exchange")
 	_expect(player.special_weapon.definition.weapon_id == &"machine_gun", "confirmed exchange equips new special weapon")
+	_expect(player.to_local(player.special_weapon.global_position).is_equal_approx(player.special_weapon.definition.muzzle_position), "machine-gun ray starts at the visible rifle muzzle")
 	_expect(player._weapon_visual_transition_active, "switching to the rifle miniature temporarily locks firing")
 	_expect(not player.request_fire(), "player cannot fire while the weapon miniature is changing")
 	await create_timer(0.35).timeout
@@ -781,6 +789,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 
 	var rocket_definition := load("res://resources/weapons/rocket_launcher.tres") as WeaponDefinition
 	player.equip_special_weapon(rocket_definition, 1, 0)
+	_expect(player.to_local(player.special_weapon.global_position).is_equal_approx(rocket_definition.muzzle_position), "rocket projectile starts at the visible launcher muzzle")
 	_expect(player._weapon_visual_transition_active, "switching to the rocket miniature temporarily locks firing")
 	await create_timer(0.35).timeout
 	_expect(not player.pistol_miniature.visible and not player.rifle_miniature.visible and player.rocket_miniature.visible, "rocket launcher displays the complete rocket miniature")

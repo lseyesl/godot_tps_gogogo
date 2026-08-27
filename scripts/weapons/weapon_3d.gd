@@ -26,6 +26,7 @@ var _owner_body: CollisionObject3D
 func _ready() -> void:
 	assert(definition != null and definition.is_valid(), "GameWeapon3D requires a valid WeaponDefinition")
 	_owner_body = get_node_or_null(owner_body_path) as CollisionObject3D
+	_align_to_owner_muzzle()
 	ammo_in_magazine = definition.magazine_capacity if initial_magazine < 0 else clampi(initial_magazine, 0, definition.magazine_capacity)
 	if definition.infinite_reserve:
 		reserve_ammo = -1
@@ -98,6 +99,12 @@ func set_ammo_state(magazine: int, reserve: int) -> void:
 
 func set_owner_body(owner_body: CollisionObject3D) -> void:
 	_owner_body = owner_body
+	_align_to_owner_muzzle()
+
+func _align_to_owner_muzzle() -> void:
+	if _owner_body == null or definition == null:
+		return
+	global_position = _owner_body.to_global(definition.muzzle_position)
 
 func get_aim_endpoint(direction: Vector3) -> Vector3:
 	return global_position + direction.normalized() * definition.range_meters

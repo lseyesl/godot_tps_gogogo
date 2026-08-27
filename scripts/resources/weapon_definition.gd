@@ -19,6 +19,9 @@ enum WeaponType {
 @export_range(0.01, 10.0, 0.01) var reload_seconds: float = 1.2
 @export var automatic: bool = false
 
+@export_category("Presentation")
+@export var muzzle_position := Vector3(0.13, 1.29, -0.35)
+
 @export_category("Ammunition")
 @export var infinite_reserve: bool = true
 @export_range(0, 999, 1) var starting_reserve_ammo: int = 0

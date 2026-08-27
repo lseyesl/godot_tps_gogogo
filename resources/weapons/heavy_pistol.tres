@@ -13,6 +13,7 @@ shot_interval_seconds = 0.65
 magazine_capacity = 6
 reload_seconds = 1.4
 automatic = false
+muzzle_position = Vector3(0.13, 1.29, -0.35)
 infinite_reserve = false
 starting_reserve_ammo = 18
 max_reserve_ammo = 36

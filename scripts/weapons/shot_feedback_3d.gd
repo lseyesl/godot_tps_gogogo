@@ -5,7 +5,7 @@ extends Node3D
 @export var flash_seconds := 0.07
 @export var tracer_seconds := 0.06
 @export var hit_seconds := 0.1
-@export var recoil_distance := 0.14
+@export var recoil_distance := 0.0
 
 var shots_presented := 0
 var _flash_remaining := 0.0
