@@ -35,8 +35,8 @@
 background_mode = 1
 background_color = Color(0.1, 0.12, 0.15, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.72, 0.76, 0.82, 1)
-ambient_light_energy = 1.3
+ambient_light_color = Color(0.9405334, 0.9355209, 0.929763, 1)
+ambient_light_energy = 1.6
 tonemap_mode = 2
 
 [sub_resource type="StandardMaterial3D" id="Material_floor"]
@@ -98,21 +98,21 @@ shadow_enabled = true
 material_override = SubResource("Material_floor")
 mesh = SubResource("PlaneMesh_floor")
 
-[node name="NorthBoundaryWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(0, 0, -20)
+[node name="NorthBoundaryWall" parent="." unique_id=1500142857 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
 length_meters = 60.0
 
-[node name="SouthBoundaryWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(0, 0, 20)
+[node name="SouthBoundaryWall" parent="." unique_id=649466063 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20)
 length_meters = 60.0
 
-[node name="WestBoundaryWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(-30, 0, 0)
+[node name="WestBoundaryWall" parent="." unique_id=385935715 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 0)
 length_meters = 40.0
 along_z = true
 
-[node name="EastBoundaryWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(30, 0, 0)
+[node name="EastBoundaryWall" parent="." unique_id=392051890 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
 length_meters = 40.0
 along_z = true
 
@@ -124,33 +124,33 @@ collision_layer = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 shape = SubResource("BoxShape_brick")
 
-[node name="VisualRoot" type="Node3D" parent="BrickWall"]
+[node name="VisualRoot" type="Node3D" parent="BrickWall" unique_id=118811509]
 
-[node name="Module01" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-8, 0, 0)
+[node name="Module01" parent="BrickWall/VisualRoot" unique_id=1169824801 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
 
-[node name="Module02" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-6, 0, 0)
+[node name="Module02" parent="BrickWall/VisualRoot" unique_id=337106938 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 0)
 
-[node name="Module03" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-4, 0, 0)
+[node name="Module03" parent="BrickWall/VisualRoot" unique_id=1412204966 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 
-[node name="Module04" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-2, 0, 0)
+[node name="Module04" parent="BrickWall/VisualRoot" unique_id=856074733 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
 
-[node name="Module05" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
+[node name="Module05" parent="BrickWall/VisualRoot" unique_id=273518814 instance=ExtResource("27_brick_visual")]
 
-[node name="Module06" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(2, 0, 0)
+[node name="Module06" parent="BrickWall/VisualRoot" unique_id=97153915 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
 
-[node name="Module07" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(4, 0, 0)
+[node name="Module07" parent="BrickWall/VisualRoot" unique_id=1226803071 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
 
-[node name="Module08" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(6, 0, 0)
+[node name="Module08" parent="BrickWall/VisualRoot" unique_id=400864602 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
 
-[node name="Module09" parent="BrickWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(8, 0, 0)
+[node name="Module09" parent="BrickWall/VisualRoot" unique_id=896975728 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
 
 [node name="WoodWallA" parent="." unique_id=1127984070 instance=ExtResource("3_wall")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -3)
@@ -173,215 +173,205 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 7)
 [node name="GasolineBarrelWall" parent="." unique_id=1253916843 instance=ExtResource("15_gasoline_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 7)
 
-[node name="SpawnRearWall" type="StaticBody3D" parent="." groups=["navigation_obstacles", "static_visibility"]]
-position = Vector3(0, 0, 10)
+[node name="SpawnRearWall" type="StaticBody3D" parent="." unique_id=1880354043 groups=["navigation_obstacles", "static_visibility"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 collision_layer = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnRearWall"]
-position = Vector3(0, 0.6, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnRearWall" unique_id=1047158718]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 shape = SubResource("BoxShape_spawn_rear")
 
-[node name="VisualRoot" type="Node3D" parent="SpawnRearWall"]
+[node name="VisualRoot" type="Node3D" parent="SpawnRearWall" unique_id=1816322440]
 
-[node name="Module01" parent="SpawnRearWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-4, 0, 0)
+[node name="Module01" parent="SpawnRearWall/VisualRoot" unique_id=1407573429 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 
-[node name="Module02" parent="SpawnRearWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(-2, 0, 0)
+[node name="Module02" parent="SpawnRearWall/VisualRoot" unique_id=297989663 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
 
-[node name="Module03" parent="SpawnRearWall/VisualRoot" instance=ExtResource("27_brick_visual")]
+[node name="Module03" parent="SpawnRearWall/VisualRoot" unique_id=1500735495 instance=ExtResource("27_brick_visual")]
 
-[node name="Module04" parent="SpawnRearWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(2, 0, 0)
+[node name="Module04" parent="SpawnRearWall/VisualRoot" unique_id=226675080 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
 
-[node name="Module05" parent="SpawnRearWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(4, 0, 0)
+[node name="Module05" parent="SpawnRearWall/VisualRoot" unique_id=962355269 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
 
-[node name="SpawnLeftWall" type="StaticBody3D" parent="." groups=["navigation_obstacles", "static_visibility"]]
-position = Vector3(-5, 0, 6)
+[node name="SpawnLeftWall" type="StaticBody3D" parent="." unique_id=2141622416 groups=["navigation_obstacles", "static_visibility"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 6)
 collision_layer = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnLeftWall"]
-position = Vector3(0, 0.6, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnLeftWall" unique_id=582122743]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 shape = SubResource("BoxShape_spawn_side")
 
-[node name="VisualRoot" type="Node3D" parent="SpawnLeftWall"]
+[node name="VisualRoot" type="Node3D" parent="SpawnLeftWall" unique_id=2091630138]
 
-[node name="Module01" parent="SpawnLeftWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, -3)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module01" parent="SpawnLeftWall/VisualRoot" unique_id=406929198 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, -3)
 
-[node name="Module02" parent="SpawnLeftWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, -1)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module02" parent="SpawnLeftWall/VisualRoot" unique_id=557258282 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, -1)
 
-[node name="Module03" parent="SpawnLeftWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, 1)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module03" parent="SpawnLeftWall/VisualRoot" unique_id=1090849593 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 1)
 
-[node name="Module04" parent="SpawnLeftWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, 3)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module04" parent="SpawnLeftWall/VisualRoot" unique_id=564996993 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 3)
 
-[node name="SpawnRightWall" type="StaticBody3D" parent="." groups=["navigation_obstacles", "static_visibility"]]
-position = Vector3(5, 0, 6)
+[node name="SpawnRightWall" type="StaticBody3D" parent="." unique_id=40394320 groups=["navigation_obstacles", "static_visibility"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 6)
 collision_layer = 2
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnRightWall"]
-position = Vector3(0, 0.6, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnRightWall" unique_id=484045677]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 shape = SubResource("BoxShape_spawn_side")
 
-[node name="VisualRoot" type="Node3D" parent="SpawnRightWall"]
+[node name="VisualRoot" type="Node3D" parent="SpawnRightWall" unique_id=990072819]
 
-[node name="Module01" parent="SpawnRightWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, -3)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module01" parent="SpawnRightWall/VisualRoot" unique_id=2123224456 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, -3)
 
-[node name="Module02" parent="SpawnRightWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, -1)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module02" parent="SpawnRightWall/VisualRoot" unique_id=1293580857 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, -1)
 
-[node name="Module03" parent="SpawnRightWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, 1)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module03" parent="SpawnRightWall/VisualRoot" unique_id=135027587 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 1)
 
-[node name="Module04" parent="SpawnRightWall/VisualRoot" instance=ExtResource("27_brick_visual")]
-position = Vector3(0, 0, 3)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="Module04" parent="SpawnRightWall/VisualRoot" unique_id=821047066 instance=ExtResource("27_brick_visual")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 3)
 
-[node name="WoodenCrateCover" parent="." instance=ExtResource("28_crate")]
-position = Vector3(-7, 0, 1)
+[node name="WoodenCrateCover" parent="." unique_id=757913162 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 1)
 
-[node name="SandbagCover" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(7, 0, 1)
+[node name="SandbagCover" parent="." unique_id=1809752797 instance=ExtResource("29_sandbag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 1)
 
-[node name="NorthCenterCrateLeft" parent="." instance=ExtResource("28_crate")]
-position = Vector3(-3, 0, -15)
+[node name="NorthCenterCrateLeft" parent="." unique_id=111983023 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -15)
 
-[node name="NorthCenterSandbags" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(0, 0, -14)
+[node name="NorthCenterSandbags" parent="." unique_id=873219897 instance=ExtResource("29_sandbag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
 
-[node name="NorthCenterCrateRight" parent="." instance=ExtResource("28_crate")]
-position = Vector3(3, 0, -15)
+[node name="NorthCenterCrateRight" parent="." unique_id=833048764 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -15)
 
-[node name="NorthBuildingRearWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(0, 0, -18)
+[node name="NorthBuildingRearWall" parent="." unique_id=1139135618 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -18)
 length_meters = 12.0
 blocks_navigation = true
 
-[node name="NorthBuildingWestWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(-6, 0, -14)
+[node name="NorthBuildingWestWall" parent="." unique_id=1522514390 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -14)
 length_meters = 8.0
 along_z = true
 blocks_navigation = true
 
-[node name="NorthBuildingEastWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(6, 0, -14)
+[node name="NorthBuildingEastWall" parent="." unique_id=738084551 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -14)
 length_meters = 8.0
 along_z = true
 blocks_navigation = true
 
-[node name="WestMidCrate" parent="." instance=ExtResource("28_crate")]
-position = Vector3(-17, 0, -5)
+[node name="WestMidCrate" parent="." unique_id=1008502850 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 0, -5)
 
-[node name="WestMidSandbags" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(-17, 0, -2)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="WestMidSandbags" parent="." unique_id=597309002 instance=ExtResource("29_sandbag")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, -17, 0, -2)
 
-[node name="EastMidCrate" parent="." instance=ExtResource("28_crate")]
-position = Vector3(17, 0, -5)
+[node name="EastMidCrate" parent="." unique_id=778395411 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, -5)
 
-[node name="EastMidSandbags" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(17, 0, -2)
-rotation = Vector3(0, 1.5707963, 0)
+[node name="EastMidSandbags" parent="." unique_id=1673718394 instance=ExtResource("29_sandbag")]
+transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 17, 0, -2)
 
-[node name="SouthWestCrate" parent="." instance=ExtResource("28_crate")]
-position = Vector3(-15, 0, 4)
+[node name="SouthWestCrate" parent="." unique_id=462578090 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 4)
 
-[node name="SouthWestSandbags" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(-15, 0, 7)
+[node name="SouthWestSandbags" parent="." unique_id=346832855 instance=ExtResource("29_sandbag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 7)
 
-[node name="SouthEastCrate" parent="." instance=ExtResource("28_crate")]
-position = Vector3(15, 0, 4)
+[node name="SouthEastCrate" parent="." unique_id=1247266369 instance=ExtResource("28_crate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 4)
 
-[node name="SouthEastSandbags" parent="." instance=ExtResource("29_sandbag")]
-position = Vector3(15, 0, 7)
+[node name="SouthEastSandbags" parent="." unique_id=2111287512 instance=ExtResource("29_sandbag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 7)
 
-[node name="SouthWestBuildingNorthWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(-24, 0, 10)
+[node name="SouthWestBuildingNorthWall" parent="." unique_id=1389042892 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, 10)
 length_meters = 8.0
 blocks_navigation = true
 
-[node name="SouthWestBuildingEastWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(-20, 0, 13)
+[node name="SouthWestBuildingEastWall" parent="." unique_id=1512227748 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 13)
 length_meters = 6.0
 along_z = true
 blocks_navigation = true
 
-[node name="SouthEastBuildingNorthWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(24, 0, 10)
+[node name="SouthEastBuildingNorthWall" parent="." unique_id=498948218 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 10)
 length_meters = 8.0
 blocks_navigation = true
 
-[node name="SouthEastBuildingWestWall" parent="." instance=ExtResource("30_boundary_wall")]
-position = Vector3(20, 0, 13)
+[node name="SouthEastBuildingWestWall" parent="." unique_id=1759774011 instance=ExtResource("30_boundary_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 13)
 length_meters = 6.0
 along_z = true
 blocks_navigation = true
 
-[node name="WestScreenA" parent="." instance=ExtResource("3_wall")]
+[node name="WestScreenA" parent="." unique_id=294975716 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -6)
 
-[node name="WestScreenB" parent="." instance=ExtResource("3_wall")]
+[node name="WestScreenB" parent="." unique_id=1643915090 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -4)
 
-[node name="WestScreenC" parent="." instance=ExtResource("3_wall")]
+[node name="WestScreenC" parent="." unique_id=1031048579 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -2)
 
-[node name="EastScreenA" parent="." instance=ExtResource("3_wall")]
+[node name="EastScreenA" parent="." unique_id=151927719 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -6)
 
-[node name="EastScreenB" parent="." instance=ExtResource("3_wall")]
+[node name="EastScreenB" parent="." unique_id=1863548848 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -4)
 
-[node name="EastScreenC" parent="." instance=ExtResource("3_wall")]
+[node name="EastScreenC" parent="." unique_id=1670010444 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -2)
 
-[node name="WestFlankA" parent="." instance=ExtResource("3_wall")]
+[node name="WestFlankA" parent="." unique_id=233692763 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 2)
 
-[node name="WestFlankB" parent="." instance=ExtResource("3_wall")]
+[node name="WestFlankB" parent="." unique_id=976162808 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 4)
 
-[node name="WestFlankC" parent="." instance=ExtResource("3_wall")]
+[node name="WestFlankC" parent="." unique_id=829788830 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 6)
 
-[node name="EastFlankA" parent="." instance=ExtResource("3_wall")]
+[node name="EastFlankA" parent="." unique_id=1770283771 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 2)
 
-[node name="EastFlankB" parent="." instance=ExtResource("3_wall")]
+[node name="EastFlankB" parent="." unique_id=631561760 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 4)
 
-[node name="EastFlankC" parent="." instance=ExtResource("3_wall")]
+[node name="EastFlankC" parent="." unique_id=1744752267 instance=ExtResource("3_wall")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 6)
 
-[node name="NorthWestCoverA" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-22, 0, -10)
+[node name="NorthWestCoverA" parent="." unique_id=1051448457 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -10)
 
-[node name="NorthWestCoverB" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-20, 0, -10)
+[node name="NorthWestCoverB" parent="." unique_id=438043971 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -10)
 
-[node name="NorthWestCoverC" parent="." instance=ExtResource("3_wall")]
-position = Vector3(-18, 0, -10)
+[node name="NorthWestCoverC" parent="." unique_id=848953373 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -10)
 
-[node name="NorthEastCoverA" parent="." instance=ExtResource("3_wall")]
-position = Vector3(18, 0, -10)
+[node name="NorthEastCoverA" parent="." unique_id=1487600178 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -10)
 
-[node name="NorthEastCoverB" parent="." instance=ExtResource("3_wall")]
-position = Vector3(20, 0, -10)
+[node name="NorthEastCoverB" parent="." unique_id=1701488719 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -10)
 
-[node name="NorthEastCoverC" parent="." instance=ExtResource("3_wall")]
-position = Vector3(22, 0, -10)
+[node name="NorthEastCoverC" parent="." unique_id=1526274182 instance=ExtResource("3_wall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -10)
 
 [node name="ExtractionPoint" parent="." unique_id=996261529 instance=ExtResource("21_extraction")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)

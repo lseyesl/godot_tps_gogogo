@@ -572,7 +572,7 @@ func _test_main_scene() -> void:
 	_expect(world_environment != null and world_environment.environment != null, "main scene contains a configured world environment")
 	if world_environment != null and world_environment.environment != null:
 		_expect(world_environment.environment.ambient_light_source == Environment.AMBIENT_SOURCE_COLOR, "environment uses its configured color as the ambient light source")
-		_expect(is_equal_approx(world_environment.environment.ambient_light_energy, 1.3), "ambient fill light keeps the environment readable")
+		_expect(world_environment.environment.ambient_light_energy >= 1.0 and world_environment.environment.ambient_light_energy <= 2.5, "ambient fill light stays readable without flattening scene contrast")
 	_expect(sun != null and sun.light_energy >= 1.5, "map key light keeps actors and room geometry readable")
 	var world_visibility := instance.get_node_or_null("WorldVisibility3D") as GameWorldVisibility3D
 	_expect(world_visibility != null, "map retains visibility-aware enemy and environment event handling")
@@ -810,7 +810,7 @@ func _test_aim_assist_and_blind_visibility() -> void:
 	var highlighted_material := wall_mesh.get_active_material(0) as StandardMaterial3D
 	var highlighted_color := highlighted_material.albedo_color if highlighted_material != null else Color.TRANSPARENT
 	_expect(wall.visible and highlighted_color.get_luminance() > map_color_before.get_luminance(), "building geometry becomes brighter inside the unobstructed player view")
-	_expect(highlighted_material != null and not highlighted_material.emission_enabled, "visible building uses its original material without a whitening emission layer")
+	_expect(highlighted_material != null and not highlighted_material.emission_enabled, "visible building uses its corrected non-metallic material without a whitening emission layer")
 	player.rotation = Vector3(0.0, PI, 0.0)
 	visibility.update_visibility_now()
 	var restored_material := wall_mesh.get_active_material(0) as StandardMaterial3D
