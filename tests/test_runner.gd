@@ -503,7 +503,7 @@ func _test_main_scene() -> void:
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
 	var guard := instance.get_node_or_null("ContentSpawner3D/PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
-	_expect(is_equal_approx(player.move_speed, 6.0), "player moves at six meters per second")
+	_expect(is_equal_approx(player.move_speed, 5.0), "player moves at five meters per second")
 	_expect(player.get_node_or_null("ShotFeedback3D") is GameShotFeedback3D, "player contains reusable shot feedback")
 	_expect(player.get_node_or_null("DamageFeedback3D") is GameDamageFeedback3D, "player contains damage feedback")
 	var player_miniature := player.get_node_or_null("VisualRoot/PlayerMiniature") as GameMiniatureVisual3D
