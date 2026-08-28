@@ -100,6 +100,8 @@ func _get_or_create_material_state(mesh_instance: MeshInstance3D) -> Dictionary:
 	return state
 
 func _is_environment_effect(mesh_instance: MeshInstance3D) -> bool:
+	if mesh_instance.is_in_group(&"visibility_overlay_exempt"):
+		return true
 	var parent := mesh_instance.get_parent()
 	return parent != null and parent.name == &"FireIndicator"
 

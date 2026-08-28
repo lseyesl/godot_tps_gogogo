@@ -407,12 +407,21 @@ func _test_environment_reactions() -> void:
 	var oil := instance.get_node("OilBarrelWall") as OilBarrelWall
 	var burnable_wood := instance.get_node("BurnableWoodWall") as DamageableWall
 	var gasoline := instance.get_node("GasolineBarrelWall") as GasolineBarrelWall
+	var oil_health_bar := oil.get_node("HealthBar3D") as GameWorldHealthBar3D
+	var gasoline_health_bar := gasoline.get_node("HealthBar3D") as GameWorldHealthBar3D
 	_disable_all_guards(instance)
 	player.set_physics_process(false)
 	_expect(is_equal_approx(oil.health.max_health, 4.0), "oil barrel durability is four")
 	_expect(is_equal_approx(gasoline.health.max_health, 3.0), "gasoline barrel durability is three")
+	_expect(not oil_health_bar.visible and not gasoline_health_bar.visible, "destructible health bars stay hidden before damage")
 	_expect(navigation.is_world_position_blocked(oil.global_position), "intact oil barrel blocks navigation")
-	oil.apply_damage(4.0, player)
+	oil.apply_damage(1.0, player)
+	_expect(oil_health_bar.visible and is_equal_approx(oil_health_bar.fill_ratio, 0.75), "oil barrel damage reveals its matching remaining health")
+	oil_health_bar.call("_process", oil_health_bar.display_seconds + 0.1)
+	_expect(not oil_health_bar.visible, "destructible health bar hides after its feedback window")
+	gasoline.apply_damage(1.0, player)
+	_expect(gasoline_health_bar.visible and is_equal_approx(gasoline_health_bar.fill_ratio, 2.0 / 3.0), "gasoline damage reveals its matching remaining health")
+	oil.apply_damage(3.0, player)
 	_expect(oil.is_burning, "oil barrel enters burning state at zero durability")
 	_expect(burnable_wood.is_burning, "fire ignites directly adjacent wood wall")
 	_expect(gasoline.has_exploded, "burning wood immediately triggers adjacent gasoline barrel")
@@ -451,6 +460,8 @@ func _test_environment_reactions() -> void:
 	instance.add_child(snapshot_wall)
 	await physics_frame
 	snapshot_wall.apply_damage(3.0, player)
+	var wall_health_bar := snapshot_wall.get_node("HealthBar3D") as GameWorldHealthBar3D
+	_expect(wall_health_bar.visible and is_equal_approx(wall_health_bar.fill_ratio, 0.4), "wood wall damage reveals its matching remaining health")
 	reaction_hub.request_explosion(Vector3(10.0, 1.0, 1.0), 3.0, 3.0, 1.0, player)
 	_expect(not snapshot_wall.environment_active, "explosion destroys a weakened blocking wood wall")
 	_expect(is_equal_approx(player.health.current_health, player.health.max_health), "same explosion does not pass through the wall it destroys")
@@ -620,6 +631,9 @@ func _test_main_scene() -> void:
 	_expect(world_visibility != null, "map retains visibility-aware enemy and environment event handling")
 	_expect(instance.get_node_or_null("OilBarrelWall") is OilBarrelWall, "main scene contains oil barrel wall")
 	_expect(instance.get_node_or_null("GasolineBarrelWall") is GasolineBarrelWall, "main scene contains gasoline barrel wall")
+	_expect(instance.get_node_or_null("WoodWallA/HealthBar3D") is GameWorldHealthBar3D, "wood walls contain world health bars")
+	_expect(instance.get_node_or_null("OilBarrelWall/HealthBar3D") is GameWorldHealthBar3D, "oil barrels contain world health bars")
+	_expect(instance.get_node_or_null("GasolineBarrelWall/HealthBar3D") is GameWorldHealthBar3D, "gasoline barrels contain world health bars")
 	_expect(instance.get_node_or_null("OilBarrelWall/OilDrumLeft/Model/world/geometry_0") is MeshInstance3D, "oil wall uses the imported oil drum model")
 	_expect(instance.get_node_or_null("OilBarrelWall/BarrelLeft") == null, "oil barrel primitive preview is removed")
 	_expect(instance.get_node_or_null("GasolineBarrelWall/FuelCanLeft/Model/world/geometry_0") is MeshInstance3D, "gasoline wall uses the imported fuel can model")
@@ -656,8 +670,10 @@ func _test_main_scene() -> void:
 		_expect(is_zero_approx(feedback.recoil_distance), "shot feedback never moves the logical bullet origin away from the miniature muzzle")
 		_expect(feedback.fire_haptic_duration_ms <= 20 and feedback.fire_haptic_amplitude <= 0.25, "successful fire uses a lightweight handheld haptic")
 		var feedback_before := feedback.shots_presented
-		player.weapon.fired.emit(player.weapon.global_position, player.weapon.global_position + Vector3.FORWARD, true)
+		var impact_endpoint := player.weapon.global_position + Vector3.FORWARD
+		player.weapon.fired.emit(player.weapon.global_position, impact_endpoint, true)
 		_expect(feedback.shots_presented == feedback_before + 1, "weapon fired signal immediately triggers presentation feedback")
+		_expect(feedback.last_impact_position.distance_to(player.weapon.global_position) < impact_endpoint.distance_to(player.weapon.global_position), "wall impact marker offsets toward the shooter instead of hiding inside the surface")
 		player.global_position = Vector3(0.0, 0.0, 5.0)
 		player.set_aim_input(Vector2(0.0, -1.0), true)
 		guard.global_position = Vector3.ZERO

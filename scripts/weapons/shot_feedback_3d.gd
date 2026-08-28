@@ -4,12 +4,14 @@ extends Node3D
 @export var weapon_pivot_path: NodePath
 @export var flash_seconds := 0.07
 @export var tracer_seconds := 0.06
-@export var hit_seconds := 0.1
+@export var hit_seconds := 0.3
 @export var recoil_distance := 0.0
+@export_range(0.0, 0.2, 0.005) var impact_surface_offset := 0.045
 @export_range(0, 100, 1) var fire_haptic_duration_ms := 20
 @export_range(0.0, 1.0, 0.05) var fire_haptic_amplitude := 0.25
 
 var shots_presented := 0
+var last_impact_position := Vector3.ZERO
 var _flash_remaining := 0.0
 var _tracer_remaining := 0.0
 var _hit_remaining := 0.0
@@ -63,7 +65,10 @@ func _on_weapon_fired(origin: Vector3, endpoint: Vector3, hit: bool) -> void:
 	_tracer.global_position = origin.lerp(endpoint, 0.5)
 	_tracer.scale = Vector3(1.0, 1.0, maxf(0.01, distance))
 	_tracer.look_at(endpoint, Vector3.UP)
-	_impact.global_position = endpoint
+	last_impact_position = endpoint
+	if hit and not origin.is_equal_approx(endpoint):
+		last_impact_position += endpoint.direction_to(origin) * impact_surface_offset
+	_impact.global_position = last_impact_position
 	if _pivot != null:
 		_pivot.position = _pivot_rest + Vector3(0.0, 0.0, recoil_distance)
 	if _audio != null:

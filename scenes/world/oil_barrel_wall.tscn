@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/oil_barrel_wall.gd" id="1_oil"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
 [ext_resource type="PackedScene" path="res://scenes/visuals/environment/oil_drum_visual.tscn" id="3_visual"]
+[ext_resource type="Script" path="res://scripts/world/world_health_bar_3d.gd" id="4_health_bar"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_module"]
 size = Vector3(2, 1.25, 0.85)
@@ -54,3 +55,8 @@ material_override = SubResource("Material_fire")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("2_health")
 max_health = 4.0
+
+[node name="HealthBar3D" type="Node3D" parent="."]
+position = Vector3(0, 1.75, 0)
+script = ExtResource("4_health_bar")
+health_path = NodePath("../HealthComponent")
