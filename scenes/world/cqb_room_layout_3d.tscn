@@ -1,0 +1,293 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/brick_wall_line_3d.tscn" id="1_wall"]
+[ext_resource type="PackedScene" path="res://scenes/world/wooden_crate_3d.tscn" id="2_crate"]
+[ext_resource type="PackedScene" path="res://scenes/world/sandbag_wall_3d.tscn" id="3_sandbag"]
+
+[node name="CQBRoomLayout3D" type="Node3D"]
+
+; North/middle threshold. Four staggered 4 m doors connect five local rooms.
+[node name="NorthThreshold01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-26, 0, -9)
+length_meters = 4.0
+blocks_navigation = true
+
+[node name="NorthThreshold02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-16, 0, -9)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="NorthThreshold03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-4, 0, -9)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="NorthThreshold04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(8, 0, -9)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="NorthThreshold05" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(22, 0, -9)
+length_meters = 12.0
+blocks_navigation = true
+
+; South threshold leaves the spawn courtyard open in the center.
+[node name="SouthThreshold01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-25, 0, 1)
+length_meters = 6.0
+blocks_navigation = true
+
+[node name="SouthThreshold02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-13, 0, 1)
+length_meters = 10.0
+blocks_navigation = true
+
+[node name="SouthThreshold03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(13, 0, 1)
+length_meters = 10.0
+blocks_navigation = true
+
+[node name="SouthThreshold04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(25, 0, 1)
+length_meters = 6.0
+blocks_navigation = true
+
+; Rear south rooms flank the existing extraction courtyard.
+[node name="SouthRear01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-24, 0, 11)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="SouthRear02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-12, 0, 11)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="SouthRear03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(12, 0, 11)
+length_meters = 8.0
+blocks_navigation = true
+
+[node name="SouthRear04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(24, 0, 11)
+length_meters = 8.0
+blocks_navigation = true
+
+; West outer room divider.
+[node name="WestOuter01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-19, 0, -16)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestOuter02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-19, 0, -4)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestOuter03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-19, 0, 8)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestOuter04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-19, 0, 18)
+length_meters = 2.0
+along_z = true
+blocks_navigation = true
+
+; West inner divider uses different door offsets in each row.
+[node name="WestInner01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-7, 0, -16)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestInner02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-7, 0, -4)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestInner03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-7, 0, 7)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+[node name="WestInner04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(-7, 0, 17)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+; East inner divider is deliberately offset from the west doors.
+[node name="EastInner01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(7, 0, -18)
+length_meters = 4.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastInner02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(7, 0, -7)
+length_meters = 10.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastInner03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(7, 0, 6)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastInner04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(7, 0, 17)
+length_meters = 6.0
+along_z = true
+blocks_navigation = true
+
+; East outer divider mirrors the west macro rhythm while retaining separate doors.
+[node name="EastOuter01" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(19, 0, -16)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastOuter02" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(19, 0, -4)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastOuter03" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(19, 0, 8)
+length_meters = 8.0
+along_z = true
+blocks_navigation = true
+
+[node name="EastOuter04" parent="." instance=ExtResource("1_wall") groups=["cqb_room_walls"]]
+position = Vector3(19, 0, 18)
+length_meters = 2.0
+along_z = true
+blocks_navigation = true
+
+; One or two pieces of micro-cover per room, never used as the room boundary.
+[node name="NorthWestCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(-25, 0, -15)
+
+[node name="NorthWestSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(-15, 0, -15)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="NorthCenterCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(-3, 0, -15)
+
+[node name="NorthCenterSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(3, 0, -13)
+
+[node name="NorthEastCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(15, 0, -15)
+
+[node name="FarNorthEastSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(25, 0, -15)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="MidWestSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(-25, 0, -5)
+
+[node name="WestRoomCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(-15, 0, -5)
+
+[node name="EastRoomCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(15, 0, -5)
+
+[node name="MidEastSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(25, 0, -5)
+
+[node name="SouthWestCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(-25, 0, 5)
+
+[node name="SouthWestSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(-13, 0, 7)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="SouthEastSandbags" parent="." instance=ExtResource("3_sandbag") groups=["cqb_room_cover"]]
+position = Vector3(13, 0, 7)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="SouthEastCrate" parent="." instance=ExtResource("2_crate") groups=["cqb_room_cover"]]
+position = Vector3(25, 0, 5)
+
+; Anchors describe authored local combat rooms for topology regression.
+[node name="RoomAnchors" type="Node3D" parent="."]
+
+[node name="NorthWestRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(-26, 0, -17)
+
+[node name="NorthWestInnerRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(-11, 0, -17)
+
+[node name="NorthCenterRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(0, 0, -17)
+
+[node name="NorthEastInnerRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(11, 0, -17)
+
+[node name="NorthEastRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(26, 0, -17)
+
+[node name="MidWestRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(-26, 0, -7)
+
+[node name="MidWestInnerRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(-11, 0, -7)
+
+[node name="MidCenterRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(0, 0, -7)
+
+[node name="MidEastInnerRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(11, 0, -7)
+
+[node name="MidEastRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(26, 0, -7)
+
+[node name="SouthWestRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(-10, 0, 9)
+
+[node name="SouthEastRoom" type="Marker3D" parent="RoomAnchors" groups=["cqb_rooms"]]
+position = Vector3(10, 0, 9)
+
+[node name="DoorAnchors" type="Node3D" parent="."]
+
+[node name="DoorNorthWest" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(-22, 0, -9)
+
+[node name="DoorNorthInnerWest" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(-10, 0, -9)
+
+[node name="DoorNorthCenter" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(2, 0, -9)
+
+[node name="DoorNorthEast" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(14, 0, -9)
+
+[node name="DoorSouthWest" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(-20, 0, 1)
+
+[node name="DoorSouthInnerWest" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(-7, 0, 1)
+
+[node name="DoorSouthInnerEast" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(7, 0, 1)
+
+[node name="DoorSouthEast" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(20, 0, 1)
+
+[node name="DoorWestLoop" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(-19, 0, 3)
+
+[node name="DoorEastLoop" type="Marker3D" parent="DoorAnchors" groups=["cqb_doors"]]
+position = Vector3(19, 0, 3)

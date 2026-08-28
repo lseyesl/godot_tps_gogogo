@@ -27,13 +27,12 @@
 [ext_resource type="PackedScene" path="res://scenes/world/health_pack_3d.tscn" id="25_health_pack"]
 [ext_resource type="Script" uid="uid://ckbabvs4l4d21" path="res://scripts/world/world_visibility_3d.gd" id="26_visibility"]
 [ext_resource type="PackedScene" path="res://scenes/visuals/environment/brick_wall_visual.tscn" id="27_brick_visual"]
-[ext_resource type="PackedScene" path="res://scenes/world/wooden_crate_3d.tscn" id="28_crate"]
-[ext_resource type="PackedScene" path="res://scenes/world/sandbag_wall_3d.tscn" id="29_sandbag"]
 [ext_resource type="PackedScene" path="res://scenes/world/brick_wall_line_3d.tscn" id="30_boundary_wall"]
 [ext_resource type="Shader" path="res://shaders/ground_tile_assembly.gdshader" id="31_ground_shader"]
 [ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-concrete.png" id="32_ground_concrete"]
 [ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-drainage-grate.png" id="33_ground_drainage"]
 [ext_resource type="Texture2D" path="res://docs/concepts/ground-tile-armored-steel.png" id="34_ground_steel"]
+[ext_resource type="PackedScene" path="res://scenes/world/cqb_room_layout_3d.tscn" id="35_cqb_rooms"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -52,9 +51,6 @@ shader_parameter/tile_count = Vector2(15, 10)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
 size = Vector2(60, 40)
-
-[sub_resource type="BoxShape3D" id="BoxShape_brick"]
-size = Vector3(18, 1.2, 0.4)
 
 [sub_resource type="BoxShape3D" id="BoxShape_spawn_rear"]
 size = Vector3(10, 1.2, 0.4)
@@ -131,42 +127,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 0)
 length_meters = 40.0
 along_z = true
 
-[node name="BrickWall" type="StaticBody3D" parent="." unique_id=704455302 groups=["navigation_obstacles", "static_visibility"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
-collision_layer = 2
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="BrickWall" unique_id=1335067232]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-shape = SubResource("BoxShape_brick")
-
-[node name="VisualRoot" type="Node3D" parent="BrickWall" unique_id=118811509]
-
-[node name="Module01" parent="BrickWall/VisualRoot" unique_id=1169824801 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
-
-[node name="Module02" parent="BrickWall/VisualRoot" unique_id=337106938 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 0)
-
-[node name="Module03" parent="BrickWall/VisualRoot" unique_id=1412204966 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
-
-[node name="Module04" parent="BrickWall/VisualRoot" unique_id=856074733 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
-
-[node name="Module05" parent="BrickWall/VisualRoot" unique_id=273518814 instance=ExtResource("27_brick_visual")]
-
-[node name="Module06" parent="BrickWall/VisualRoot" unique_id=97153915 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
-
-[node name="Module07" parent="BrickWall/VisualRoot" unique_id=1226803071 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
-
-[node name="Module08" parent="BrickWall/VisualRoot" unique_id=400864602 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
-
-[node name="Module09" parent="BrickWall/VisualRoot" unique_id=896975728 instance=ExtResource("27_brick_visual")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
-
 [node name="WoodWallA" parent="." unique_id=1127984070 instance=ExtResource("3_wall")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -3)
 
@@ -180,13 +140,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -3)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -3)
 
 [node name="OilBarrelWall" parent="." unique_id=1221071054 instance=ExtResource("14_oil_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 0, 5)
 
 [node name="BurnableWoodWall" parent="." unique_id=1862402572 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, 7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 5)
 
 [node name="GasolineBarrelWall" parent="." unique_id=1253916843 instance=ExtResource("15_gasoline_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, 5)
 
 [node name="SpawnRearWall" type="StaticBody3D" parent="." unique_id=1880354043 groups=["navigation_obstacles", "static_visibility"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
@@ -256,183 +216,61 @@ transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 1)
 [node name="Module04" parent="SpawnRightWall/VisualRoot" unique_id=821047066 instance=ExtResource("27_brick_visual")]
 transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 0, 0, 3)
 
-[node name="WoodenCrateCover" parent="." unique_id=757913162 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, 1)
-
-[node name="SandbagCover" parent="." unique_id=1809752797 instance=ExtResource("29_sandbag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 1)
-
-[node name="NorthCenterCrateLeft" parent="." unique_id=111983023 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -15)
-
-[node name="NorthCenterSandbags" parent="." unique_id=873219897 instance=ExtResource("29_sandbag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
-
-[node name="NorthCenterCrateRight" parent="." unique_id=833048764 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -15)
-
-[node name="NorthBuildingRearWall" parent="." unique_id=1139135618 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -18)
-length_meters = 12.0
-blocks_navigation = true
-
-[node name="NorthBuildingWestWall" parent="." unique_id=1522514390 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -14)
-length_meters = 8.0
-along_z = true
-blocks_navigation = true
-
-[node name="NorthBuildingEastWall" parent="." unique_id=738084551 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -14)
-length_meters = 8.0
-along_z = true
-blocks_navigation = true
-
-[node name="WestMidCrate" parent="." unique_id=1008502850 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 0, -5)
-
-[node name="WestMidSandbags" parent="." unique_id=597309002 instance=ExtResource("29_sandbag")]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, -17, 0, -2)
-
-[node name="EastMidCrate" parent="." unique_id=778395411 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, -5)
-
-[node name="EastMidSandbags" parent="." unique_id=1673718394 instance=ExtResource("29_sandbag")]
-transform = Transform3D(7.54979e-08, 0, 1, 0, 1, 0, -1, 0, 7.54979e-08, 17, 0, -2)
-
-[node name="SouthWestCrate" parent="." unique_id=462578090 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 4)
-
-[node name="SouthWestSandbags" parent="." unique_id=346832855 instance=ExtResource("29_sandbag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 7)
-
-[node name="SouthEastCrate" parent="." unique_id=1247266369 instance=ExtResource("28_crate")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 4)
-
-[node name="SouthEastSandbags" parent="." unique_id=2111287512 instance=ExtResource("29_sandbag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 7)
-
-[node name="SouthWestBuildingNorthWall" parent="." unique_id=1389042892 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, 10)
-length_meters = 8.0
-blocks_navigation = true
-
-[node name="SouthWestBuildingEastWall" parent="." unique_id=1512227748 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 13)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
-
-[node name="SouthEastBuildingNorthWall" parent="." unique_id=498948218 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 10)
-length_meters = 8.0
-blocks_navigation = true
-
-[node name="SouthEastBuildingWestWall" parent="." unique_id=1759774011 instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 13)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
+[node name="CQBRoomLayout3D" parent="." instance=ExtResource("35_cqb_rooms")]
 
 [node name="WestScreenA" parent="." unique_id=294975716 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -6)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -13, 0, -7)
 
 [node name="WestScreenB" parent="." unique_id=1643915090 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -4)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -13, 0, -5)
 
 [node name="WestScreenC" parent="." unique_id=1031048579 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -12, 0, -2)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -13, 0, -3)
 
 [node name="EastScreenA" parent="." unique_id=151927719 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -6)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 13, 0, -7)
 
 [node name="EastScreenB" parent="." unique_id=1863548848 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -4)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 13, 0, -5)
 
 [node name="EastScreenC" parent="." unique_id=1670010444 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 12, 0, -2)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 13, 0, -3)
 
 [node name="WestFlankA" parent="." unique_id=233692763 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 2)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -23, 0, 3)
 
 [node name="WestFlankB" parent="." unique_id=976162808 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 4)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -23, 0, 5)
 
 [node name="WestFlankC" parent="." unique_id=829788830 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -20, 0, 6)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -23, 0, 7)
 
 [node name="EastFlankA" parent="." unique_id=1770283771 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 2)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 23, 0, 3)
 
 [node name="EastFlankB" parent="." unique_id=631561760 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 4)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 23, 0, 5)
 
 [node name="EastFlankC" parent="." unique_id=1744752267 instance=ExtResource("3_wall")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 20, 0, 6)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 23, 0, 7)
 
 [node name="NorthWestCoverA" parent="." unique_id=1051448457 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 0, -13)
 
 [node name="NorthWestCoverB" parent="." unique_id=438043971 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -13)
 
 [node name="NorthWestCoverC" parent="." unique_id=848953373 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, -13)
 
 [node name="NorthEastCoverA" parent="." unique_id=1487600178 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, -13)
 
 [node name="NorthEastCoverB" parent="." unique_id=1701488719 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -13)
 
 [node name="NorthEastCoverC" parent="." unique_id=1526274182 instance=ExtResource("3_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -10)
-
-[node name="CentralWestPartition" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -5)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
-
-[node name="CentralEastPartition" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -5)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
-
-[node name="WestRoomFrontWall" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -11)
-length_meters = 8.0
-blocks_navigation = true
-
-[node name="WestRoomSideWall" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -14)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
-
-[node name="EastRoomFrontWall" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -11)
-length_meters = 8.0
-blocks_navigation = true
-
-[node name="EastRoomSideWall" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -14)
-length_meters = 6.0
-along_z = true
-blocks_navigation = true
-
-[node name="SouthWestEntryPartition" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, 3)
-length_meters = 4.0
-along_z = true
-blocks_navigation = true
-
-[node name="SouthEastEntryPartition" parent="." instance=ExtResource("30_boundary_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 3)
-length_meters = 4.0
-along_z = true
-blocks_navigation = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, -13)
 
 [node name="ExtractionPoint" parent="." unique_id=996261529 instance=ExtResource("21_extraction")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
@@ -442,124 +280,124 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 [node name="GuardCandidates" type="Node3D" parent="ContentCandidates" unique_id=1478260711]
 
 [node name="Guard01" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=233712963]
-transform = Transform3D(-0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, -0.70710677, -24, 0, -16)
+transform = Transform3D(-0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, -0.70710677, -27, 0, -17)
 
 [node name="Guard02" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1502927046]
-transform = Transform3D(-0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, -0.8660254, -18, 0, -15)
+transform = Transform3D(-0.8660254, 0, 0.50000006, 0, 1, 0, -0.50000006, 0, -0.8660254, -17, 0, -17)
 
 [node name="Guard03" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=571979204]
-transform = Transform3D(-0.9659258, 0, 0.25881913, 0, 1, 0, -0.25881913, 0, -0.9659258, -12, 0, -16)
+transform = Transform3D(-0.9659258, 0, 0.25881913, 0, 1, 0, -0.25881913, 0, -0.9659258, -5, 0, -17)
 
 [node name="Guard04" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=784025542]
-transform = Transform3D(-0.9659258, 0, -0.25881913, 0, 1, 0, 0.25881913, 0, -0.9659258, 12, 0, -16)
+transform = Transform3D(-0.9659258, 0, -0.25881913, 0, 1, 0, 0.25881913, 0, -0.9659258, 5, 0, -17)
 
 [node name="Guard05" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1354075503]
-transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 18, 0, -15)
+transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 13, 0, -17)
 
 [node name="Guard06" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=189378608]
-transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, 24, 0, -16)
+transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, 25, 0, -17)
 
 [node name="Guard07" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1480821845]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -26, 0, -6)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -27, 0, -7)
 
 [node name="Guard08" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=970087884]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 26, 0, -6)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 27, 0, -7)
 
 [node name="Guard09" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=232290865]
-transform = Transform3D(0.49999997, 0, 0.86602545, 0, 1, 0, -0.86602545, 0, 0.49999997, -24, 0, 12)
+transform = Transform3D(0.49999997, 0, 0.86602545, 0, 1, 0, -0.86602545, 0, 0.49999997, -17, 0, -7)
 
 [node name="Guard10" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=213401320]
-transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -18, 0, 16)
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -5, 0, -7)
 
 [node name="Guard11" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1734851133]
-transform = Transform3D(0.9396926, 0, 0.34202012, 0, 1, 0, -0.34202012, 0, 0.9396926, -10, 0, 17)
+transform = Transform3D(0.9396926, 0, 0.34202012, 0, 1, 0, -0.34202012, 0, 0.9396926, 5, 0, -5)
 
 [node name="Guard12" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=521336623]
-transform = Transform3D(0.9396926, 0, -0.34202012, 0, 1, 0, 0.34202012, 0, 0.9396926, 10, 0, 17)
+transform = Transform3D(0.9396926, 0, -0.34202012, 0, 1, 0, 0.34202012, 0, 0.9396926, 15, 0, -7)
 
 [node name="Guard13" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=2062025409]
-transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, 18, 0, 16)
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, -27, 0, 17)
 
 [node name="Guard14" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=392504916]
-transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 25, 0, 12)
+transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 27, 0, 17)
 
 [node name="Guard15" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=298833474]
-transform = Transform3D(0.17364822, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, 0.17364822, -27, 0, 2)
+transform = Transform3D(0.17364822, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, 0.17364822, -15, 0, 17)
 
 [node name="Guard16" type="Marker3D" parent="ContentCandidates/GuardCandidates" unique_id=1810344463]
-transform = Transform3D(0.17364822, 0, -0.9848077, 0, 1, 0, 0.9848077, 0, 0.17364822, 27, 0, 2)
+transform = Transform3D(0.17364822, 0, -0.9848077, 0, 1, 0, 0.9848077, 0, 0.17364822, 15, 0, 17)
 
 [node name="ObjectiveCandidates" type="Node3D" parent="ContentCandidates" unique_id=1738689967]
 
 [node name="Objective01" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=1530795811]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -19)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -19)
 
 [node name="Objective02" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=49280477]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0, -19)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 0, -19)
 
 [node name="Objective03" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=85336959]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 0, -18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, -19)
 
 [node name="Objective04" type="Marker3D" parent="ContentCandidates/ObjectiveCandidates" unique_id=63556825]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 0, -18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, -19)
 
 [node name="WeaponCandidates" type="Node3D" parent="ContentCandidates" unique_id=1938065027]
 
 [node name="Weapon01" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1958647276]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23, 0, -17)
 
 [node name="Weapon02" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=926152352]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, -17)
 
 [node name="Weapon03" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1502314124]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -17)
 
 [node name="Weapon04" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1672221043]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -17)
 
 [node name="Weapon05" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1098596352]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 0, -17)
 
 [node name="Weapon06" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=786910554]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, -13)
 
 [node name="Weapon07" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=612447530]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23, 0, -7)
 
 [node name="Weapon08" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=741026631]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 0, -7)
 
 [node name="Weapon09" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=1266487020]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 7)
 
 [node name="Weapon10" type="Marker3D" parent="ContentCandidates/WeaponCandidates" unique_id=539501147]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 5)
 
 [node name="HealthCandidates" type="Node3D" parent="ContentCandidates" unique_id=1188206761]
 
 [node name="Health01" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=785336887]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, -13)
 
 [node name="Health02" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1745929698]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, -15)
 
 [node name="Health03" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=972195723]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -13)
 
 [node name="Health04" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=604935411]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 17)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, -15)
 
 [node name="Health05" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1217473672]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, -13)
 
 [node name="Health06" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1649849480]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0, 9)
 
 [node name="Health07" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1606772602]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 17)
 
 [node name="Health08" type="Marker3D" parent="ContentCandidates/HealthCandidates" unique_id=1359811221]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 0, 9)
 
 [node name="Player" parent="." unique_id=1034243558 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)

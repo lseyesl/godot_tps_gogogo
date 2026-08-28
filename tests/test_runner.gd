@@ -185,7 +185,18 @@ func _test_random_layout_and_health() -> void:
 
 	var guard_candidates := first_instance.get_node("ContentCandidates/GuardCandidates")
 	var obstacle_count := _nodes_in_group_under(first_instance, &"navigation_obstacles").size()
-	_expect(obstacle_count >= 32, "CQB map provides enough obstacles to split combat into local encounters")
+	_expect(obstacle_count >= 60, "room-first CQB map provides enough structural and micro-cover obstacles")
+	var navigation := first_instance.get_node("GridNavigation3D") as GameGridNavigation3D
+	for container_path in [
+		"ContentCandidates/GuardCandidates",
+		"ContentCandidates/ObjectiveCandidates",
+		"ContentCandidates/WeaponCandidates",
+		"ContentCandidates/HealthCandidates",
+	]:
+		var candidate_container := first_instance.get_node(container_path)
+		for candidate_node in candidate_container.get_children():
+			var candidate := candidate_node as Marker3D
+			_expect(not navigation.get_world_path(player.global_position, candidate.global_position).is_empty(), "%s remains reachable through the room-and-corridor loops" % candidate.name)
 	var exposure := await _measure_authored_guard_exposure(first_instance, player, guard_candidates)
 	_expect(exposure.spawn_count == 0, "no authored guard candidate can see the player at spawn")
 	_expect(exposure.maximum_count <= 2, "opening route exposes the player to at most two authored guards at once")
@@ -307,7 +318,7 @@ func _test_navigation_grid() -> void:
 	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
 	var wall := instance.get_node("WoodWallD") as DamageableWall
 	_expect(navigation != null, "main scene contains 2D grid navigation")
-	_expect(navigation.is_world_position_blocked(Vector3(1.0, 0.0, -7.0)), "indestructible brick wall blocks overlapping navigation cells")
+	_expect(navigation.is_world_position_blocked(Vector3(-25.0, 0.0, 1.0)), "indestructible room threshold blocks overlapping navigation cells")
 	_expect(navigation.is_world_position_blocked(wall.global_position), "intact wood wall blocks its navigation cell")
 	var start := Vector3(3.0, 0.0, 5.0)
 	var target := Vector3(3.0, 0.0, -5.0)
@@ -500,6 +511,7 @@ func _test_main_scene() -> void:
 	var debug_input := instance.get_node("DebugPlayerInput")
 	debug_input.set_process(false)
 	debug_input.set_process_unhandled_input(false)
+	var navigation := instance.get_node("GridNavigation3D") as GameGridNavigation3D
 	var player := instance.get_node_or_null("Player") as PlayerCharacter
 	var guard := instance.get_node_or_null("ContentSpawner3D/PistolGuard") as PistolGuard
 	_expect(player != null, "main scene contains player")
@@ -584,42 +596,30 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("SpawnRearWall") is StaticBody3D, "spawn courtyard has indestructible rear cover")
 	_expect(instance.get_node_or_null("SpawnLeftWall") is StaticBody3D, "spawn courtyard has indestructible left cover")
 	_expect(instance.get_node_or_null("SpawnRightWall") is StaticBody3D, "spawn courtyard has indestructible right cover")
-	_expect(instance.get_node_or_null("BrickWall/VisualRoot/Module01/Model/world/geometry_0") is MeshInstance3D, "brick walls use repeated imported model modules")
-	_expect(instance.get_node_or_null("BrickWall/MeshInstance3D") == null, "brick wall primitive preview is removed")
+	var room_layout := instance.get_node_or_null("CQBRoomLayout3D") as Node3D
+	_expect(room_layout != null, "main scene contains the dedicated room-first CQB layout")
+	_expect(instance.get_node_or_null("CQBRoomLayout3D/NorthThreshold01/VisualRoot/Module01/Model/world/geometry_0") is MeshInstance3D, "room walls use repeated imported brick modules")
 	_expect(instance.get_node_or_null("WoodWallA/WoodenWallVisual/Model/world/geometry_0") is MeshInstance3D, "damageable walls use the imported wooden wall model")
 	_expect(instance.get_node_or_null("WoodWallA/MeshInstance3D") == null, "wood wall primitive preview is removed")
-	_expect(instance.get_node_or_null("WoodenCrateCover/WoodenCrateVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported wooden crate cover")
-	_expect(instance.get_node_or_null("SandbagCover/SandbagVisual/Model/world/geometry_0") is MeshInstance3D, "map contains imported sandbag cover")
-	_expect(instance.get_node_or_null("NorthCenterCrateLeft") is StaticBody3D and instance.get_node_or_null("NorthCenterSandbags") is StaticBody3D, "north sector has a mixed cover cluster")
-	_expect(instance.get_node_or_null("WestMidCrate") is StaticBody3D and instance.get_node_or_null("EastMidCrate") is StaticBody3D, "middle flanks have additional crate cover")
-	_expect(instance.get_node_or_null("SouthWestSandbags") is StaticBody3D and instance.get_node_or_null("SouthEastSandbags") is StaticBody3D, "south approaches have additional sandbag cover")
-	var north_building_rear := instance.get_node_or_null("NorthBuildingRearWall") as StaticBody3D
-	var north_building_west := instance.get_node_or_null("NorthBuildingWestWall") as StaticBody3D
-	var north_building_east := instance.get_node_or_null("NorthBuildingEastWall") as StaticBody3D
-	_expect(north_building_rear != null and north_building_west != null and north_building_east != null, "north sector contains an enterable U-shaped brick building")
-	_expect(instance.get_node_or_null("SouthWestBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthWestBuildingEastWall") is StaticBody3D, "south-west sector contains an L-shaped brick building")
-	_expect(instance.get_node_or_null("SouthEastBuildingNorthWall") is StaticBody3D and instance.get_node_or_null("SouthEastBuildingWestWall") is StaticBody3D, "south-east sector contains an L-shaped brick building")
-	_expect(instance.get_node_or_null("CentralWestPartition") is StaticBody3D and instance.get_node_or_null("CentralEastPartition") is StaticBody3D, "central approach has paired CQB sight-line partitions")
-	_expect(instance.get_node_or_null("WestRoomFrontWall") is StaticBody3D and instance.get_node_or_null("WestRoomSideWall") is StaticBody3D, "west lane contains an additional L-shaped CQB room")
-	_expect(instance.get_node_or_null("EastRoomFrontWall") is StaticBody3D and instance.get_node_or_null("EastRoomSideWall") is StaticBody3D, "east lane contains an additional L-shaped CQB room")
-	for building_wall in [
-		north_building_rear,
-		north_building_west,
-		north_building_east,
-		instance.get_node_or_null("SouthWestBuildingNorthWall"),
-		instance.get_node_or_null("SouthWestBuildingEastWall"),
-		instance.get_node_or_null("SouthEastBuildingNorthWall"),
-		instance.get_node_or_null("SouthEastBuildingWestWall"),
-		instance.get_node_or_null("CentralWestPartition"),
-		instance.get_node_or_null("CentralEastPartition"),
-		instance.get_node_or_null("WestRoomFrontWall"),
-		instance.get_node_or_null("WestRoomSideWall"),
-		instance.get_node_or_null("EastRoomFrontWall"),
-		instance.get_node_or_null("EastRoomSideWall"),
-		instance.get_node_or_null("SouthWestEntryPartition"),
-		instance.get_node_or_null("SouthEastEntryPartition"),
-	]:
-		_expect(building_wall != null and building_wall.is_in_group("navigation_obstacles"), "interior building wall blocks navigation")
+	_expect(instance.get_node_or_null("CQBRoomLayout3D/NorthWestCrate/WoodenCrateVisual/Model/world/geometry_0") is MeshInstance3D, "rooms contain imported wooden crate cover")
+	_expect(instance.get_node_or_null("CQBRoomLayout3D/NorthWestSandbags/SandbagVisual/Model/world/geometry_0") is MeshInstance3D, "rooms contain imported sandbag cover")
+	var room_walls := _nodes_in_group_under(instance, &"cqb_room_walls")
+	var room_covers := _nodes_in_group_under(instance, &"cqb_room_cover")
+	var room_anchors := _nodes_in_group_under(instance, &"cqb_rooms")
+	var door_anchors := _nodes_in_group_under(instance, &"cqb_doors")
+	_expect(room_walls.size() >= 29, "room layout uses at least twenty-nine permanent wall segments")
+	_expect(room_covers.size() >= 14, "rooms contain authored micro-cover instead of relying on open-floor screens")
+	_expect(room_anchors.size() >= 12, "map exposes at least twelve local CQB room anchors")
+	_expect(door_anchors.size() >= 10, "room connections expose at least ten staggered door anchors")
+	for wall_node in room_walls:
+		var room_wall := wall_node as StaticBody3D
+		_expect(room_wall != null and room_wall.is_in_group("navigation_obstacles"), "room wall blocks navigation")
+	for door_node in door_anchors:
+		var door := door_node as Marker3D
+		_expect(not navigation.is_world_position_blocked(door.global_position), "%s remains an open room connection" % door.name)
+	for room_node in room_anchors:
+		var room := room_node as Marker3D
+		_expect(_count_nearby_axis_blocks(room, 8.5) >= 2, "%s has nearby structure on at least two axes" % room.name)
 	_expect(instance.get_node_or_null("EnvironmentReactionHub") is GameEnvironmentReactionHub, "main scene contains environment reaction hub")
 	var world_environment := instance.get_node_or_null("WorldEnvironment") as WorldEnvironment
 	var sun := instance.get_node_or_null("Sun") as DirectionalLight3D
@@ -1128,3 +1128,12 @@ func _position_is_candidate(node: Node3D, container: Node) -> bool:
 		if candidate is Node3D and node.global_position.is_equal_approx((candidate as Node3D).global_position):
 			return true
 	return false
+
+func _count_nearby_axis_blocks(anchor: Node3D, maximum_distance: float) -> int:
+	var origin := anchor.global_position + Vector3.UP
+	var count := 0
+	for direction in [Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK]:
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * maximum_distance, 2)
+		if not anchor.get_world_3d().direct_space_state.intersect_ray(query).is_empty():
+			count += 1
+	return count
