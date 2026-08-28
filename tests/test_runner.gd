@@ -89,7 +89,7 @@ func _test_weapon_definition() -> void:
 		return
 	_expect(definition.is_valid(), "standard pistol resource is valid")
 	_expect(is_equal_approx(definition.damage, 1.0), "standard pistol damage is 1")
-	_expect(is_equal_approx(definition.range_meters, 10.0), "standard pistol range is 10 meters")
+	_expect(is_equal_approx(definition.range_meters, 8.0), "standard pistol range is 8 meters")
 	_expect(definition.muzzle_position.is_equal_approx(Vector3(0.13, 1.29, -0.35)), "standard pistol stores its model-aligned muzzle position")
 	_expect(definition.magazine_capacity == 6, "standard pistol magazine is 6")
 	_expect(is_equal_approx(definition.sound_radius_meters, 24.0), "standard pistol sound radius is 12 modules")
@@ -107,8 +107,8 @@ func _test_weapon_definition() -> void:
 	_expect(rocket != null and rocket.is_valid(), "rocket launcher resource is valid")
 	_expect(rocket.muzzle_position.is_equal_approx(Vector3(0.17, 1.43, -0.76)), "rocket launcher stores its model-aligned muzzle position")
 	for weapon_definition in [definition, heavy, machine_gun, rocket]:
-		_expect(is_equal_approx(weapon_definition.range_meters, 10.0), "all player and guard weapons use the unified 10 meter CQB range")
-		_expect(weapon_definition.range_meters < 11.0, "weapon range remains shorter than player and guard vision")
+		_expect(is_equal_approx(weapon_definition.range_meters, 8.0), "all player and guard weapons use the unified 8 meter CQB range")
+		_expect(weapon_definition.range_meters < 10.0, "weapon range remains shorter than player vision")
 	_expect(rocket.weapon_type == WeaponDefinition.WeaponType.ROCKET, "rocket launcher selects projectile firing")
 	_expect(rocket.magazine_capacity == 1 and rocket.starting_reserve_ammo == 3, "rocket launcher uses one plus three ammunition")
 	_expect(is_equal_approx(rocket.projectile_speed_meters_per_second, 10.0), "rocket travels at ten meters per second")
@@ -547,8 +547,9 @@ func _test_main_scene() -> void:
 	_expect(camera != null, "main scene contains fixed camera")
 	if camera != null:
 		_expect(camera.offset.is_equal_approx(Vector3(0.0, 10.5, 7.5)), "fixed camera uses the tighter CQB framing")
-	_expect(is_equal_approx(player.vision.view_distance, 11.0), "player uses the reduced 11 meter CQB vision distance")
-	_expect(is_equal_approx(guard.vision.view_distance, 11.0), "guards use the reduced 11 meter CQB vision distance")
+	_expect(is_equal_approx(player.vision.view_distance, 10.0), "player uses the reduced 10 meter CQB vision distance")
+	_expect(is_equal_approx(guard.vision.view_distance, 8.0), "guards use the reduced 8 meter CQB vision distance")
+	_expect(is_equal_approx(guard.weapon.definition.range_meters, guard.vision.view_distance), "guard attack range matches guard vision distance")
 	_expect((player.get_node("VisionCone3D") as GameVisionCone3D).ray_count == 128, "vision cone uses enough cached rays for stable occlusion edges while rotating")
 	var floor_mesh := instance.get_node_or_null("Floor") as MeshInstance3D
 	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
@@ -683,7 +684,13 @@ func _test_main_scene() -> void:
 		guard.rotation.y = PI
 		await physics_frame
 		_expect(player.vision.can_see(guard), "player vision sees guard inside 120 degree cone")
-		_expect(guard.vision.can_see(player), "guard vision uses symmetric range and angle")
+		_expect(guard.vision.can_see(player), "guard sees the player inside its shorter vision range")
+		player.global_position = Vector3(0.0, 0.0, 9.0)
+		await physics_frame
+		_expect(player.vision.can_see(guard), "player sees a guard at 9 meters inside the 10 meter player vision")
+		_expect(not guard.vision.can_see(player), "guard cannot see the player beyond its 8 meter vision")
+		player.global_position = Vector3(0.0, 0.0, 5.0)
+		await physics_frame
 
 		guard.global_position = Vector3(10.0, 0.0, 5.0)
 		await physics_frame
@@ -835,7 +842,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(spawned_rocket != null, "rocket shot creates visible projectile node")
 	if spawned_rocket != null:
 		_expect(spawned_rocket.get_node_or_null("ImportedRocketModel") != null, "rocket projectile uses the imported rocket GLB")
-		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 10.0), "rocket projectile inherits unified 10 meter CQB range")
+		_expect(is_equal_approx(spawned_rocket.maximum_distance_meters, 8.0), "rocket projectile inherits unified 8 meter CQB range")
 		_expect(is_equal_approx(spawned_rocket.explosion_radius_meters, 4.0), "rocket projectile inherits four meter blast radius")
 	for _frame in 60:
 		await physics_frame
@@ -908,7 +915,7 @@ func _test_aim_assist_and_blind_visibility() -> void:
 
 	primary.global_position = Vector3(0.0, 0.0, 10.0)
 	_expect(player.aim_assist.resolve_direction(raw, true, 0.016).is_equal_approx(raw), "aim ray rejects a guard behind the player")
-	player.global_position = Vector3(5.0, 0.0, 0.0)
+	player.global_position = Vector3(5.0, 0.0, -2.0)
 	player.rotation = Vector3.ZERO
 	primary.global_position = Vector3(5.0, 0.0, -5.0)
 	player.aim_assist.resolve_direction(raw, true, 0.016)

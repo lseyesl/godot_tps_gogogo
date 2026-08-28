@@ -46,7 +46,7 @@ visual_root_path = NodePath("../VisualRoot")
 [node name="VisionSensor3D" type="Node3D" parent="."]
 script = ExtResource("5_vision")
 observer_path = NodePath("..")
-view_distance = 11.0
+view_distance = 8.0
 field_of_view_degrees = 120.0
 occlusion_mask = 2
 

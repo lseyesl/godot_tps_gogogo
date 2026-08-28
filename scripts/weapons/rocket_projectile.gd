@@ -7,7 +7,7 @@ signal exploded(position: Vector3)
 
 var direction := Vector3.FORWARD
 var speed_meters_per_second: float = 10.0
-var maximum_distance_meters: float = 10.0
+var maximum_distance_meters: float = 8.0
 var explosion_radius_meters: float = 4.0
 var explosion_center_damage: float = 5.0
 var explosion_edge_damage: float = 1.0
