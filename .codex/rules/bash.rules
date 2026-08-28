@@ -19,11 +19,11 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["godot", ""--path"],
+    pattern = ["godot", "--path"],
     decision = "allow"
 )
 
 prefix_rule(
-    pattern = ["godot", ""--xr-mode"],
+    pattern = ["godot", "--xr-mode"],
     decision = "allow"
 )
