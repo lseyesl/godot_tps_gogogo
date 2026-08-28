@@ -108,7 +108,7 @@ func _test_weapon_definition() -> void:
 	_expect(rocket.muzzle_position.is_equal_approx(Vector3(0.17, 1.43, -0.76)), "rocket launcher stores its model-aligned muzzle position")
 	for weapon_definition in [definition, heavy, machine_gun, rocket]:
 		_expect(is_equal_approx(weapon_definition.range_meters, 10.0), "all player and guard weapons use the unified 10 meter CQB range")
-		_expect(weapon_definition.range_meters < 12.0, "weapon range remains shorter than player and guard vision")
+		_expect(weapon_definition.range_meters < 11.0, "weapon range remains shorter than player and guard vision")
 	_expect(rocket.weapon_type == WeaponDefinition.WeaponType.ROCKET, "rocket launcher selects projectile firing")
 	_expect(rocket.magazine_capacity == 1 and rocket.starting_reserve_ammo == 3, "rocket launcher uses one plus three ammunition")
 	_expect(is_equal_approx(rocket.projectile_speed_meters_per_second, 10.0), "rocket travels at ten meters per second")
@@ -547,8 +547,8 @@ func _test_main_scene() -> void:
 	_expect(camera != null, "main scene contains fixed camera")
 	if camera != null:
 		_expect(camera.offset.is_equal_approx(Vector3(0.0, 10.5, 7.5)), "fixed camera uses the tighter CQB framing")
-	_expect(is_equal_approx(player.vision.view_distance, 12.0), "player uses the reduced 12 meter CQB vision distance")
-	_expect(is_equal_approx(guard.vision.view_distance, 12.0), "guards use the reduced 12 meter CQB vision distance")
+	_expect(is_equal_approx(player.vision.view_distance, 11.0), "player uses the reduced 11 meter CQB vision distance")
+	_expect(is_equal_approx(guard.vision.view_distance, 11.0), "guards use the reduced 11 meter CQB vision distance")
 	_expect((player.get_node("VisionCone3D") as GameVisionCone3D).ray_count == 128, "vision cone uses enough cached rays for stable occlusion edges while rotating")
 	var floor_mesh := instance.get_node_or_null("Floor") as MeshInstance3D
 	_expect(floor_mesh != null, "main scene contains the assembled ground surface")
