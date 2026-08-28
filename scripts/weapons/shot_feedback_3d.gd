@@ -6,6 +6,8 @@ extends Node3D
 @export var tracer_seconds := 0.06
 @export var hit_seconds := 0.1
 @export var recoil_distance := 0.0
+@export_range(0, 100, 1) var fire_haptic_duration_ms := 20
+@export_range(0.0, 1.0, 0.05) var fire_haptic_amplitude := 0.25
 
 var shots_presented := 0
 var _flash_remaining := 0.0
@@ -67,8 +69,8 @@ func _on_weapon_fired(origin: Vector3, endpoint: Vector3, hit: bool) -> void:
 	if _audio != null:
 		_audio.pitch_scale = randf_range(0.94, 1.06)
 		_audio.play()
-	if OS.has_feature("mobile"):
-		Input.vibrate_handheld(30)
+	if OS.has_feature("mobile") and fire_haptic_duration_ms > 0:
+		Input.vibrate_handheld(fire_haptic_duration_ms, fire_haptic_amplitude)
 
 func _on_damage_confirmed(_target: Object, position: Vector3, _amount: float) -> void:
 	_damage_remaining = 0.14

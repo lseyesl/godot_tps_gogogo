@@ -645,12 +645,16 @@ func _test_main_scene() -> void:
 		_disable_all_guards(instance)
 		var player_damage_feedback := player.get_node("DamageFeedback3D") as GameDamageFeedback3D
 		var guard_damage_feedback := guard.get_node("DamageFeedback3D") as GameDamageFeedback3D
+		_expect(player_damage_feedback.enable_haptics, "player damage feedback enables handheld haptics")
+		_expect(player_damage_feedback.hit_haptic_duration_ms <= 40 and player_damage_feedback.hit_haptic_amplitude <= 0.35, "player hit haptic stays lightweight")
+		_expect(not guard_damage_feedback.enable_haptics, "enemy damage feedback never vibrates the player's device")
 		player.health.damaged.emit(1.0, guard)
 		guard.health.damaged.emit(1.0, player)
 		_expect(player_damage_feedback.hits_presented == 1, "player damage signal immediately triggers screen and model feedback")
 		_expect(guard_damage_feedback.hits_presented == 1, "guard damage signal immediately triggers model feedback")
 		var feedback := player.get_node("ShotFeedback3D") as GameShotFeedback3D
 		_expect(is_zero_approx(feedback.recoil_distance), "shot feedback never moves the logical bullet origin away from the miniature muzzle")
+		_expect(feedback.fire_haptic_duration_ms <= 20 and feedback.fire_haptic_amplitude <= 0.25, "successful fire uses a lightweight handheld haptic")
 		var feedback_before := feedback.shots_presented
 		player.weapon.fired.emit(player.weapon.global_position, player.weapon.global_position + Vector3.FORWARD, true)
 		_expect(feedback.shots_presented == feedback_before + 1, "weapon fired signal immediately triggers presentation feedback")

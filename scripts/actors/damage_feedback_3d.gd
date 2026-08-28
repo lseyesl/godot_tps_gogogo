@@ -5,6 +5,9 @@ extends Node
 @export var visual_root_path: NodePath
 @export var show_screen_flash := false
 @export var flash_seconds := 0.16
+@export var enable_haptics := false
+@export_range(0, 100, 1) var hit_haptic_duration_ms := 40
+@export_range(0.0, 1.0, 0.05) var hit_haptic_amplitude := 0.35
 
 var hits_presented := 0
 var _remaining := 0.0
@@ -46,8 +49,8 @@ func _on_damaged(_amount: float, _source: Node) -> void:
 	if _audio != null:
 		_audio.pitch_scale = randf_range(0.92, 1.08)
 		_audio.play()
-	if show_screen_flash and OS.has_feature("mobile"):
-		Input.vibrate_handheld(55)
+	if enable_haptics and OS.has_feature("mobile") and hit_haptic_duration_ms > 0:
+		Input.vibrate_handheld(hit_haptic_duration_ms, hit_haptic_amplitude)
 
 func _create_screen_flash() -> void:
 	var layer := CanvasLayer.new()

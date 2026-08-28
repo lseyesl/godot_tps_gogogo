@@ -69,6 +69,7 @@ script = ExtResource("10_damage_feedback")
 health_path = NodePath("../HealthComponent")
 visual_root_path = NodePath("../VisualRoot")
 show_screen_flash = true
+enable_haptics = true
 
 [node name="WeaponPivot" type="Node3D" parent="."]
 position = Vector3(0.45, 1.05, -0.2)
