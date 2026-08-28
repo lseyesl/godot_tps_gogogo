@@ -8,10 +8,12 @@ extends Node3D
 @export_range(1, 80, 1) var segment_count: int = 40
 @export var idle_color := Color(0.35, 0.95, 0.78, 0.34)
 @export var active_color := Color(0.4, 1.0, 0.82, 0.9)
+@export var locked_color := Color(1.0, 0.76, 0.16, 0.96)
 
 var _segments: Array[MeshInstance3D] = []
 var _material: StandardMaterial3D
 var _active := false
+var _locked := false
 
 @onready var _weapon: GameWeapon3D = get_node(weapon_path) as GameWeapon3D
 @onready var _player: PlayerCharacter = get_node(player_path) as PlayerCharacter
@@ -49,10 +51,21 @@ func _process(_delta: float) -> void:
 			segment.look_at(segment.global_position + _player.aim_direction, Vector3.UP)
 
 func set_active(value: bool) -> void:
-	if value == _active or _material == null:
+	if value == _active:
 		return
 	_active = value
-	var color := active_color if _active else idle_color
+	_update_color()
+
+func set_locked(value: bool) -> void:
+	if value == _locked:
+		return
+	_locked = value
+	_update_color()
+
+func _update_color() -> void:
+	if _material == null:
+		return
+	var color := locked_color if _locked else active_color if _active else idle_color
 	_material.albedo_color = color
 	_material.emission = color
 

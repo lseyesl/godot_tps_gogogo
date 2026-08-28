@@ -648,7 +648,10 @@ func _test_main_scene() -> void:
 	_expect(instance.get_node_or_null("HUD/TouchControls") is GameTouchInputRouter, "main scene contains touch input router")
 	_expect(instance.get_node_or_null("HUD/TouchControls/MoveJoystick") is GameVirtualJoystick, "touch layout contains movement joystick")
 	_expect(instance.get_node_or_null("HUD/TouchControls/AimJoystick") is GameVirtualJoystick, "touch layout contains aim joystick")
-	_expect(instance.get_node_or_null("HUD/TouchControls/FireButton") is GameFireAimButton, "touch layout contains draggable fire button")
+	var fire_button := instance.get_node_or_null("HUD/TouchControls/FireButton") as GameFireAimButton
+	_expect(fire_button != null, "touch layout contains dedicated fire button")
+	_expect(fire_button != null and not fire_button.has_signal("aim_dragged"), "fire button no longer changes aim while pressed or dragged")
+	_expect(player.get_node_or_null("LockIndicator") is Label3D, "player contains a world-space target lock indicator")
 	var status_panel := instance.get_node_or_null("HUD/StatusPanel") as PanelContainer
 	var result_panel := instance.get_node_or_null("HUD/ResultPanel") as PanelContainer
 	var status_style := status_panel.get_theme_stylebox("panel") as StyleBoxFlat if status_panel != null else null
@@ -815,7 +818,7 @@ func _test_weapon_pickups_and_rocket() -> void:
 	_expect(not player.pistol_miniature.visible and not player.rifle_miniature.visible and player.rocket_miniature.visible, "rocket launcher displays the complete rocket miniature")
 	player.global_position = Vector3(10.0, 0.0, 14.0)
 	player.set_aim_input(Vector2(0.0, -1.0), true)
-	player.call("_update_aim_direction")
+	player.call("_update_aim_direction", 0.016)
 	guard.global_position = Vector3(player.weapon.global_position.x, 0.0, 6.0)
 	guard.health.reset_health()
 	var guard_depleted := [false]
@@ -866,23 +869,63 @@ func _test_aim_assist_and_blind_visibility() -> void:
 	primary.global_position = Vector3(0.6, 0.0, 0.0)
 	secondary.global_position = Vector3(1.2, 0.0, 0.0)
 	var raw := Vector3(0.0, 0.0, -1.0)
-	var assisted := player.aim_assist.resolve_direction(raw)
-	_expect(player.aim_assist.last_target == primary, "aim assist selects the guard closest to the raw aim line")
-	_expect(raw.angle_to(assisted) > 0.0, "aim assist makes a small correction toward an eligible guard")
-	_expect(raw.angle_to(assisted) <= deg_to_rad(player.aim_assist.maximum_correction_degrees) + 0.0001, "aim assist correction remains capped")
+	var assisted := player.aim_assist.resolve_direction(raw, true, 0.016)
+	var primary_direction := primary.global_position - player.weapon.global_position
+	primary_direction.y = 0.0
+	primary_direction = primary_direction.normalized()
+	_expect(player.aim_assist.locked_target == primary, "aim ray locks the guard closest to the selected direction")
+	_expect(assisted.is_equal_approx(primary_direction), "target lock fully aligns aim with the selected guard")
+	_expect((player.get_node("LockIndicator") as Label3D).visible, "acquiring a target immediately shows the lock indicator")
+	var retained := player.aim_assist.resolve_direction(Vector3.RIGHT, false, 0.016)
+	_expect(player.aim_assist.locked_target == primary and retained.is_equal_approx(primary_direction), "releasing aim input retains and follows the locked target")
+	var secondary_direction := secondary.global_position - player.weapon.global_position
+	secondary_direction.y = 0.0
+	secondary_direction = secondary_direction.normalized()
+	player.aim_assist.resolve_direction(secondary_direction, true, 0.016)
+	_expect(player.aim_assist.locked_target == secondary, "sweeping the aim ray to another guard switches the lock")
+	player.aim_assist.resolve_direction(Vector3.LEFT, true, 0.016)
+	_expect(not player.aim_assist.has_lock(), "sweeping clearly into empty space releases the target lock")
+	secondary.global_position = Vector3(30.0, 0.0, 30.0)
+	player.aim_assist.resolve_direction(raw, true, 0.016)
+	await physics_frame
 	var ammo_before := player.weapon.ammo_in_magazine
-	player.aim_assist.resolve_direction(raw)
-	_expect(player.weapon.ammo_in_magazine == ammo_before, "aim assist never fires automatically")
+	_expect(player.weapon.ammo_in_magazine == ammo_before, "acquiring a target never fires automatically")
+	var primary_health_before := primary.health.current_health
+	player.set_aim_input(Vector2(raw.x, raw.z), true)
+	player.call("_update_aim_direction", 0.016)
+	player.set_aim_input(Vector2.ZERO, false)
+	player.call("_update_aim_direction", 0.016)
+	_expect(player.aim_assist.locked_target == primary, "player retains the acquired lock after the right stick is released")
+	_expect(bool(player.aim_line.get("_locked")), "retained target changes the persistent aim line to its locked state")
+	_expect(player.request_fire(), "dedicated fire input shoots along the retained lock direction")
+	_expect(primary.health.current_health < primary_health_before, "locked fire damages the selected guard without another aim input")
 	var configured_range := player.weapon.definition.range_meters
 	player.weapon.definition.range_meters = 4.0
 	_expect(player.vision.can_see(primary), "guard beyond weapon range remains visible inside the vision cone")
-	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a visible guard beyond the current weapon range")
+	_expect(player.aim_assist.resolve_direction(raw, false, 0.016).is_equal_approx(raw), "target lock releases immediately when the guard leaves weapon range")
+	_expect(not player.aim_assist.has_lock(), "out-of-range guard is no longer locked")
 	player.weapon.definition.range_meters = configured_range
 
 	primary.global_position = Vector3(0.0, 0.0, 10.0)
-	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind the player")
-	primary.global_position = Vector3(0.0, 0.0, -10.0)
-	_expect(player.aim_assist.resolve_direction(raw).is_equal_approx(raw), "aim assist rejects a guard behind an intact wall")
+	_expect(player.aim_assist.resolve_direction(raw, true, 0.016).is_equal_approx(raw), "aim ray rejects a guard behind the player")
+	player.global_position = Vector3(5.0, 0.0, 0.0)
+	player.rotation = Vector3.ZERO
+	primary.global_position = Vector3(5.0, 0.0, -5.0)
+	player.aim_assist.resolve_direction(raw, true, 0.016)
+	_expect(player.aim_assist.locked_target == primary, "aim ray can reacquire an unobstructed guard")
+	primary.global_position = Vector3(5.0, 0.0, -9.0)
+	player.aim_assist.resolve_direction(raw, false, 0.1)
+	_expect(player.aim_assist.locked_target == primary and not (player.get_node("LockIndicator") as Label3D).visible, "brief wall occlusion retains the lock but hides its exact marker")
+	player.aim_assist.resolve_direction(raw, false, 0.11)
+	_expect(not player.aim_assist.has_lock(), "wall occlusion beyond the grace period releases the lock")
+	primary.global_position = Vector3(5.0, 0.0, -5.0)
+	player.aim_assist.resolve_direction(raw, true, 0.016)
+	primary.current_state = PistolGuard.GuardState.DEAD
+	player.aim_assist.resolve_direction(raw, false, 0.016)
+	_expect(not player.aim_assist.has_lock(), "dead guard releases the target lock immediately")
+	primary.current_state = PistolGuard.GuardState.PATROL
+	player.global_position = Vector3(0.0, 0.0, 5.0)
+	player.rotation = Vector3.ZERO
 
 	var visibility := instance.get_node("WorldVisibility3D") as GameWorldVisibility3D
 	var wall := instance.get_node("WoodWallD") as DamageableWall

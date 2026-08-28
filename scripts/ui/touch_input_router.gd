@@ -18,7 +18,6 @@ func _ready() -> void:
 	_aim_joystick.vector_changed.connect(_on_aim_changed)
 	_fire_button.fire_pressed.connect(_on_fire_pressed)
 	_fire_button.fire_released.connect(_on_fire_released)
-	_fire_button.aim_dragged.connect(_on_aim_changed)
 
 func _process(_delta: float) -> void:
 	if _fire_held and _player.weapon.definition.automatic:

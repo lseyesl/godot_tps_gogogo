@@ -19,10 +19,13 @@ extends Node3D
 @onready var _swap_weapon_button: Button = %SwapWeaponButton
 @onready var _blind_event_label: Label = %BlindEventLabel
 @onready var _world_visibility: GameWorldVisibility3D = $WorldVisibility3D
+@onready var _help_label: Label = $HUD/Help
 
 var _blind_event_remaining := 0.0
 
 func _ready() -> void:
+	if OS.has_feature("mobile"):
+		_help_label.text = "左摇杆移动  ·  右摇杆选敌并锁定  ·  射击键开火"
 	_player.health.health_changed.connect(_on_health_changed)
 	_player.weapon_changed.connect(_on_weapon_changed)
 	_player.weapon_swap_available.connect(_on_weapon_swap_available)

@@ -32,7 +32,7 @@ func _run() -> void:
 	player.global_position = Vector3(0.0, 0.0, 5.0)
 	player.rotation = Vector3.ZERO
 	player.set_aim_input(Vector2(0.0, -1.0), true)
-	player.call("_update_aim_direction")
+	player.call("_update_aim_direction", 0.016)
 	cone.call("_rebuild_cone")
 	if hide_floor:
 		floor.visible = false

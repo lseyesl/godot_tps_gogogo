@@ -27,6 +27,7 @@ const WEAPON_SWAP_ROTATION := deg_to_rad(8.0)
 var aim_direction := Vector3(0.0, 0.0, -1.0)
 var _move_input := Vector2.ZERO
 var _requested_aim := Vector2(0.0, -1.0)
+var _aim_selection_active := false
 var _footstep_timer := 0.0
 var special_weapon: GameWeapon3D
 var current_weapon_slot := WeaponSlot.DEFAULT
@@ -59,7 +60,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	velocity = Vector3(_move_input.x, 0.0, _move_input.y) * move_speed
 	move_and_slide()
-	_update_aim_direction()
+	_update_aim_direction(delta)
 	_update_footsteps(delta)
 
 func set_move_input(value: Vector2) -> void:
@@ -68,6 +69,7 @@ func set_move_input(value: Vector2) -> void:
 func set_aim_input(value: Vector2, active: bool = true) -> void:
 	if not controls_enabled:
 		return
+	_aim_selection_active = active
 	if value.length_squared() > 0.01:
 		_requested_aim = value.normalized()
 	if aim_line != null:
@@ -89,6 +91,9 @@ func set_controls_enabled(value: bool) -> void:
 		return
 	_move_input = Vector2.ZERO
 	velocity = Vector3.ZERO
+	_aim_selection_active = false
+	if aim_assist != null:
+		aim_assist.clear_lock()
 	release_fire()
 
 func equip_special_weapon(
@@ -157,11 +162,13 @@ func confirm_weapon_swap() -> bool:
 func apply_damage(amount: float, source: Node = null) -> float:
 	return health.apply_damage(amount, source)
 
-func _update_aim_direction() -> void:
+func _update_aim_direction(delta: float) -> void:
 	var desired := Vector3(_requested_aim.x, 0.0, _requested_aim.y).normalized()
 	if desired.length_squared() <= 0.0001:
 		return
-	aim_direction = aim_assist.resolve_direction(desired) if aim_assist != null else desired
+	aim_direction = aim_assist.resolve_direction(desired, _aim_selection_active, delta) if aim_assist != null else desired
+	if aim_line != null:
+		aim_line.set_locked(aim_assist != null and aim_assist.has_lock())
 	look_at(global_position + aim_direction, Vector3.UP)
 
 func _on_health_depleted(_source: Node) -> void:
