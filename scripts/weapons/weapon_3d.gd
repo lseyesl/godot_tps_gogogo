@@ -147,8 +147,17 @@ func _emit_sound_event() -> void:
 			global_position,
 			definition.sound_radius_meters,
 			definition.sound_priority,
-			_owner_body
+			_owner_body,
+			_audio_cue_for_weapon()
 		)
+
+func _audio_cue_for_weapon() -> StringName:
+	match definition.weapon_id:
+		&"machine_gun":
+			return GameSoundEventHub.CUE_ASSAULT_RIFLE
+		&"rocket_launcher":
+			return GameSoundEventHub.CUE_ROCKET_LAUNCH
+	return GameSoundEventHub.CUE_GUNSHOT
 
 func _emit_ammo_state() -> void:
 	ammo_changed.emit(ammo_in_magazine, definition.magazine_capacity)

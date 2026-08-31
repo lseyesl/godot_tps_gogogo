@@ -89,7 +89,8 @@ func _resolve_explosion(event: Dictionary) -> void:
 			position,
 			40.0,
 			GameSoundEventHub.Priority.EXPLOSION,
-			source
+			source,
+			GameSoundEventHub.CUE_EXPLOSION
 		)
 	explosion_resolved.emit(position, radius, source)
 

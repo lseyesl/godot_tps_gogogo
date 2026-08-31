@@ -25,6 +25,7 @@ func _run() -> void:
 	_expect(_mission_integration_completed, "mission integration test completes without runtime errors")
 	await _test_weapon_pickups_and_rocket()
 	_expect(_weapon_integration_completed, "weapon pickup and rocket integration test completes without runtime errors")
+	await _test_audio_playback()
 	await _test_sound_investigation()
 	if _failures.is_empty():
 		print("PASS: core slice tests")
@@ -1105,6 +1106,28 @@ func _test_sound_investigation() -> void:
 	)
 	_expect(guard.current_state == PistolGuard.GuardState.PATROL, "guard ignores gunshot outside hearing radius")
 	instance.queue_free()
+	await process_frame
+
+func _test_audio_playback() -> void:
+	var hub := GameSoundEventHub.new()
+	hub.playback_pool_size = 4
+	root.add_child(hub)
+	await process_frame
+	_expect(hub.get_child_count() == 4, "sound hub creates the configured 3D playback pool")
+	for child in hub.get_children():
+		_expect(child is AudioStreamPlayer3D, "sound hub playback voices are spatial audio players")
+	var gunshot := hub.get_stream_for_cue(GameSoundEventHub.CUE_GUNSHOT)
+	var rifle := hub.get_stream_for_cue(GameSoundEventHub.CUE_ASSAULT_RIFLE)
+	var explosion := hub.get_stream_for_cue(GameSoundEventHub.CUE_EXPLOSION)
+	_expect(gunshot != null and gunshot.resource_path.ends_with("gunshot.wav"), "pistol cue loads the gunshot audio resource")
+	_expect(rifle != null and rifle.resource_path.ends_with("assault_rifle.wav"), "machine gun cue loads the assault rifle audio resource")
+	_expect(explosion != null and explosion.resource_path.ends_with("explosion.wav"), "explosion cue loads the explosion audio resource")
+	var first_footstep := hub.get_stream_for_cue(GameSoundEventHub.CUE_FOOTSTEP)
+	hub.set("_footstep_sequence", 1)
+	var second_footstep := hub.get_stream_for_cue(GameSoundEventHub.CUE_FOOTSTEP)
+	_expect(first_footstep != null and second_footstep != null and first_footstep != second_footstep, "footstep events alternate concrete and road recordings")
+	_expect(hub.playback_pool_size > 1, "sound hub reserves multiple voices for overlapping spatial events")
+	hub.queue_free()
 	await process_frame
 
 func _expect(condition: bool, message: String) -> void:

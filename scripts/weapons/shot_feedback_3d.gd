@@ -23,15 +23,12 @@ var _tracer: MeshInstance3D
 var _impact: MeshInstance3D
 var _damage_marker: MeshInstance3D
 var _damage_remaining := 0.0
-var _audio: AudioStreamPlayer3D
 
 func _ready() -> void:
 	_pivot = get_node_or_null(weapon_pivot_path) as Node3D
 	if _pivot != null:
 		_pivot_rest = _pivot.position
 	_create_visuals()
-	if DisplayServer.get_name() != "headless":
-		_create_audio()
 
 func bind_weapon(value: GameWeapon3D) -> void:
 	if _weapon != null and _weapon.fired.is_connected(_on_weapon_fired):
@@ -71,9 +68,6 @@ func _on_weapon_fired(origin: Vector3, endpoint: Vector3, hit: bool) -> void:
 	_impact.global_position = last_impact_position
 	if _pivot != null:
 		_pivot.position = _pivot_rest + Vector3(0.0, 0.0, recoil_distance)
-	if _audio != null:
-		_audio.pitch_scale = randf_range(0.94, 1.06)
-		_audio.play()
 	if OS.has_feature("mobile") and fire_haptic_duration_ms > 0:
 		Input.vibrate_handheld(fire_haptic_duration_ms, fire_haptic_amplitude)
 
@@ -120,26 +114,6 @@ func _create_visuals() -> void:
 	_tracer.visible = false
 	_impact.visible = false
 	_damage_marker.visible = false
-
-func _create_audio() -> void:
-	_audio = AudioStreamPlayer3D.new()
-	_audio.max_distance = 28.0
-	_audio.unit_size = 6.0
-	var wave := AudioStreamWAV.new()
-	wave.format = AudioStreamWAV.FORMAT_8_BITS
-	wave.mix_rate = 22050
-	wave.stereo = false
-	var sample_count := 1543
-	var data := PackedByteArray()
-	data.resize(sample_count)
-	for index in sample_count:
-		var envelope := 1.0 - float(index) / float(sample_count)
-		var noise := randf_range(-1.0, 1.0)
-		var tone := sin(float(index) * 0.19) * 0.45
-		data[index] = clampi(int(128.0 + (noise * 0.55 + tone) * envelope * 110.0), 0, 255)
-	wave.data = data
-	_audio.stream = wave
-	add_child(_audio)
 
 func _emissive_material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()

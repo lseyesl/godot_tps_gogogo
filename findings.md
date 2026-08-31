@@ -1,6 +1,7 @@
 # 发现与决策
 
 ## 需求
+- 用户要求把 `assets/audio/prototypes` 下已有声音实际应用到游戏中。
 - 按已冻结的 `docs/design/GDD-MVP-v0.1.md` 开始实现游戏。
 - Godot 4 + Mobile 渲染器，Android 横屏优先。
 - 当前首要目标是可运行、可验证的核心垂直切片，而非一次性堆完全部 MVP 内容。
@@ -24,6 +25,14 @@
 - 用户反馈敌人中弹和玩家受击的表现仍不明显。
 
 ## 研究发现
+- 游戏已经通过 `GameSoundEventHub.sound_emitted` 统一发布枪声、爆炸、环境破坏和玩家脚步的逻辑事件，警卫听声 AI 订阅同一信号，但当前没有任何 `AudioStreamPlayer` 消费者。
+- 现有资源可直接覆盖主要反馈：`gunshot.wav` 用于两类手枪，`assault_rifle.wav` 用于机枪，`explosion.wav` 用于火箭/汽油爆炸，两个脚步资源可交替播放；暂时没有独立的木墙破坏音效。
+- 集中式 3D 播放池可复用现有事件位置和优先级，并允许机枪、连锁爆炸等声音重叠，无需修改所有发声对象的场景结构。
+- 音频时长审计：`assault_rifle.wav` 3.5 秒、`explosion.wav` 7.83 秒、`gunshot.wav` 1.92 秒，两个脚步原始录音分别约 60 秒和 42.84 秒；逐事件整段播放会导致机枪和脚步严重叠音，因此播放器需要支持起播偏移和单次截断时长。
+- 逻辑事件的 `source` 目前是武器所有者，无法可靠区分手枪与机枪；保留四参数 `sound_emitted` 信号以兼容警卫 AI，并为 `emit_sound_event` 增加可选 cue，仅供表现层选流。
+- `GameShotFeedback3D` 原本在真实武器 `fired` 后生成并播放 70 ms 的程序化占位枪声；实际录音接入后必须移除该音频分支，保留枪口火光、曳光、后坐和触觉反馈，避免双重枪声。
+- 完整核心回归退出时仍显示既有的 3 个 ObjectDB / 1 个资源警告；独立创建和释放 `GameSoundEventHub` 的探针以退出码 0 干净结束，确认新音频中心本身没有对象泄漏。
+- 原始文件名包含 Freesound 编号和作者线索；规范化重命名后以 `assets/audio/prototypes/README.md` 保留映射，公开发布前仍需核验每项素材许可证与署名要求。
 - 仓库已在 `main` 分支初始化 Git。
 - 开始实现时仓库只有未跟踪的 `docs/`，没有 Godot 工程、代码、`AGENTS.md` 或实际 `.gitignore`。
 - 冻结设计包含 76 份 ADR；胜利条件是激活远端任务点后返回出生点撤离，而非全灭敌人。

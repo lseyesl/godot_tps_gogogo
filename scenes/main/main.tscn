@@ -79,7 +79,7 @@ font_color = Color(0.82, 0.95, 0.92, 1)
 [node name="Main" type="Node3D" unique_id=669966023]
 script = ExtResource("1_main")
 
-[node name="SoundEventHub" type="Node" parent="." unique_id=1747527746]
+[node name="SoundEventHub" type="Node3D" parent="." unique_id=1747527746]
 script = ExtResource("10_sound_hub")
 
 [node name="GridNavigation3D" type="Node" parent="." unique_id=139345396]

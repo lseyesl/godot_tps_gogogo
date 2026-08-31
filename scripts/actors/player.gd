@@ -335,6 +335,7 @@ func _update_footsteps(delta: float) -> void:
 			global_position,
 			footstep_radius_meters,
 			GameSoundEventHub.Priority.FOOTSTEP,
-			self
+			self,
+			GameSoundEventHub.CUE_FOOTSTEP
 		)
 	_footstep_timer = footstep_interval_seconds
