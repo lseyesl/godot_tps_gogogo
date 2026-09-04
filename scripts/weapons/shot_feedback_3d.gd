@@ -11,6 +11,7 @@ extends Node3D
 @export_range(0.0, 1.0, 0.05) var fire_haptic_amplitude := 0.25
 
 var shots_presented := 0
+var damage_confirmations_presented := 0
 var last_impact_position := Vector3.ZERO
 var _flash_remaining := 0.0
 var _tracer_remaining := 0.0
@@ -23,6 +24,9 @@ var _tracer: MeshInstance3D
 var _impact: MeshInstance3D
 var _damage_marker: MeshInstance3D
 var _damage_remaining := 0.0
+var _hit_marker: Label3D
+var _hit_audio: AudioStreamPlayer
+var _hit_audio_cooldown := 0.0
 
 func _ready() -> void:
 	_pivot = get_node_or_null(weapon_pivot_path) as Node3D
@@ -45,10 +49,17 @@ func _process(delta: float) -> void:
 	_tracer_remaining = maxf(0.0, _tracer_remaining - delta)
 	_hit_remaining = maxf(0.0, _hit_remaining - delta)
 	_damage_remaining = maxf(0.0, _damage_remaining - delta)
+	_hit_audio_cooldown = maxf(0.0, _hit_audio_cooldown - delta)
 	_flash.visible = _flash_remaining > 0.0
 	_tracer.visible = _tracer_remaining > 0.0
 	_impact.visible = _hit_remaining > 0.0
 	_damage_marker.visible = _damage_remaining > 0.0
+	_hit_marker.visible = _damage_remaining > 0.0
+	if _damage_remaining > 0.0:
+		var progress := 1.0 - _damage_remaining / 0.16
+		var marker_scale := lerpf(1.3, 0.86, clampf(progress, 0.0, 1.0))
+		_hit_marker.scale = Vector3.ONE * marker_scale
+		_hit_marker.modulate.a = clampf(_damage_remaining / 0.09, 0.0, 1.0)
 	if _pivot != null:
 		_pivot.position = _pivot.position.lerp(_pivot_rest, minf(1.0, delta * 22.0))
 
@@ -72,8 +83,14 @@ func _on_weapon_fired(origin: Vector3, endpoint: Vector3, hit: bool) -> void:
 		Input.vibrate_handheld(fire_haptic_duration_ms, fire_haptic_amplitude)
 
 func _on_damage_confirmed(_target: Object, position: Vector3, _amount: float) -> void:
-	_damage_remaining = 0.14
+	damage_confirmations_presented += 1
+	_damage_remaining = 0.16
 	_damage_marker.global_position = position
+	_hit_marker.global_position = position + Vector3.UP * 0.24
+	if _hit_audio != null and _hit_audio_cooldown <= 0.0:
+		_hit_audio.pitch_scale = randf_range(0.96, 1.04)
+		_hit_audio.play()
+		_hit_audio_cooldown = 0.055
 
 func _create_visuals() -> void:
 	var flash_material := _emissive_material(Color(1.0, 0.72, 0.18, 0.95))
@@ -110,10 +127,43 @@ func _create_visuals() -> void:
 	_damage_marker.mesh = damage_mesh
 	_damage_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_damage_marker)
+	_hit_marker = Label3D.new()
+	_hit_marker.top_level = true
+	_hit_marker.text = "×"
+	_hit_marker.font_size = 68
+	_hit_marker.pixel_size = 0.007
+	_hit_marker.modulate = Color(1.0, 0.92, 0.58, 1.0)
+	_hit_marker.outline_size = 12
+	_hit_marker.outline_modulate = Color(0.12, 0.035, 0.01, 0.95)
+	_hit_marker.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_hit_marker.no_depth_test = true
+	add_child(_hit_marker)
+	if DisplayServer.get_name() != "headless":
+		_create_hit_audio()
 	_flash.visible = false
 	_tracer.visible = false
 	_impact.visible = false
 	_damage_marker.visible = false
+	_hit_marker.visible = false
+
+func _create_hit_audio() -> void:
+	_hit_audio = AudioStreamPlayer.new()
+	var wave := AudioStreamWAV.new()
+	wave.format = AudioStreamWAV.FORMAT_16_BITS
+	wave.mix_rate = 22050
+	var sample_count := 1323
+	var data := PackedByteArray()
+	data.resize(sample_count * 2)
+	for index in sample_count:
+		var time := float(index) / float(wave.mix_rate)
+		var envelope := exp(-time * 58.0)
+		var click := sin(TAU * 1280.0 * time) * 0.58 + sin(TAU * 760.0 * time) * 0.24
+		var sample := clampi(int(click * envelope * 32767.0), -32768, 32767)
+		data.encode_s16(index * 2, sample)
+	wave.data = data
+	_hit_audio.stream = wave
+	_hit_audio.volume_db = -7.0
+	add_child(_hit_audio)
 
 func _emissive_material(color: Color) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()

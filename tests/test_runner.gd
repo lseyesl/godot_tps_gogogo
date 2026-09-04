@@ -667,6 +667,7 @@ func _test_main_scene() -> void:
 		_expect(player_damage_feedback.enable_haptics, "player damage feedback enables handheld haptics")
 		_expect(player_damage_feedback.hit_haptic_duration_ms <= 40 and player_damage_feedback.hit_haptic_amplitude <= 0.35, "player hit haptic stays lightweight")
 		_expect(not guard_damage_feedback.enable_haptics, "enemy damage feedback never vibrates the player's device")
+		_expect(guard_damage_feedback.enable_hit_reaction, "enemy damage feedback enables a visual recoil reaction")
 		player.health.damaged.emit(1.0, guard)
 		guard.health.damaged.emit(1.0, player)
 		_expect(player_damage_feedback.hits_presented == 1, "player damage signal immediately triggers screen and model feedback")
@@ -679,6 +680,9 @@ func _test_main_scene() -> void:
 		player.weapon.fired.emit(player.weapon.global_position, impact_endpoint, true)
 		_expect(feedback.shots_presented == feedback_before + 1, "weapon fired signal immediately triggers presentation feedback")
 		_expect(feedback.last_impact_position.distance_to(player.weapon.global_position) < impact_endpoint.distance_to(player.weapon.global_position), "wall impact marker offsets toward the shooter instead of hiding inside the surface")
+		var confirmations_before := feedback.damage_confirmations_presented
+		player.weapon.damage_confirmed.emit(guard, impact_endpoint, 1.0)
+		_expect(feedback.damage_confirmations_presented == confirmations_before + 1, "confirmed enemy damage immediately triggers the dedicated hit marker")
 		player.global_position = Vector3(0.0, 0.0, 5.0)
 		player.set_aim_input(Vector2(0.0, -1.0), true)
 		guard.global_position = Vector3.ZERO

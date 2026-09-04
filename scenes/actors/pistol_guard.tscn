@@ -42,6 +42,7 @@ max_health = 3.0
 script = ExtResource("6_damage_feedback")
 health_path = NodePath("../HealthComponent")
 visual_root_path = NodePath("../VisualRoot")
+enable_hit_reaction = true
 
 [node name="VisionSensor3D" type="Node3D" parent="."]
 script = ExtResource("5_vision")
